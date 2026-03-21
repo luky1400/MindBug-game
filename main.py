@@ -94,6 +94,7 @@ def player_turn(game: Game) -> None:
             mb = input(f"{opponent.name} use Mindbug on this card? (y/n): ").strip().lower()
             use_mindbug = mb == "y"
         try:
+            # NOTE - remove use_opponent_mindbug argument and handle somewehre else above code
             was_stolen_by_mindbug = game.play_card(hand_idx, use_opponent_mindbug=use_mindbug)
             if was_stolen_by_mindbug and game.game_state != GameState.GAME_OVER:
                 print("Mindbug used. Current player chooses action again.")

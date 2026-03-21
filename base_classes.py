@@ -177,7 +177,7 @@ class Game:
     def __init__(
         self,
         player_names: list[str],
-        starting_lives: int = 5,
+        starting_lives: int = 3,
         starting_hand_size: int = 5,
         starting_draw_pile_size: int = 5,
         players_start_with_mindbugs: int = 2,
@@ -246,7 +246,7 @@ class Game:
         self._pending_mindbug_decision = None
         self._recalculate_ongoing_effects()
 
-    # NOTE - card is optional, if not provided, play card from hand - TODO - refactor this
+    # NOTE - card is optional, if not provided, play card from hand
     def play_card(
         self,
         hand_index: Optional[int] = None,
@@ -281,6 +281,7 @@ class Game:
             self._auto_end_turn_after_play_if_needed()
             return False
 
+        # If user_opponent_mindbug is None, we await mindbug response from opponent
         if opponent.mindbugs_remaining > 0 and self.await_mindbug_response:
             self._pending_mindbug_decision = PendingMindbugDecision(
                 acting_player_index=self.turn,
@@ -300,7 +301,7 @@ class Game:
         return False
 
     def respond_to_mindbug(self, use_mindbug: bool) -> None:
-        self._ensure_active()
+        self._ensure_active() # redundant?
         if self._pending_mindbug_decision is None:
             raise ValueError("There is no pending Mindbug decision.")
 
