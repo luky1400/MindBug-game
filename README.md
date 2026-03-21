@@ -104,6 +104,19 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - finish backend to work well
   - handle that player or opponent can choose which cards to play or discard
   - add tests regularly for things that are not working
+  - investigate bug: random cards appear in discard pile
+- Improve UI layout
+  - dát na rozklikávatko: pravidla, logs
+- UI screens:
+  - room
+  - victory screen
+- UI additonal:
+  - Hide redundant information in UI
+    - End turn (if not attacking FRENZY still lives)
+  - visualize that TOUGH has 0 tough_charges left
+  - možnost zvětšit i cards_laid_out (a in discard pile)
+  - 
+
 
 ## TODO - game rules
 
