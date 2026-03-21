@@ -252,6 +252,17 @@ class Game:
         hand_index: Optional[int] = None,
         card: Optional[Card] = None,
     ) -> None:
+        """
+        Plays a card.
+        If card is not provided, plays a card from the hand.
+        If opponent has Mindbug remaining and we are awaiting mindbug response, we await mindbug response from opponent.
+        If opponent declines to use Mindbug, we play the card and end the turn.
+        If opponent uses Mindbug, we play the card and end the turn.
+
+        Args:
+            hand_index: Index of the card to play from the hand.
+            card: Card to play. If not provided, plays a card from the hand.
+        """
         self._ensure_active()
         self._ensure_no_pending_resolution()
         if self.enforce_turn_action_limit and self._turn_action_taken:
