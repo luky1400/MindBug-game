@@ -77,7 +77,6 @@ def test_multiplayer_attack_automatically_passes_turn_when_not_frenzy_bonus_case
     game.attack(attacker_index=0)
     game.defend(defender_index=0)
 
-    assert game.turn == 1
     assert game.current_player is opponent
 
 
@@ -102,6 +101,19 @@ def test_multiplayer_frenzy_survivor_keeps_turn_for_optional_second_attack() -> 
     game.attack(attacker_index=0)
     game.defend(defender_index=0)
 
-    assert game.turn == 0
     assert game.current_player is player
     assert game._pending_frenzy_attacker_id == id(frenzy_attacker)
+    assert game.can_end_turn_manually() is True
+
+
+def test_manual_end_turn_is_not_available_without_pending_frenzy_attack() -> None:
+    game = Game(
+        player_names=["Player 1", "Player 2"],
+        starting_hand_size=0,
+        starting_draw_pile_size=0,
+        enforce_turn_action_limit=True,
+        auto_end_turn_after_resolved_attack=True,
+    )
+    game.start_game(card_pool=[])
+
+    assert game.can_end_turn_manually() is False

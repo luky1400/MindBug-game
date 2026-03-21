@@ -50,6 +50,14 @@ export function App() {
     !state.pending_defense
   );
   const hasPendingFrenzyAttack = state?.pending_frenzy_attacker_index !== null && state?.pending_frenzy_attacker_index !== undefined;
+  const canManuallyEndTurn = Boolean(
+    state &&
+    state.is_viewer_turn &&
+    !gameOver &&
+    !canAnswerMindbug &&
+    !canAnswerDefense &&
+    hasPendingFrenzyAttack
+  );
 
   const metaText = useMemo(() => {
     if (!state || !gameId) return "Create or join a multiplayer room.";
@@ -485,9 +493,9 @@ export function App() {
                       </button>
                     </div>
                     <div className="col-md-4">
-                      <h2 className="section-title">Attack</h2>
+                      <h2 className="section-title">Attack with selected board card</h2>
                       <button className="btn btn-outline-light w-100" disabled={!canAct} onClick={() => void attackSelected()} type="button">
-                        Attack
+                        Attack with selected board card
                       </button>
                       <p className="section-help mt-2 mb-0">
                         Select an enemy target only when your attacker has `HUNTER`. Otherwise click `Attack` without a target and the defender will respond.
@@ -495,9 +503,11 @@ export function App() {
                     </div>
                     <div className="col-md-4">
                       <h2 className="section-title">Turn</h2>
-                      <button className="btn btn-success w-100 mb-2" disabled={!state.is_viewer_turn || Boolean(gameOver) || canAnswerMindbug || canAnswerDefense} onClick={() => void endTurn()} type="button">
-                        End turn
-                      </button>
+                      {canManuallyEndTurn ? (
+                        <button className="btn btn-success w-100 mb-2" onClick={() => void endTurn()} type="button">
+                          End turn
+                        </button>
+                      ) : null}
                       <div className="selection-box">{selectionText}</div>
                     </div>
                   </div>

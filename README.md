@@ -108,7 +108,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - Improve UI layout
   - dát na rozklikávatko: pravidla, logs
 - UI screens:
-  - room
+  - sperate create/join room and Game
 - UI additonal:
   - Hide redundant information in UI
     - End turn (if not attacking FRENZY still lives)

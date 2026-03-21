@@ -521,6 +521,14 @@ class Game:
         self.game_state = GameState.START_TURN
         self.log.append(f"Turn passes to {self.current_player.name}.")
 
+    def can_end_turn_manually(self) -> bool:
+        return (
+            self.game_state != GameState.GAME_OVER
+            and self._pending_mindbug_decision is None
+            and self._pending_defense_decision is None
+            and self._pending_frenzy_attacker_id is not None
+        )
+
     def get_state(self, viewer_index: Optional[int] = None) -> dict[str, Any]:
         if viewer_index is not None:
             return self._build_player_view(viewer_index)

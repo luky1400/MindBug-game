@@ -474,10 +474,12 @@ async def defend(sid: str, payload: dict[str, Any]) -> dict[str, Any]:
 
 
 @sio.event
-async def end_turn(sid: str) -> dict[str, Any]:
+async def end_turn(sid: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
     def action(session: GameSession, player: SessionPlayer) -> None:
         game = _require_active_game(session)
         _ensure_turn_owner(game, player.player_index)
+        if not game.can_end_turn_manually():
+            raise ValueError("You can only end the turn manually after a surviving FRENZY attack.")
         game.end_turn()
 
     return await _handle_socket_action(sid, action)
