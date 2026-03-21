@@ -1,8 +1,8 @@
 export type CardLabel = string;
-export type CardSet = "First Contact" | "New Servants";
+export type CardSet = "First Contact" | "New Servants" | "Promo Cards";
 
 export const REQUIRED_CARD_SET: CardSet = "First Contact";
-export const CARD_SET_OPTIONS: CardSet[] = [REQUIRED_CARD_SET, "New Servants"];
+export const CARD_SET_OPTIONS: CardSet[] = [REQUIRED_CARD_SET, "New Servants", "Promo Cards"];
 
 export interface PlayerState {
   player_index: number;
