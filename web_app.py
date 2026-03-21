@@ -14,11 +14,13 @@ from pydantic import BaseModel, Field
 
 from base_classes import Game
 from cards import get_card_pool
+from enums import CardSet
 
 
 
 class CreateGameRequest(BaseModel):
     player_name: str = Field(default="Player 1", min_length=1, max_length=50)
+    selected_sets: list[CardSet] = Field(default_factory=lambda: [CardSet.FIRST_CONTACT])
 
 
 class JoinGameRequest(BaseModel):
@@ -57,8 +59,9 @@ class SessionPlayer:
 
 
 class GameSession:
-    def __init__(self, game_id: str) -> None:
+    def __init__(self, game_id: str, selected_sets: list[CardSet]) -> None:
         self.game_id = game_id
+        self.selected_sets = selected_sets
         self.players: list[SessionPlayer] = []
         self.game: Game | None = None
         self.lock = Lock()
@@ -84,7 +87,7 @@ class GameSession:
                 auto_end_turn_after_successful_play=True,
                 auto_end_turn_after_resolved_attack=True,
             )
-            self.game.start_game(card_pool=get_card_pool())
+            self.game.start_game(card_pool=get_card_pool(), sets=self.selected_sets)
         return player
 
     def get_player(self, player_id: str) -> SessionPlayer:
@@ -117,6 +120,7 @@ class GameSession:
                 "connected_players": len(self.players),
                 "max_players": 2,
                 "invite_code": self.game_id,
+                "selected_sets": [card_set.value for card_set in self.selected_sets],
             }
 
         state = self.game.get_state(viewer_index=player.player_index)
@@ -127,6 +131,7 @@ class GameSession:
                 "connected_players": len(self.players),
                 "max_players": 2,
                 "invite_code": self.game_id,
+                "selected_sets": [card_set.value for card_set in self.selected_sets],
             }
         )
         return state
@@ -137,8 +142,10 @@ class GameStore:
         self._sessions: dict[str, GameSession] = {}
         self._lock = Lock()
 
-    def create_game(self, player_name: str) -> tuple[GameSession, SessionPlayer]:
-        session = GameSession(game_id=str(uuid4())[:8])
+    def create_game(
+        self, player_name: str, selected_sets: list[CardSet]
+    ) -> tuple[GameSession, SessionPlayer]:
+        session = GameSession(game_id=str(uuid4())[:8], selected_sets=selected_sets)
         with self._lock:
             self._sessions[session.game_id] = session
         with session.lock:
@@ -211,6 +218,14 @@ def _normalize_player_name(raw_name: str, fallback: str) -> str:
     return raw_name.strip() or fallback
 
 
+def _normalize_selected_sets(selected_sets: list[CardSet] | None) -> list[CardSet]:
+    ordered_sets: list[CardSet] = [CardSet.FIRST_CONTACT]
+    for card_set in selected_sets or []:
+        if card_set not in ordered_sets:
+            ordered_sets.append(card_set)
+    return ordered_sets
+
+
 def _game_response(session: GameSession, player: SessionPlayer) -> dict[str, Any]:
     return {
         "game_id": session.game_id,
@@ -274,7 +289,10 @@ def index() -> FileResponse:
 
 @fastapi_app.post("/game/new")
 def new_game(payload: CreateGameRequest) -> dict[str, Any]:
-    session, player = store.create_game(_normalize_player_name(payload.player_name, "Player 1"))
+    session, player = store.create_game(
+        _normalize_player_name(payload.player_name, "Player 1"),
+        _normalize_selected_sets(payload.selected_sets),
+    )
     return _game_response(session, player)
 
 

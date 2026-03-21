@@ -6,7 +6,7 @@ import { CardPreviewModal } from "./components/CardPreviewModal";
 import { GameLog } from "./components/GameLog";
 import { GameOverModal } from "./components/GameOverModal";
 import { HandPanel } from "./components/HandPanel";
-import type { MultiplayerState } from "./types/game";
+import { CARD_SET_OPTIONS, REQUIRED_CARD_SET, type CardSet, type MultiplayerState } from "./types/game";
 import { cardHasTag } from "./utils/cards";
 
 type StoredSession = {
@@ -24,6 +24,7 @@ export function App() {
   const [hostName, setHostName] = useState("Player 1");
   const [joinName, setJoinName] = useState("Player 2");
   const [joinCode, setJoinCode] = useState(() => new URLSearchParams(window.location.search).get("game") || "");
+  const [createRoomSets, setCreateRoomSets] = useState<CardSet[]>([REQUIRED_CARD_SET]);
 
   const [selectedHandIndex, setSelectedHandIndex] = useState<number | null>(null);
   const [selectedAttackerIndex, setSelectedAttackerIndex] = useState<number | null>(null);
@@ -62,9 +63,9 @@ export function App() {
   const metaText = useMemo(() => {
     if (!state || !gameId) return "Create or join a multiplayer room.";
     if (isWaitingForOpponent) {
-      return `Room ${gameId} | Invite code: ${state.invite_code} | Players: ${state.connected_players}/${state.max_players}`;
+      return `Room ${gameId} | Invite code: ${state.invite_code} | Players: ${state.connected_players}/${state.max_players} | Sets: ${state.selected_sets.join(", ")}`;
     }
-    return `Room ${gameId} | You: ${state.viewer_player_name} | Turn: ${state.turn_player ?? "-"} | State: ${state.game_state}${state.winner ? ` | Winner: ${state.winner}` : ""}`;
+    return `Room ${gameId} | You: ${state.viewer_player_name} | Turn: ${state.turn_player ?? "-"} | State: ${state.game_state} | Sets: ${state.selected_sets.join(", ")}${state.winner ? ` | Winner: ${state.winner}` : ""}`;
   }, [gameId, isWaitingForOpponent, state]);
 
   const selectionText = `Hand: ${selectedHandIndex ?? "-"} | Attacker: ${selectedAttackerIndex ?? "-"} | Target/Blocker: ${selectedDefenderIndex ?? "-"}`;
@@ -84,6 +85,15 @@ export function App() {
     setSelectedHandIndex(null);
     setSelectedAttackerIndex(null);
     setSelectedDefenderIndex(null);
+  }
+
+  function toggleCreateRoomSet(cardSet: CardSet) {
+    if (cardSet === REQUIRED_CARD_SET) return;
+    setCreateRoomSets((current) =>
+      current.includes(cardSet)
+        ? current.filter((value) => value !== cardSet)
+        : [...current, cardSet]
+    );
   }
 
   function getDefenderSelectionPool(sourceState: MultiplayerState | null) {
@@ -213,7 +223,8 @@ export function App() {
     setErrorText("");
     try {
       const response = await gameApi.createGame({
-        player_name: hostName.trim() || "Player 1"
+        player_name: hostName.trim() || "Player 1",
+        selected_sets: createRoomSets
       });
       activateSession(response.game_id, response.player_id, response.state);
       setStatusText(`Room created. Share invite code ${response.game_id} with the second player.`);
@@ -398,6 +409,25 @@ export function App() {
                   onChange={(event) => setHostName(event.target.value)}
                 />
               </label>
+              <div className="mt-3">
+                <div className="section-title mb-2">Card sets</div>
+                <div className="set-options">
+                  {CARD_SET_OPTIONS.map((cardSet) => {
+                    const isRequired = cardSet === REQUIRED_CARD_SET;
+                    return (
+                      <label className="set-option" key={cardSet}>
+                        <input
+                          checked={createRoomSets.includes(cardSet)}
+                          disabled={isRequired}
+                          onChange={() => toggleCreateRoomSet(cardSet)}
+                          type="checkbox"
+                        />
+                        <span>{cardSet}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
               <button className="btn btn-primary mt-2" onClick={createGame} type="button">
                 Create room
               </button>
@@ -456,6 +486,13 @@ export function App() {
                             ? "Your turn."
                             : `Waiting for ${state.turn_player}.`}
                     </div>
+                    <div className="set-summary mt-2">
+                      {state.selected_sets.map((cardSet) => (
+                        <span className="chip" key={cardSet}>
+                          {cardSet}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                   {state.pending_mindbug?.response_required_from_viewer ? (
                     <div className="d-flex gap-2">
@@ -493,7 +530,7 @@ export function App() {
                       </button>
                     </div>
                     <div className="col-md-4">
-                      <h2 className="section-title">Attack with selected board card</h2>
+                      <h2 className="section-title">Attack</h2>
                       <button className="btn btn-outline-light w-100" disabled={!canAct} onClick={() => void attackSelected()} type="button">
                         Attack with selected board card
                       </button>

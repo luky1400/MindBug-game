@@ -1,8 +1,8 @@
 import pytest
 
 from base_classes import Game
-from cards import Luchataur, Tiger_squirrel
-from enums import GameState
+from cards import Luchataur, Tiger_squirrel, get_card_pool
+from enums import CardSet, GameState
 
 
 def _new_game() -> Game:
@@ -81,3 +81,17 @@ def test_actions_raise_error_after_game_is_over() -> None:
 
     with pytest.raises(ValueError, match="Game is already over."):
         game.play_card(hand_index=0, card=Tiger_squirrel())
+
+
+def test_start_game_uses_only_selected_card_sets() -> None:
+    game = Game(
+        player_names=["Player 1", "Player 2"],
+        starting_hand_size=5,
+        starting_draw_pile_size=5,
+    )
+
+    game.start_game(card_pool=get_card_pool(), sets=[CardSet.NEW_SERVANTS])
+
+    for player in game.players:
+        assert all(card.set == CardSet.NEW_SERVANTS for card in player.hand)
+        assert all(card.set == CardSet.NEW_SERVANTS for card in player.draw_pile.cards)

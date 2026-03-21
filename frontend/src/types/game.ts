@@ -1,4 +1,8 @@
 export type CardLabel = string;
+export type CardSet = "First Contact" | "New Servants";
+
+export const REQUIRED_CARD_SET: CardSet = "First Contact";
+export const CARD_SET_OPTIONS: CardSet[] = [REQUIRED_CARD_SET, "New Servants"];
 
 export interface PlayerState {
   player_index: number;
@@ -47,6 +51,7 @@ export interface MultiplayerState {
   connected_players: number;
   max_players: number;
   invite_code: string;
+  selected_sets: CardSet[];
 }
 
 export interface SessionResponse {
@@ -57,6 +62,7 @@ export interface SessionResponse {
 
 export interface CreateGameRequest {
   player_name: string;
+  selected_sets: CardSet[];
 }
 
 export interface JoinGameRequest {

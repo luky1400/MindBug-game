@@ -19,7 +19,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
     if sets is None:
         sets = [CardSet.FIRST_CONTACT, CardSet.NEW_SERVANTS]
     card_pool = _build_card_pool([
-        # "First Contact" - includes 48 cards
+        # CardSet.FIRST_CONTACT - includes 48 cards
         (Axolotl_healer, 2),
         (Bee_bear, 1),
         (Brain_fly, 1),
@@ -54,7 +54,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
         (Tusked_extorter, 2),
         (Urchin_hurler, 1),
 
-        # New Servants - includes ... cards
+        # CardSet.NEW_SERVANTS - includes ... cards
         (Bugserker, 2),
         (Count_draculeech, 2),
         (Creep_from_the_deep, 2),

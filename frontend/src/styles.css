@@ -82,6 +82,23 @@ body {
   color: var(--muted);
 }
 
+.set-options {
+  display: grid;
+  gap: 8px;
+}
+
+.set-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.set-option input {
+  accent-color: var(--accent);
+}
+
 .zone-title {
   margin: 0 0 10px;
   font-size: 1.1rem;
@@ -137,6 +154,12 @@ body {
 .turn-banner {
   font-size: 1rem;
   color: #ecf2ff;
+}
+
+.set-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .card-tile {

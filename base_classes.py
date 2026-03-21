@@ -201,6 +201,7 @@ class Game:
         enforce_turn_action_limit: bool = False,
         auto_end_turn_after_successful_play: bool = False,
         auto_end_turn_after_resolved_attack: bool = False,
+        # TODO - add cards_available_for_game?
     ):
         # TODO - Later implement for 4 players
         if len(player_names) != 2:
@@ -236,15 +237,22 @@ class Game:
     def opponent(self) -> Player:
         return self.players[1 - self.turn]
 
-    def _select_cards_for_game(self, card_pool: list[Card]) -> list[Card]:
+    def _select_cards_for_game(
+        self, card_pool: list[Card], sets: list[CardSet] | None = None
+    ) -> list[Card]:
+        if sets is not None:
+            allowed_sets = set(sets)
+            card_pool = [card for card in card_pool if card.set in allowed_sets]
         if len(card_pool) < self.number_of_cards_in_game:
             raise ValueError("Card pool does not contain enough cards for a game.")
         selected_cards = random.sample(card_pool, self.number_of_cards_in_game)
         game_cards = [card.clone() for card in selected_cards]
         return game_cards
 
-    def start_game(self, card_pool: list[Card]) -> None:
-        game_cards = self._select_cards_for_game(card_pool)
+    def start_game(
+        self, card_pool: list[Card], sets: list[CardSet] | None = None
+    ) -> None:
+        game_cards = self._select_cards_for_game(card_pool, sets=sets)
 
         for player_index, player in enumerate(self.players):
             player_cards = game_cards[

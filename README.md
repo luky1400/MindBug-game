@@ -59,9 +59,10 @@ If `frontend/dist` does not exist, FastAPI falls back to `web/index.html`.
 ### 4) Multiplayer flow
 
 1. Open the frontend and create a room.
-2. Share the invite code with the second player.
-3. Join that room from a second browser window or another device.
-4. Both players receive live state updates through Socket.IO.
+2. Choose the card sets for that room. `First Contact` is always included, and any additional `CardSet` values can be enabled before creating the room.
+3. Share the invite code with the second player.
+4. Join that room from a second browser window or another device.
+5. Both players receive live state updates through Socket.IO.
 
 ## Run Tests
 
@@ -86,6 +87,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - Creature actions are supported
 - Life tracking and winner detection
 - Web API for room creation, join, and session restore
+- Room-level card set selection for multiplayer games
 - React browser UI
 
 ## Files
@@ -111,9 +113,10 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
   - sperate create/join room and Game
 - UI additonal:
   - Hide redundant information in UI
-    - End turn (if not attacking FRENZY still lives)
+    - text pod kartami
+    - Discard Pile dát nějak nastranu a karty zobrazit, pouze když na to user clickne
   - visualize that TOUGH has 0 tough_charges left
-  - možnost zvětšit i cards_laid_out (a in discard pile)
+  - možnost zvětšit i cards_laid_out (+ in discard pile)
   - Když defender vybira, jestli a cim bude branit, tak mu ukazat kartu utocnika (nejak ji zvyraznit nebo presunout do prostred).
 
 ## TODO - game rules
@@ -148,4 +151,5 @@ V případě shody tento proces opakujte."
 
 - resolved plays and attacks automatically trigger end_turn()
 - App.tsx: the multiplayer client clears selections immediately when a defense response is sent
+- Create room now lets the host choose which sets are used for that room. First Contact is always selected and cannot be unchecked, while the remaining CardSet values can be enabled. The selected sets are sent in the create-room request, stored on the room, used when the game starts, and shown in the UI in both the room metadata and room status area.
 
