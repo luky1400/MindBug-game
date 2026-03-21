@@ -142,5 +142,9 @@ V případě shody tento proces opakujte."
 
 ## Bugs
 
-- In UI - user can play_card or attack multiple times per turn
+- 
 
+## Documentation notes
+
+- resolved plays and attacks automatically trigger end_turn()
+- 

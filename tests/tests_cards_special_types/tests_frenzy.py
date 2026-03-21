@@ -55,3 +55,53 @@ def test_frenzy_creature_can_attack_twice_but_not_three_times_per_turn() -> None
 
     with pytest.raises(ValueError, match="cannot attack more than 2 times this turn"):
         game.attack(attacker_index=0)
+
+
+def test_multiplayer_attack_automatically_passes_turn_when_not_frenzy_bonus_case() -> None:
+    game = Game(
+        player_names=["Player 1", "Player 2"],
+        starting_hand_size=0,
+        starting_draw_pile_size=0,
+        enforce_turn_action_limit=True,
+        auto_end_turn_after_resolved_attack=True,
+    )
+    game.start_game(card_pool=[])
+
+    player = game.current_player
+    opponent = game.opponent
+    player.cards_laid_out = [Brain_fly()]
+    player.hand = [Tiger_squirrel()]
+    opponent.cards_laid_out = [Tiger_squirrel()]
+    opponent.hand = [Tiger_squirrel()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert game.turn == 1
+    assert game.current_player is opponent
+
+
+def test_multiplayer_frenzy_survivor_keeps_turn_for_optional_second_attack() -> None:
+    game = Game(
+        player_names=["Player 1", "Player 2"],
+        starting_hand_size=0,
+        starting_draw_pile_size=0,
+        enforce_turn_action_limit=True,
+        auto_end_turn_after_resolved_attack=True,
+    )
+    game.start_game(card_pool=[])
+
+    player = game.current_player
+    opponent = game.opponent
+    frenzy_attacker = Luchataur()
+    weak_blocker = Tiger_squirrel()
+    player.cards_laid_out = [frenzy_attacker]
+    opponent.cards_laid_out = [weak_blocker]
+    opponent.hand = [Tiger_squirrel()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert game.turn == 0
+    assert game.current_player is player
+    assert game._pending_frenzy_attacker_id == id(frenzy_attacker)

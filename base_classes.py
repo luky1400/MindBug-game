@@ -200,6 +200,7 @@ class Game:
         await_mindbug_response: bool = False,
         enforce_turn_action_limit: bool = False,
         auto_end_turn_after_successful_play: bool = False,
+        auto_end_turn_after_resolved_attack: bool = False,
     ):
         # TODO - Later implement for 4 players
         if len(player_names) != 2:
@@ -225,6 +226,7 @@ class Game:
         self.await_mindbug_response = await_mindbug_response
         self.enforce_turn_action_limit = enforce_turn_action_limit
         self.auto_end_turn_after_successful_play = auto_end_turn_after_successful_play
+        self.auto_end_turn_after_resolved_attack = auto_end_turn_after_resolved_attack
 
     @property
     def current_player(self) -> Player:
@@ -409,6 +411,7 @@ class Game:
                 self.log.append(
                     f"{attacker_owner.name}'s {attacker.name} is no longer on the battlefield. Attack is cancelled."
                 )
+                self._auto_end_turn_after_attack_if_needed()
                 return
 
         attacker_has_hunter = CardSpecialType.HUNTER in attacker.special_types
@@ -709,6 +712,7 @@ class Game:
     def _finalize_attack_action(self, attacker_owner: Player, attacker: Card) -> None:
         if not self.enforce_turn_action_limit:
             self._pending_frenzy_attacker_id = None
+            self._auto_end_turn_after_attack_if_needed()
             return
 
         self._turn_action_taken = True
@@ -725,6 +729,7 @@ class Game:
             return
 
         self._pending_frenzy_attacker_id = None
+        self._auto_end_turn_after_attack_if_needed()
 
     def _build_player_view(self, viewer_index: int) -> dict[str, Any]:
         viewer = self.players[viewer_index]
@@ -810,6 +815,15 @@ class Game:
         if not self.auto_end_turn_after_successful_play:
             return
         if self.game_state == GameState.GAME_OVER:
+            return
+        self.end_turn()
+
+    def _auto_end_turn_after_attack_if_needed(self) -> None:
+        if not self.auto_end_turn_after_resolved_attack:
+            return
+        if self.game_state == GameState.GAME_OVER:
+            return
+        if self._pending_frenzy_attacker_id is not None:
             return
         self.end_turn()
 

@@ -82,6 +82,7 @@ class GameSession:
                 await_mindbug_response=True,
                 enforce_turn_action_limit=True,
                 auto_end_turn_after_successful_play=True,
+                auto_end_turn_after_resolved_attack=True,
             )
             self.game.start_game(card_pool=get_card_pool())
         return player
