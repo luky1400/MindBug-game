@@ -259,10 +259,10 @@ class Game:
             player.mindbugs_remaining = self.players_start_with_mindbugs
             player.draw(amount=self.starting_hand_size)
 
-        self.turn = 0
+        self.turn = random.randrange(self.number_of_players)
         self.game_state = GameState.ACTIVE
         self.winner = None
-        self.log = ["Game started."]
+        self.log = [f"Game started. {self.current_player.name} goes first."]
         self._attacks_this_turn = {}
         self._turn_action_taken = False
         self._pending_frenzy_attacker_id = None

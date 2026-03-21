@@ -37,7 +37,8 @@ def test_start_game_sets_state_to_active_and_resets_winner() -> None:
     game.start_game(card_pool=[])
 
     assert game.game_state == GameState.ACTIVE
-    assert game.turn == 0
+    assert game.turn in (0, 1)
+    assert game.current_player in game.players
     assert game.winner is None
 
 

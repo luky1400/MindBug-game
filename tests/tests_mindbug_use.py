@@ -76,7 +76,7 @@ def test_multiplayer_mindbug_steal_does_not_consume_active_players_turn_action()
     game.play_card(hand_index=0)
     game.respond_to_mindbug(True)
 
-    assert game.turn == 0
+    assert game.current_player is player
     assert game._turn_action_taken is False
 
     game.attack(attacker_index=0)
@@ -106,7 +106,6 @@ def test_multiplayer_declined_mindbug_automatically_passes_turn() -> None:
     game.play_card(hand_index=0)
     game.respond_to_mindbug(False)
 
-    assert game.turn == 1
     assert game.current_player is opponent
     assert game.game_state == game.game_state.START_TURN
     assert game._turn_action_taken is False
