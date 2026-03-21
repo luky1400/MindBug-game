@@ -123,7 +123,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 
 - (Síla nestvůry nemůže mít nikdy nižší hodnotu než 1, a to ani v případě, že by některé efekty hodnotu síly upravovaly.)
 - Jiný naming:
-  - efekty její schopnosti Příchod
+  - efekty schopnosti: Příchod, ..
   - Stálé schopnosti (př. Zesnovačka)
   - do své herní oblasti
   - support i Češtinu
