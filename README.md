@@ -133,6 +133,8 @@ vyhodnocování jednoho efektu předtím, než začnete vyhodnocovat další."
 ## Nice to have
 
 - add persistent database-backed sessions so rooms survive server restarts.
+- add option: Surrender
+- add Time limit for action (play_card, attack, use_mindMindbug?, defend?)
 - add other sets
 - "Začínajícího hráče určíte tak, že si každý hráč náhodně vylosuje jednu kartu z hromádky nepoužitých karet nestvůr a poté si hráči porovnají sílu těchto karet. Hráč, jehož karta má vyšší hodnotu síly, bude začínajícím hráčem.
 V případě shody tento proces opakujte."
