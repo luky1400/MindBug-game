@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 import random
 from typing import Any, Iterable, Optional
 
-from enums import CardActionType, CardSpecialType, GameState
+from enums import CardActionType, CardSet, CardSpecialType, GameState
 
 
 @dataclass
@@ -18,7 +18,7 @@ class Card:
     tough_charges: int = 0
     action_type: Optional[CardActionType] = None
     action_description: Optional[str] = None
-    set: Optional[str] = None  # TODO - remove Optional?
+    set: Optional[CardSet] = None  # TODO - remove Optional?
     cannot_block: bool = False
     cannot_attack: bool = False
     min_blocker_strength: Optional[int] = None

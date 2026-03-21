@@ -15,6 +15,11 @@ class CardActionType(Enum):
     DEFEATED = "DEFEATED"
 
 
+class CardSet(Enum):
+    FIRST_CONTACT = "First Contact"
+    NEW_SERVANTS = "New Servants"
+
+
 class GameState(Enum):
     START_TURN = "START_TURN"
     ACTIVE = "ACTIVE"

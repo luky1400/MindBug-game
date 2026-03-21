@@ -1,5 +1,5 @@
 from base_classes import Card
-from enums import CardActionType, CardSpecialType
+from enums import CardActionType, CardSet, CardSpecialType
 from typing import Optional
 from collections.abc import Callable
 from base_classes import Game
@@ -15,7 +15,9 @@ def _build_card_pool(card_specs: list[tuple[Callable[[], Card], int]]) -> list[C
 
 # SOURCE: https://ryanascherr.github.io/mindbug/
 # SOURCE: https://mindbug.fandom.com/wiki/First_Contact, https://mindbug.fandom.com/wiki/First_Contact_Addon_Pack
-def get_card_pool(sets: list[str] = ["First Contact", "New Servants"]) -> list[Card]:
+def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
+    if sets is None:
+        sets = [CardSet.FIRST_CONTACT, CardSet.NEW_SERVANTS]
     card_pool = _build_card_pool([
         # "First Contact" - includes 48 cards
         (Axolotl_healer, 2),
@@ -76,7 +78,7 @@ class Axolotl_healer(Card):
     special_types: list[CardSpecialType] = [CardSpecialType.POISONOUS]
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "Gain 2 lifes."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         game.current_player.number_of_lives = game.current_player.number_of_lives + 2
@@ -89,7 +91,7 @@ class Bee_bear(Card):
     special_types: list[CardSpecialType] = []
     description: str = "Cannot be blocked by creatures with power 6 or less."
     min_blocker_strength: int = 7
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
     # NOTE - read more above attack() method - it is connected to the that
 
 
@@ -99,7 +101,7 @@ class Brain_fly(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "Take control of a creature with power 6 or more."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         # TODO - implement player card choice, instead of random
@@ -122,7 +124,7 @@ class Bugserker(Card):
     strength: int = 3
     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
     description: str = "Has +8 power while you have one life left."
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if owner.number_of_lives == 1:
@@ -135,7 +137,7 @@ class Chameleon_sniper(Card):
     special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
     action_type: CardActionType = CardActionType.ATTACK
     action_description: str = "The opponent loses 1 life."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         game.opponent.lose_life(1)
@@ -150,7 +152,7 @@ class Compost_dragon(Card):
     special_types: list[CardSpecialType] = [CardSpecialType.HUNTER]
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "Play a card from your discard pile."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         # TODO - implement player card choice, instead of random
@@ -169,7 +171,7 @@ class Count_draculeech(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.ATTACK
     action_description: str = "Lose 1 life. Defeat a creature of your choice."
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def trigger_action(self, game: Game) -> None:
         game.current_player.lose_life(1)
@@ -193,7 +195,7 @@ class Creep_from_the_deep(Card):
         CardSpecialType.POISONOUS,
         CardSpecialType.HUNTER,
     ]
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
 
 class Deathweaver(Card):
@@ -201,7 +203,7 @@ class Deathweaver(Card):
     strength: int = 2
     special_types: list[CardSpecialType] = [CardSpecialType.POISONOUS]
     description: str = "The opponent cannot activate play effects."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         opponent.cannot_activate_play_effects = True
@@ -212,7 +214,7 @@ class Elephantopus(Card):
     strength: int = 7
     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
     description: str = "Opponent cannot block with creatures with power 4 or less."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         opponent.cannot_block_with_creatures_with_power_4_or_less = True
@@ -224,7 +226,7 @@ class Explosive_toad(Card):
     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
     action_type: CardActionType = CardActionType.DEFEATED
     action_description: str = "Defeat a creature of your choice."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         # Resolve owner from board/discard context so this works both when
@@ -258,7 +260,7 @@ class Ferret_bomber(Card):
     special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "An opponent discards 2 cards from their hand."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         discarded_cards = 0
@@ -278,7 +280,7 @@ class Ferret_pacifier(Card):
     strength: int = 4
     special_types: list[CardSpecialType] = []
     description: str = "The enemy creature(s) with the highest power cannot block."
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if len(opponent.cards_laid_out) > 0:
@@ -290,7 +292,7 @@ class Froblin_instigator(Card):
     strength: int = 1
     special_types: list[CardSpecialType] = [CardSpecialType.HUNTER]
     description: str = "Has +2 power for each other allied creature."
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         allied_creatures = max(0, len(owner.cards_laid_out) - 1)
@@ -303,7 +305,7 @@ class Giraffodile(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "Draw your entire dicard pile."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         game.current_player.hand.extend(game.current_player.discard_pile)
@@ -316,7 +318,7 @@ class Goblin_werewolf(Card):
     strength: int = 2
     special_types: list[CardSpecialType] = [CardSpecialType.HUNTER]
     description: str = "Has +6 strength while it is your turn."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if game.current_player is owner:
@@ -328,7 +330,7 @@ class Gorillion(Card):
     strength: int = 10
     special_types: list[CardSpecialType] = []
     description: Optional[str] = "Why did you take the bananas?"
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
 
 class Goreagle_alpha(Card):
@@ -341,7 +343,7 @@ class Goreagle_alpha(Card):
     ]
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "Lose 1 life."
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def trigger_action(self, game: Game) -> None:
         game.current_player.lose_life(1)
@@ -356,7 +358,7 @@ class Grave_robber(Card):
     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "Play a card from an opponent's discard pile."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         if len(game.opponent.discard_pile) == 0:
@@ -379,7 +381,7 @@ class Hamster_lion(Card):
     strength: int = 8
     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
     description: str = "The enemy creature(s) with the lowest power cannot attack."
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if len(opponent.cards_laid_out) > 0:
@@ -394,7 +396,7 @@ class Harpy_mother(Card):
     action_description: str = (
         "Take control of up to 2 enemy creatures with power 5 or less."
     )
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         # Find all enemy creatures with power 5 or less
@@ -422,7 +424,7 @@ class Hungry_hungry_hamster(Card):
     action_description: str = (
         "An opponent gives you a card from their hand. Play it or put it into oyur hand."
     )
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def trigger_action(self, game: Game) -> None:
         if len(game.opponent.hand) == 0:
@@ -450,7 +452,7 @@ class Hyenix(Card):
     description: str = (
         "When you lose life while this is in your discard pile, you may play this card."
     )
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     # NOTE: To implement "When you lose life while this is in your discard pile, you may play this card,"
     # we define a hook method that should be called by Game or Player when the current player loses life.
@@ -478,7 +480,7 @@ class Kangasaurus_rex(Card):
     strength: int = 7
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "Defeat all enemy creatures with power 4 or less."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     # NOTE: we need to use iteration over a copy of the list, otherwise - when you remove items while looping, Python’s loop index advances but the list shrinks/reindexes, so some elements are skipped.
     def trigger_action(self, game: Game) -> None:
@@ -496,7 +498,7 @@ class killer_bee(Card):
     special_types: list[CardSpecialType] = [CardSpecialType.HUNTER]
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "The opponent loses 1 life."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         game.opponent.lose_life(1)
@@ -512,7 +514,7 @@ class Lone_yeti(Card):
     description: str = (
         f"While this is your only allied creature, it has +5 power and {CardSpecialType.FRENZY.value}."
     )
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if len(owner.cards_laid_out) != 1:
@@ -527,7 +529,7 @@ class Luchataur(Card):
     strength: int = 9
     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
     description: str = "Want an encore?"
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
 
 class Majestic_manticore(Card):
@@ -536,7 +538,7 @@ class Majestic_manticore(Card):
     special_types: list[CardSpecialType] = [CardSpecialType.POISONOUS]
     action_type: CardActionType = CardActionType.ATTACK
     action_description: str = "Defeat the creature(s) with the lowest power."
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def trigger_action(self, game: Game) -> None:
         lowest_power = min(card.strength for card in game.opponent.cards_laid_out)
@@ -555,7 +557,7 @@ class Mysterious_mermaid(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.PLAY
     action_description: str = "Set your life equal to the opponent's."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         game.current_player.number_of_lives = game.opponent.number_of_lives
@@ -572,7 +574,7 @@ class Plated_scorpion(Card):
         CardSpecialType.POISONOUS,
     ]
     description: str = "That sting sticks."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
 
 class Rhino_turtle(Card):
@@ -583,7 +585,7 @@ class Rhino_turtle(Card):
         CardSpecialType.TOUGH,
         CardSpecialType.FRENZY,
     ]
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
 
 class Shark_dog(Card):
@@ -594,7 +596,7 @@ class Shark_dog(Card):
     action_description: str = (
         "Defeat an enemy creature with power 6 or more of your choice."
     )
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         eligible = [card for card in game.opponent.cards_laid_out if card.strength >= 6]
@@ -619,7 +621,7 @@ class Sharky_crab_dog_mummypus(Card):
     description: str = (
         f"Has {CardSpecialType.HUNTER.value} while an enemy creature does. Repeat for {CardSpecialType.SNEAKY.value},{CardSpecialType.FRENZY.value}, and {CardSpecialType.POISONOUS.value}."
     )
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         copied_tags = [
@@ -639,7 +641,7 @@ class Shield_bugs(Card):
     strength: int = 4
     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
     description: str = "Other allied creatures have +1 power."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         for card in owner.cards_laid_out:
@@ -653,7 +655,7 @@ class Short_neck_giraffodile(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.ATTACK
     action_description: str = "Draw 2 cards from your discard pile."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         for _ in range(2):
@@ -675,7 +677,7 @@ class Snail_hydra(Card):
     action_description: str = (
         "If you control fewer creatures than an opponent, defeat a creature of your choice."
     )
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         if len(game.current_player.cards_laid_out) < len(game.opponent.cards_laid_out):
@@ -700,7 +702,7 @@ class Snail_thrower(Card):
     description: str = (
         f"Other allied creatures with power 4 or less have {CardSpecialType.HUNTER.value} and {CardSpecialType.POISONOUS.value}."
     )
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         for card in owner.cards_laid_out:
@@ -720,7 +722,7 @@ class Spider_owl(Card):
         CardSpecialType.POISONOUS,
     ]
     description: str = "Hanging in there."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
 
 class Strange_barrel(Card):
@@ -729,7 +731,7 @@ class Strange_barrel(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.DEFEATED
     action_description: str = "Steal 2 random cards from an opponent's hand."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         for _ in range(2):
@@ -753,7 +755,7 @@ class The_lurker(Card):
     action_description: str = (
         f"If you control more creatures than an opponent, this has {CardSpecialType.SNEAKY.value} this turn."
     )
-    set: str = "New servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def trigger_action(self, game: Game) -> None:
         if len(game.current_player.cards_laid_out) > len(game.opponent.cards_laid_out):
@@ -776,7 +778,7 @@ class Tiger_squirrel(Card):
     action_description: str = (
         "Defeat an enemy creature with power 7 or more of your choice."
     )
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         # Find all eligible enemy creatures (power 7 or more)
@@ -802,7 +804,7 @@ class Turbo_bug(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.ATTACK
     action_description: str = "The opponent loses all life except one."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         game.opponent.lose_life(game.opponent.number_of_lives - 1)
@@ -817,7 +819,7 @@ class Turf_the_surfer(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.ATTACK
     action_description: str = "Choose a creature. It cannot block this turn."
-    set: str = "New Servants"
+    set: CardSet = CardSet.NEW_SERVANTS
 
     def trigger_action(self, game: Game) -> None:
         # TODO - implement player card choice, instead of random
@@ -836,7 +838,7 @@ class Tusked_extorter(Card):
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.ATTACK
     action_description: str = "The opponent discards a card from their hand."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
         card = game.opponent.hand.pop(randint(0, len(game.opponent.hand) - 1))
@@ -851,7 +853,7 @@ class Urchin_hurler(Card):
     strength: int = 5
     special_types: list[CardSpecialType] = [CardSpecialType.HUNTER]
     description: str = "Other allied creatures have +2 power while it is your turn."
-    set: str = "First Contact"
+    set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if game.current_player is not owner:
