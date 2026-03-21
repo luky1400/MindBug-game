@@ -696,6 +696,10 @@ class Game:
         attacker: Card,
         defender: Card,
     ) -> None:
+        self.log.append(
+            f"{attacker_owner.name}'s {attacker.name} attacks {defender_owner.name}'s {defender.name}."
+        )        
+        
         attacker_defeated = self._is_defeated(attacker, defender)
         defender_defeated = self._is_defeated(defender, attacker)
 
@@ -704,9 +708,6 @@ class Game:
         if defender_defeated:
             self._destroy_creature(defender_owner, defender)
 
-        self.log.append(
-            f"{attacker_owner.name}'s {attacker.name} attacks {defender_owner.name}'s {defender.name}."
-        )
         self._finalize_attack_action(attacker_owner, attacker)
 
     def _finalize_attack_action(self, attacker_owner: Player, attacker: Card) -> None:
