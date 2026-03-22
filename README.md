@@ -105,8 +105,8 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 
 - finish backend to work well
   - handle that player or opponent can choose which cards to play or discard
+  - refactor attack function - remove defender_index
   - add tests regularly for things that are not working
-  - (investigate bug: random cards appear in discard pile)
 - Improve UI layout
   - dle pravidel - discard pile se bude rozklikavat
   - dát na rozklikávatko: pravidla, logs, cards in game - rozdělené do tabs podle sets (include also number of copies of each card)
