@@ -1,6 +1,8 @@
 from base_classes import DrawPile, Game
 from cards import (
+    Axolotl_healer,
     Chameleon_sniper,
+    Compost_dragon,
     Ferret_bomber,
     Kangasaurus_rex,
     Luchataur,
@@ -185,3 +187,28 @@ def test_play_draws_replacement_before_pending_mindbug_response() -> None:
     assert game._pending_mindbug_decision is not None
     assert len(player.hand) == 5
     assert replacement_card in player.hand
+
+
+def test_stolen_compost_dragon_resurrected_card_cannot_be_mindbugged_again() -> None:
+    game = Game(
+        player_names=["Player 1", "Player 2"],
+        starting_draw_pile_size=0,
+        await_mindbug_response=True,
+    )
+    game.start_game(card_pool=[])
+
+    player = game.current_player
+    opponent = game.opponent
+    resurrected_card = Axolotl_healer()
+
+    player.hand = [Compost_dragon()]
+    opponent.hand = [Chameleon_sniper()]
+    opponent.discard_pile = [resurrected_card]
+
+    game.play_card(hand_index=0)
+    game.respond_to_mindbug(True)
+
+    assert game._pending_mindbug_decision is None
+    assert any(isinstance(card, Compost_dragon) for card in opponent.cards_laid_out)
+    assert resurrected_card in opponent.cards_laid_out
+    assert resurrected_card not in opponent.discard_pile

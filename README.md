@@ -108,12 +108,13 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
   - refactor attack function - remove defender_index
   - add tests regularly for things that are not working
 - Improve UI layout
-  - dle pravidel - discard pile se bude rozklikavat
+  - make Game UI to fit one screen size - user cannot roll up and down
+  - upravit dle obrazku v pravidlec ( + discard pile se bude rozklikavat)
   - dát na rozklikávatko: pravidla, logs, cards in game - rozdělené do tabs podle sets (include also number of copies of each card)
 - UI screens:
   - seperate create/join room and Game
 - UI additonal:
-  - visualize that TOUGH has 0 tough_charges left
+  - visualize that TOUGH has 0 tough_charges left (2 options: odlisit, když má 1 nebo 2 nabití?)
   - možnost zvětšit i cards_laid_out (+ in discard pile)
   - Když defender vybira, jestli a cim bude branit, tak mu ukazat kartu utocnika (nejak ji zvyraznit nebo presunout do prostred).
   - Hide redundant information in UI

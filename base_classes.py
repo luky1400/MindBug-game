@@ -315,54 +315,40 @@ class Game:
         self._pending_defense_decision = None
         self._recalculate_ongoing_effects()
 
+    # NOTe - mabe beter to split: play_card and play_card_from_hand functions?
     def play_card(
         self,
         hand_index: Optional[int] = None,
         card: Optional[Card] = None,
     ) -> None:
         """
-        Plays a card.
-        If card is not provided, plays a card from the hand.
-        If opponent has Mindbug remaining and we are awaiting mindbug response, we await mindbug response from opponent.
-        If opponent declines to use Mindbug, we play the card and end the turn.
-        If opponent uses Mindbug, we play the card and end the turn.
+        Play a card from hand or from another zone/effect.
 
         Args:
             hand_index: Index of the card to play from the hand.
-            card: Card to play. If not provided, plays a card from the hand.
+            card: Card to play directly. Used for effect-driven plays.
         """
         self._ensure_active()
         self._ensure_no_pending_resolution()
         if self.enforce_turn_action_limit and self._turn_action_taken:
             raise ValueError("You already took your action this turn.")
         self._recalculate_ongoing_effects()
+        card_to_play, played_from_hand = self._resolve_card_to_play(
+            hand_index=hand_index, card=card
+        )
         actor = self.current_player
-        opponent = self.opponent
-        if card is None and hand_index is not None:
-            card = actor.play_from_hand(hand_index)
-            self._draw_up_to_hand_limit_for_each_player_if_needed()
-        if card is None:
-            raise ValueError("No card was selected to play.")
 
-        self.log.append(f"{actor.name} plays {card.name}.")
-        if opponent.mindbugs_remaining > 0 and self.await_mindbug_response:
-            self._pending_mindbug_decision = PendingMindbugDecision(
-                acting_player_index=self.turn,
-                responding_player_index=1 - self.turn,
-                card=card,
-            )
-            self.game_state = GameState.AWAITING_MINDBUG
-            self.log.append(
-                f"Waiting for {opponent.name} to decide whether to use Mindbug."
-            )
+        self.log.append(f"{actor.name} plays {card_to_play.name}.")
+        if self._queue_pending_mindbug_decision_if_needed(
+            card=card_to_play, played_from_hand=played_from_hand
+        ):
             return
 
-        self._finalize_played_card(owner_index=self.turn, card=card)
-        if opponent.mindbugs_remaining > 0:
-            self.log.append(f"{opponent.name} declines to use Mindbug.")
-        else:
-            self.log.append(f"{opponent.name} has no Mindbug left.")
-        self._auto_end_turn_after_play_if_needed()
+        self._finalize_play_without_mindbug(
+            owner_index=self.turn,
+            card=card_to_play,
+            played_from_hand=played_from_hand,
+        )
 
     def respond_to_mindbug(self, use_mindbug: bool) -> None:
         self._ensure_active()  # redundant?
@@ -412,6 +398,51 @@ class Game:
 
         self.log.append(f"{responder.name} declines to use Mindbug.")
         self._finalize_played_card(owner_index=actor_index, card=card)
+        self._auto_end_turn_after_play_if_needed()
+
+    def _resolve_card_to_play(
+        self, hand_index: Optional[int], card: Optional[Card]
+    ) -> tuple[Card, bool]:
+        if card is not None:
+            return card, False
+        if hand_index is None:
+            raise ValueError("No card was selected to play.")
+
+        card_from_hand = self.current_player.play_from_hand(hand_index)
+        self._draw_up_to_hand_limit_for_each_player_if_needed()
+        return card_from_hand, True
+
+    def _queue_pending_mindbug_decision_if_needed(
+        self, card: Card, played_from_hand: bool
+    ) -> bool:
+        if not played_from_hand or not self.await_mindbug_response:
+            return False
+
+        opponent = self.opponent
+        if opponent.mindbugs_remaining <= 0:
+            return False
+
+        self._pending_mindbug_decision = PendingMindbugDecision(
+            acting_player_index=self.turn,
+            responding_player_index=1 - self.turn,
+            card=card,
+        )
+        self.game_state = GameState.AWAITING_MINDBUG
+        self.log.append(
+            f"Waiting for {opponent.name} to decide whether to use Mindbug."
+        )
+        return True
+
+    def _finalize_play_without_mindbug(
+        self, owner_index: int, card: Card, played_from_hand: bool
+    ) -> None:
+        opponent = self.players[1 - owner_index]
+        self._finalize_played_card(owner_index=owner_index, card=card)
+        if played_from_hand:
+            if opponent.mindbugs_remaining > 0:
+                self.log.append(f"{opponent.name} declines to use Mindbug.")
+            else:
+                self.log.append(f"{opponent.name} has no Mindbug left.")
         self._auto_end_turn_after_play_if_needed()
 
     # TODO - do not put defender_index as argument to attack function, instead create defend function that takes attacker and defender and is used inside attack function
