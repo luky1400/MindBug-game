@@ -119,6 +119,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
     - text pod kartami
     - Discard Pile dát nějak nastranu a karty zobrazit, pouze když na to user clickne
   - udělat nejakou signalizaci, kteá upozorní hrace, ze je na tahu (play_card/attack, Mindbug, Defend, etc.)
+  - Kliknout a zvetsit celou ruku najednou - udelat to same, jako 2x klik, ale pro vsechny karty najednou. Dát karty v ruce bliz k sobe a zvetsit.
 
 ## TODO - game rules
 

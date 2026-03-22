@@ -371,7 +371,7 @@ class Froblin_instigator(Card):
         self.strength += 2 * allied_creatures
 
 
-# TODO
+# TODO - need to store unused cards
 # class Future_eric(Card):
 #     name: str = "Future Eric"
 #     strength: int = 3
