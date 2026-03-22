@@ -64,7 +64,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
         (Goreagle_alpha, 2),
         (Hamster_lion, 2),
         (Hungry_hungry_hamster, 2),
-        (Hyenix, 2),
+        # (Hyenix, 2), # TODO - implement
         (Majestic_manticore, 2),
         (The_lurker, 2),
         (Turf_the_surfer, 2),
@@ -538,7 +538,7 @@ class Hungry_hungry_hamster(Card):
         )
 
 
-# NOTE - hard one
+# TODO - hard one
 class Hyenix(Card):
     name: str = "Hyenix"
     strength: int = 7
