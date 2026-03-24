@@ -1,5 +1,5 @@
 import type { PendingCardActionState } from "../types/game";
-import { CardTile } from "./CardTile";
+import { cardImageUrl, parseCardLabel } from "../utils/cards";
 
 interface PendingCardActionModalProps {
   pending: PendingCardActionState | null;
@@ -8,12 +8,6 @@ interface PendingCardActionModalProps {
   onToggle: (index: number) => void;
   onConfirm: () => void;
   onHide: () => void;
-}
-
-function getZoneLabel(zone: PendingCardActionState["selection_zone"]): string {
-  if (zone === "discard") return "discard pile";
-  if (zone === "battlefield") return "battlefield";
-  return "hand";
 }
 
 export function PendingCardActionModal({
@@ -25,42 +19,42 @@ export function PendingCardActionModal({
   onHide
 }: PendingCardActionModalProps) {
   if (!pending?.response_required_from_viewer) return null;
-
-  const selectionHelp =
-    pending.min_choices === pending.max_choices
-      ? `Select exactly ${pending.min_choices} card${pending.min_choices === 1 ? "" : "s"}.`
-      : `Select between ${pending.min_choices} and ${pending.max_choices} cards.`;
+  const details = parseCardLabel(pending.source_card_label).details;
+  const detailParts = details
+    .split("|")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  const actionHeading = details.includes("|")
+    ? detailParts[detailParts.length - 1] || "Choose card"
+    : details || "Choose card";
 
   return (
     <div className="overlay overlay-choice">
-      <div className="overlay-card choice-overlay-card" onClick={(event) => event.stopPropagation()}>
-        <h3 className="mb-2">Resolve {pending.source_card_label}</h3>
-        <div className="cards-row justify-content-center mb-3">
-          <CardTile
-            label={pending.source_card_label}
-            size="large"
-          />
-        </div>
-        <p className="section-help mb-2">
-          Choose from {pending.selection_owner_name}'s {getZoneLabel(pending.selection_zone)}.
-        </p>
-        <p className="section-help mb-3">{selectionHelp}</p>
-        <div className="cards-row justify-content-center">
+      <div className="choice-overlay-content" onClick={(event) => event.stopPropagation()}>
+        <h3 className="text-center mb-3">{actionHeading}</h3>
+        <div className="choice-options-grid mt-3">
           {pending.eligible_indices.map((index) => (
-            <CardTile
+            <button
               key={`${cards[index]}-${index}`}
-              label={cards[index]}
-              selected={selectedIndices.includes(index)}
-              clickable
-              size="medium"
+              className={`choice-preview-button ${selectedIndices.includes(index) ? "choice-preview-selected" : ""}`}
               onClick={() => onToggle(index)}
-            />
+              type="button"
+            >
+              <img
+                className="preview-image choice-preview-image"
+                src={cardImageUrl(cards[index])}
+                alt={cards[index]}
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                }}
+              />
+            </button>
           ))}
         </div>
-        <div className="selection-box mt-3">
+        <div className="selection-box mt-3 text-center">
           Selected: {selectedIndices.length}/{pending.max_choices}
         </div>
-        <div className="d-flex justify-content-end gap-2 mt-3">
+        <div className="d-flex justify-content-center gap-2 mt-3">
           <button className="btn btn-outline-secondary" onClick={onHide} type="button">
             Hide for now
           </button>

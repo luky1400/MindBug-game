@@ -14,7 +14,7 @@ export function PendingMindbugModal({
   onHide
 }: PendingMindbugModalProps) {
   return (
-    <div className="overlay overlay-choice">
+    <div className="overlay overlay-choice overlay-choice-centered">
       <div className="mindbug-overlay-content" onClick={(event) => event.stopPropagation()}>
         <img
           className="preview-image mindbug-overlay-image"

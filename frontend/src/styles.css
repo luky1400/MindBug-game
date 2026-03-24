@@ -292,6 +292,13 @@ body {
 
 .overlay-choice {
   z-index: 60;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.overlay-choice-centered {
+  align-items: center;
 }
 
 .choice-overlay-card {
@@ -309,9 +316,49 @@ body {
   align-items: center;
 }
 
+.choice-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(940px, 94vw);
+  margin: 0 auto;
+}
+
 .mindbug-overlay-image {
   width: min(460px, 92vw);
   max-height: none;
+}
+
+.choice-overlay-source-image {
+  width: min(460px, 92vw);
+  max-height: none;
+}
+
+.choice-options-grid {
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.choice-preview-button {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+}
+
+.choice-preview-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent), transparent 65%);
+}
+
+.choice-preview-image {
+  width: 100%;
+  max-width: 300px;
+  max-height: none;
+  display: block;
 }
 
 .choice-modal-toggle {
@@ -366,6 +413,10 @@ body {
 }
 
 @media (max-width: 992px) {
+  .choice-options-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .card-tile {
     width: 100px;
   }
@@ -383,5 +434,11 @@ body {
   }
   .card-tile-large .card-image {
     height: 206px;
+  }
+}
+
+@media (max-width: 640px) {
+  .choice-options-grid {
+    grid-template-columns: 1fr;
   }
 }
