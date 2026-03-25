@@ -657,7 +657,7 @@ export function App() {
                         Attack with selected board card
                       </button>
                       <p className="section-help mt-2 mb-0">
-                        Select an enemy target only when your attacker has `HUNTER`. Otherwise click `Attack` without a target and the defender will respond.
+                          When your attacker has <span className="chip">HUNTER</span>, you can select a target.
                       </p>
                     </div>
                     <div className="col-md-4">
