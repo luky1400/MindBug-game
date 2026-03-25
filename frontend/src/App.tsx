@@ -646,13 +646,11 @@ export function App() {
                 <div className="card-body">
                   <div className="row g-3 align-items-end">
                     <div className="col-md-4">
-                      <h2 className="section-title">Play</h2>
                       <button className="btn btn-primary w-100" disabled={!canAct} onClick={() => void playSelectedCard()} type="button">
                         Play selected hand card
                       </button>
                     </div>
                     <div className="col-md-4">
-                      <h2 className="section-title">Attack</h2>
                       <button className="btn btn-outline-light w-100" disabled={!canAct} onClick={() => void attackSelected()} type="button">
                         Attack with selected board card
                       </button>
@@ -661,7 +659,6 @@ export function App() {
                       </p>
                     </div>
                     <div className="col-md-4">
-                      <h2 className="section-title">Turn</h2>
                       {canManuallyEndTurn ? (
                         <button className="btn btn-success w-100 mb-2" onClick={() => void endTurn()} type="button">
                           End turn
