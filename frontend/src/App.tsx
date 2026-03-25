@@ -576,7 +576,7 @@ export function App() {
               <div className="card-body">
                 <div className="d-flex flex-wrap gap-2 align-items-center justify-content-between">
                   <div>
-                    <div className="section-title mb-1">Room status</div>
+                    <div className="section-title mb-1">Game status</div>
                     <div className="turn-banner">
                       {isWaitingForOpponent
                         ? `Waiting for second player. Share code ${state.invite_code}.`

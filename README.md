@@ -108,7 +108,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
   - add tests regularly for things that are not working
 - **Improve UI layout**
   - make Game UI to fit one screen size - user cannot roll up and down
-  - upravit obrazku dle pravidel (+ když najedu with mouse cursor on any of discard_piles, it will render cards in it)
+  - upravit obrazovku dle pravidel (+ když najedu with mouse cursor on any of discard_piles, it will render cards in it)
   - dát na rozklikávatko (vpravo nahoře): pravidla, logs, cards in game - rozdělené do tabs podle sets (include also number of copies of each card)
   - seperate create/join room and Game
 - **UI additonal:**
