@@ -333,6 +333,11 @@ body {
   z-index: 50;
 }
 
+.overlay-no-backdrop {
+  background: transparent;
+  backdrop-filter: none;
+}
+
 .overlay-card {
   width: min(560px, 92vw);
   background: #111c31;

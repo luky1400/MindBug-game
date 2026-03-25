@@ -1,4 +1,4 @@
-import { cardImageUrl, parseCardLabel } from "../utils/cards";
+import { cardImageUrl } from "../utils/cards";
 
 interface CardPreviewModalProps {
   label: string | null;
@@ -7,23 +7,19 @@ interface CardPreviewModalProps {
 
 export function CardPreviewModal({ label, onClose }: CardPreviewModalProps) {
   if (!label) return null;
-  const parsed = parseCardLabel(label);
 
   return (
-    <div className="overlay" onClick={onClose}>
-      <div className="overlay-card card-preview-card" onClick={(event) => event.stopPropagation()}>
-        <h3 className="mb-2">{parsed.name}</h3>
+    <div className="overlay overlay-choice overlay-choice-centered overlay-no-backdrop" onClick={onClose}>
+      <div className="mindbug-overlay-content" onClick={(event) => event.stopPropagation()}>
         <img
-          className="preview-image"
+          className="preview-image mindbug-overlay-image"
           src={cardImageUrl(label)}
           alt={label}
           onError={(event) => {
             event.currentTarget.style.display = "none";
           }}
         />
-        <div className="preview-strength">Strength: {parsed.strengthText}</div>
-        {parsed.details ? <div className="preview-details">{parsed.details}</div> : null}
-        <div className="d-flex justify-content-end mt-3">
+        <div className="d-flex justify-content-center mt-3">
           <button className="btn btn-outline-light" onClick={onClose} type="button">
             Close
           </button>
