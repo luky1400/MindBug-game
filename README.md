@@ -127,11 +127,12 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 ## TODO - game rules
 
 - "Pokud probíhá více efektů současně (například pokud se dvě nestvůry porazí navzájem), rozhoduje o pořadí vyhodnocení efektů hráč, jenž je na tahu. Vždy dokončete vyhodnocování jednoho efektu předtím, než začnete vyhodnocovat další."
+  - modular component window - player currently on turn decides which DEFEAT action will be triggered first
 - Jiný naming:
   - efekty schopnosti: Příchod, ..
   - Stálé schopnosti (př. Zesnovačka)
   - do své herní oblasti
-  - support i Češtinu
+  - support i pro Češtinu
 - udělat funkce pro tyhle termíny: Odložit, Ovládnout nestvůru
 - (Síla nestvůry nemůže mít nikdy nižší hodnotu než 1, a to ani v případě, že by některé efekty hodnotu síly upravovaly.)
 
