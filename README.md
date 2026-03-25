@@ -149,7 +149,7 @@ V případě shody tento proces opakujte."
 
 ## Bugs
 
-- **After current player used Ferret and opponent used Mindbug to steal it and triggered PLAY action, current player had to choose 2 cards to discard, current player should have played again, but opponent was on turn. This is wrong.**
+- **A**After player currently on turn plays Compost_dragon(), and opponent uses Mindbug to steal it and triggers its [CardActionType.PLAY](http://CardActionType.PLAY), the appropriate player makes a choice. Then current player should have played again bcause opoonent used Mindbug. But opponent is on turn which is wrong.
 - Opponents cards laid out can be selected for target attack but they have no blue border when selected.
 
 ## Documentation notes
