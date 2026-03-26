@@ -135,7 +135,45 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 
 - add persistent database-backed sessions so rooms survive server restarts.
 - add Time limit for action (play_card, attack, use_mindMindbug?, defend?)
-- add other sets
+- add other cards from different sets:
+  - Spiky shinobi
+  - Westside monster
+  - Slugapult
+  - Sheriff
+  - Peach police
+  - Puffermech
+  - Cave lizard
+  - Orange owlmancer
+  - Cheery chimpborg
+  - Cyber bunny
+  - Radisher
+  - Earwig assasin
+  - Sawn
+  - Utility bug
+  - Kiwing juicer
+  - Radioactive pest
+  - Sweet fighter
+  - Kitsunsei
+  - Catalisk
+  - Quetzalcoatl
+  - Pesky peas
+  - Bullet train
+  - Fennel Trickster
+  - Blastfish
+  - (Ratomancer)
+  - (Cornanon, Pear patrol)
+  - Steelhorn
+  - Porcupine teacher
+  - Turtle toaster
+  - Tiger wasp
+  - Spirit maki
+  - Gigazaur
+  - Space penguin
+  - Ghostly underdog
+  - Rex Florae
+  - Leeklings
+  - Coconut crab
+  - BATTLEFRUIT KINGDOM
 - add confirmation panel (same as for surrender) when click leave game.
 - "Začínajícího hráče určíte tak, že si každý hráč náhodně vylosuje jednu kartu z hromádky nepoužitých karet nestvůr a poté si hráči porovnají sílu těchto karet. Hráč, jehož karta má vyšší hodnotu síly, bude začínajícím hráčem.
 V případě shody tento proces opakujte."
