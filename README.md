@@ -172,7 +172,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
   - Leeklings
   - Coconut crab
   - BATTLEFRUIT KINGDOM
-- add confirmation panel (same as for surrender) when click leave game.
+
 - "Začínajícího hráče určíte tak, že si každý hráč náhodně vylosuje jednu kartu z hromádky nepoužitých karet nestvůr a poté si hráči porovnají sílu těchto karet. Hráč, jehož karta má vyšší hodnotu síly, bude začínajícím hráčem.
 V případě shody tento proces opakujte."
 - make all images the same resolution size
