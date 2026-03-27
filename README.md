@@ -188,7 +188,7 @@ V případě shody tento proces opakujte."
 
 ## Bugs - frontend
 
-- For cards with purple background, i dont see green actual strength if it is higher than normal.
+- FOr Knightmare card, I dont see green actual strength if it is higher than normal.
 - (Opponents cards laid out can be selected for target attack but they have no blue border when selected.)
 
 ## Documentation notes
