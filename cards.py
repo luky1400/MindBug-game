@@ -126,7 +126,7 @@ class Bee_bear(Card):
 
 
 class Boar_zooka(Card):
-    name: str = "Boar-Zooka"
+    name: str = "Boar Zooka"
     strength: int = 6
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.DEFEATED

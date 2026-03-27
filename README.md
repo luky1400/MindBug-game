@@ -109,10 +109,10 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - **Improve UI layout**
   - make Game UI to fit one screen size - users cannot roll up and down
   - upravit obrazovku dle pravidel (+ když najedu with mouse cursor on any of discard_piles, it will render cards in it)
-  - dát na rozklikávatko (vpravo nahoře): pravidla, cards in game - rozdělené do tabs podle sets (include also number of copies of each card)
 - **UI additonal:**
   - Když defender vybira, jestli a cim bude branit, tak mu ukazat kartu utocnika - zvyrznit ji:
     - Prompt: can you make orange/red border/glow to card that was selected as attacker. This border should only apply until defender is selected.
+    - adjust resolution size, ...
   - Hide redundant information in UI
   - Discard Pile dát nějak nastranu a karty zobrazit, pouze když na to user klikne - zobrazi se stejne modal window a user muze kliknout na hide.
   - udělat nejakou signalizaci, která upozorní hrace, ze je na tahu (play_card/attack, Mindbug, Defend, etc.)
@@ -172,10 +172,9 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
   - Leeklings
   - Coconut crab
   - BATTLEFRUIT KINGDOM
-
 - "Začínajícího hráče určíte tak, že si každý hráč náhodně vylosuje jednu kartu z hromádky nepoužitých karet nestvůr a poté si hráči porovnají sílu těchto karet. Hráč, jehož karta má vyšší hodnotu síly, bude začínajícím hráčem.
 V případě shody tento proces opakujte."
-- make all images the same resolution size
+- dát na rozklikávatko (vpravo nahoře): pravidla
 - [QA](https://www.zatrolene-hry.cz/spolecenska-hra/mozkozrout-12630/otazky/)
 
 ## Bugs

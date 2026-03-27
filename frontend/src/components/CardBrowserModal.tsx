@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { CardPoolEntry, CardSet } from "../types/game";
+import { CARD_SET_OPTIONS } from "../types/game";
 import { CardPreviewModal } from "./CardPreviewModal";
 import { CardTile } from "./CardTile";
 
@@ -10,7 +11,8 @@ interface CardBrowserModalProps {
 }
 
 export function CardBrowserModal({ cardPoolBySet, selectedSets, onClose }: CardBrowserModalProps) {
-  const [activeTab, setActiveTab] = useState<CardSet>(selectedSets[0]);
+  const orderedSets = CARD_SET_OPTIONS.filter((s) => selectedSets.includes(s));
+  const [activeTab, setActiveTab] = useState<CardSet>(orderedSets[0]);
   const [previewLabel, setPreviewLabel] = useState<string | null>(null);
 
   return (
@@ -24,7 +26,7 @@ export function CardBrowserModal({ cardPoolBySet, selectedSets, onClose }: CardB
             </button>
           </div>
           <div className="card-browser-tabs">
-            {selectedSets.map((set) => (
+            {orderedSets.map((set) => (
               <button
                 key={set}
                 className={`card-browser-tab${activeTab === set ? " active" : ""}`}
