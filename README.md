@@ -108,6 +108,9 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - add attribute in Game class that stores game cards - players cards - to implement Future_eric
 - "Pokud probíhá více efektů současně (například pokud se dvě nestvůry porazí navzájem), rozhoduje o pořadí vyhodnocení efektů hráč, jenž je na tahu. Vždy dokončete vyhodnocování jednoho efektu předtím, než začnete vyhodnocovat další."
   - modular component window - player currently on turn decides which DEFEAT action will be triggered first
+- Implement New Servants - Hyenix, Hungery Hamster, ..
+
+
 
 ## TODO - frontend
 

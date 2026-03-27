@@ -34,6 +34,9 @@ export function CardBrowserModal({ cardPoolBySet, selectedSets, onClose }: CardB
                 type="button"
               >
                 {set}
+                <span className="card-browser-tab-count">
+                  {(cardPoolBySet[set] ?? []).reduce((sum, e) => sum + e.copies, 0)}
+                </span>
               </button>
             ))}
           </div>
