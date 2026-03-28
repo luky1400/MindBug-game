@@ -108,6 +108,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - "Pokud probíhá více efektů současně (například pokud se dvě nestvůry porazí navzájem), rozhoduje o pořadí vyhodnocení efektů hráč, jenž je na tahu. Vždy dokončete vyhodnocování jednoho efektu předtím, než začnete vyhodnocovat další."
   - modular component window - player currently on turn decides which DEFEAT action will be triggered first
 - Implement New Servants - Hyenix, Hungery Hamster, ..
+- Simplify and unify code
 
 ## TODO - frontend
 
@@ -201,4 +202,12 @@ V případě shody tento proces opakujte."
 - Dynamic badges of special effects only appear when the is actually gained from an effect, not when it is native on the card (e.g. Lone Yeti, Mummy Cat, Snail Thrower effect, Ram Hopper ).
 - Rooms are stored only in memory, so if the host server restarts, the game is lost.
 - In `_select_cards_for_game()`, after selecting game cards, the remaining cards from the card pool are cloned, shuffled, and stored in `self.unused_pile`
+- `Shark_dog():`
+  1. HUNTER target resolved early (stored as `hunter_defender`)
+  2. ATTACK action fires → sets `_pending_card_action_choice`
+  3. Stores `_pending_attack_continuation` with attacker + defender refs → **returns**
+  4. Player calls `resolve_pending_card_action()` → choice resolves, Shark Dog defeats a creature
+  5. `_continue_attack_after_action_resolution()` runs:
+    - If HUNTER target was destroyed → "Combat is cancelled" → `_finalize_attack_action` (handles FRENZY)
+    - If HUNTER target survived → `_resolve_combat()` proceeds normally
 

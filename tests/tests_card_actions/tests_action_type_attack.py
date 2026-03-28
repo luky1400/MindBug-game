@@ -10,13 +10,14 @@ from cards import (
     Shark_dog,
     Shield_bugs,
     Short_neck_giraffodile,
+    Snail_hydra,
     The_lurker,
     Tiger_squirrel,
     Turbo_bug,
     Turf_the_surfer,
     Tusked_extorter,
 )
-from enums import CardSpecialType
+from enums import CardSpecialType, GameState
 
 
 def _new_game() -> Game:
@@ -242,3 +243,104 @@ def test_shark_dog_attack_action_choice_resolves_without_error_when_pending_defe
     assert game._pending_defense_decision is not None
     assert strong_enemy_1 in opponent.discard_pile
     game.defend(defender_index=None)  # direct attack
+
+
+def test_shark_dog_hunter_attack_triggers_action_before_combat() -> None:
+    """Shark Dog (HUNTER + ATTACK action) targeting a defender should trigger its
+    ATTACK action before combat. The targeted defender should still be alive when
+    the action resolves, and combat happens after."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    shark_dog = Shark_dog()
+    strong_enemy = Luchataur()  # strength 9, eligible for Shark Dog action
+    weak_enemy = Ferret_bomber()  # strength 2, not eligible
+    player.cards_laid_out = [shark_dog]
+    opponent.cards_laid_out = [weak_enemy, strong_enemy]
+
+    # Shark Dog attacks targeting strong_enemy (index 1) via HUNTER.
+    # ATTACK action fires first — only strong_enemy is eligible (>=6).
+    # Auto-resolved: destroys strong_enemy before combat.
+    game.attack(attacker_index=0, defender_index=1)
+
+    # strong_enemy was the HUNTER target AND the only eligible action target.
+    # Action auto-resolves (1 eligible = auto-select), destroying strong_enemy.
+    # Since the HUNTER target was destroyed, combat is cancelled.
+    assert strong_enemy in opponent.discard_pile
+    assert strong_enemy not in opponent.cards_laid_out
+    assert shark_dog in player.cards_laid_out  # Shark Dog survives (no combat)
+
+
+def test_shark_dog_hunter_attack_action_pending_then_destroys_target() -> None:
+    """When Shark Dog HUNTER targets a defender and the ATTACK action requires a
+    choice (multiple eligible), destroying the HUNTER target via the action should
+    cancel combat."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    shark_dog = Shark_dog()
+    hunter_target = Luchataur()  # strength 9
+    other_strong = Majestic_manticore()  # strength 6
+    player.cards_laid_out = [shark_dog]
+    opponent.cards_laid_out = [hunter_target, other_strong]
+
+    # HUNTER targets hunter_target (index 0).
+    # ATTACK action has 2 eligible targets (both >=6), so pending choice is created.
+    game.attack(attacker_index=0, defender_index=0)
+    assert game._pending_card_action_choice is not None
+    assert game._pending_attack_continuation is not None
+
+    # Player chooses to destroy hunter_target (index 0) via the action.
+    game.resolve_pending_card_action([0])
+
+    # hunter_target was the HUNTER target and was destroyed by action — combat cancelled.
+    assert hunter_target in opponent.discard_pile
+    assert shark_dog in player.cards_laid_out  # Shark Dog survives
+
+
+def test_shark_dog_hunter_attack_action_pending_then_target_survives() -> None:
+    """When Shark Dog HUNTER targets a defender and the ATTACK action destroys a
+    different creature, combat should proceed normally against the HUNTER target."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    shark_dog = Shark_dog()  # strength 4
+    hunter_target = Luchataur()  # strength 9
+    other_strong = Majestic_manticore()  # strength 6
+    player.cards_laid_out = [shark_dog]
+    opponent.cards_laid_out = [hunter_target, other_strong]
+
+    # HUNTER targets hunter_target (index 0). Pending choice created.
+    game.attack(attacker_index=0, defender_index=0)
+
+    # Player chooses to destroy other_strong (index 1) instead.
+    game.resolve_pending_card_action([1])
+
+    # hunter_target survived the action, so combat resolves.
+    # Shark Dog (4) vs Luchataur (9) — Shark Dog is defeated.
+    assert other_strong in opponent.discard_pile
+    assert shark_dog in player.discard_pile  # lost combat
+    assert hunter_target in opponent.cards_laid_out  # won combat
+
+
+def test_shark_dog_hunter_no_eligible_action_targets_still_resolves_combat() -> None:
+    """Shark Dog HUNTER targeting a weak defender (no eligible action targets)
+    should still resolve combat normally."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    shark_dog = Shark_dog()  # strength 4
+    weak_enemy = Ferret_bomber()  # strength 2, not eligible for action
+    player.cards_laid_out = [shark_dog]
+    opponent.cards_laid_out = [weak_enemy]
+
+    # HUNTER targets weak_enemy. No action targets (none >=6), action is a no-op.
+    # Combat resolves: Shark Dog (4) vs Ferret Bomber (2) — Ferret Bomber defeated.
+    game.attack(attacker_index=0, defender_index=0)
+
+    assert weak_enemy in opponent.discard_pile
+    assert shark_dog in player.cards_laid_out
