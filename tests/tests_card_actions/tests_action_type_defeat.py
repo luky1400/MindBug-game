@@ -1,10 +1,12 @@
 from base_classes import DrawPile, Game
 from unittest.mock import patch
 from cards import (
+    Boar_zooka,
     Chameleon_sniper,
     Explosive_toad,
     Ferret_bomber,
     Harpy_mother,
+    Knightmare,
     Luchataur,
     Plated_scorpion,
     Shield_bugs,
@@ -201,3 +203,217 @@ def test_snail_hydra_attacks_and_by_action_attack_destroys_explosive_toad_and_ex
     assert weak_enemy in opponent.cards_laid_out
     assert weak_enemy not in opponent.discard_pile
     assert game.game_state == GameState.ACTIVE
+
+
+# ── DEFEATED ordering tests ──────────────────────────────────────────────
+
+
+def test_two_defeated_actions_equal_strength_creates_ordering() -> None:
+    """When both creatures have DEFEATED actions, equal strength, and both die,
+    a pending ordering prompt is created."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    attacker_toad = Explosive_toad()  # strength 5, DEFEATED
+    defender_harpy = Harpy_mother()  # strength 5, DEFEATED
+
+    player.cards_laid_out = [attacker_toad]
+    opponent.cards_laid_out = [defender_harpy]
+    # Keep game active
+    player.hand = [Tiger_squirrel()]
+    opponent.hand = [Chameleon_sniper()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    # Both die (equal strength 5)
+    assert game._pending_defeated_ordering is not None
+    assert len(game._pending_defeated_ordering.entries) == 2
+    assert attacker_toad in player.discard_pile
+    assert defender_harpy in opponent.discard_pile
+    # Attack is NOT finalized yet - waiting for ordering
+    assert game._pending_combat_finalization is not None
+
+
+def test_defeated_ordering_triggers_actions_in_chosen_order() -> None:
+    """Player chooses order [1, 0] — the second entry (defender) triggers first."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    attacker_toad = Explosive_toad()  # strength 5, DEFEATED: defeat a creature of choice
+    defender_harpy = Harpy_mother()  # strength 5, DEFEATED: take control of weak enemies
+
+    extra_enemy = Chameleon_sniper()  # strength 1, on opponent side (target for toad)
+    player.cards_laid_out = [attacker_toad]
+    opponent.cards_laid_out = [defender_harpy, extra_enemy]
+    player.hand = [Tiger_squirrel()]
+    opponent.hand = [Chameleon_sniper()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert game._pending_defeated_ordering is not None
+
+    # Choose order: [1, 0] means defender_harpy's DEFEATED fires first
+    # Harpy Mother: take control of enemy creatures with power <= 5
+    # But Harpy Mother belongs to opponent, and game.current_player is the attacker.
+    # So harpy's trigger_action uses game.opponent's cards (attacker's creatures)
+    # Attacker has no creatures left (toad was destroyed), so harpy has nothing to take.
+    # Then Explosive Toad fires: defeat a creature of choice from opponent's side.
+    # extra_enemy is still on opponent's battlefield.
+    game.resolve_pending_defeated_ordering([1, 0])
+
+    # Toad's DEFEATED action targets extra_enemy (auto-selected since it's the only one)
+    assert extra_enemy in opponent.discard_pile
+
+
+def test_defeated_ordering_with_pending_card_action_choice() -> None:
+    """When first DEFEATED action creates a pending choice, the second waits."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    attacker_toad = Explosive_toad()  # strength 5, DEFEATED: choose creature to defeat
+    defender_toad = Explosive_toad()  # strength 5, DEFEATED: choose creature to defeat
+
+    player_extra = Luchataur()
+    # Use Ferret_bomber (no ongoing effects) instead of Shield_bugs (which gives +1)
+    opponent_extra_1 = Ferret_bomber()
+    opponent_extra_2 = Chameleon_sniper()
+
+    player.cards_laid_out = [attacker_toad, player_extra]
+    opponent.cards_laid_out = [defender_toad, opponent_extra_1, opponent_extra_2]
+    player.hand = [Tiger_squirrel()]
+    opponent.hand = [Chameleon_sniper()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert game._pending_defeated_ordering is not None
+    assert len(game._pending_defeated_ordering.entries) == 2
+
+    # Choose order: attacker toad first [0], then defender toad [1]
+    game.resolve_pending_defeated_ordering([0, 1])
+
+    # Attacker toad's DEFEATED: targets opponent's creatures.
+    # opponent has [opponent_extra_1, opponent_extra_2] (defender_toad already in discard).
+    # 2 eligible targets → pending choice
+    assert game._pending_card_action_choice is not None
+    game.resolve_pending_card_action([0])  # destroy opponent_extra_1
+
+    assert opponent_extra_1 in opponent.discard_pile
+
+    # Now defender toad's DEFEATED should fire.
+    # Defender toad belongs to opponent. game.current_player is still the attacker.
+    # So it targets game.opponent's creatures = opponent's creatures.
+    # opponent has [opponent_extra_2] left. Auto-selected.
+    assert opponent_extra_2 in opponent.discard_pile
+
+
+def test_defeated_ordering_only_one_survives_tough_no_ordering_prompt() -> None:
+    """When one creature has TOUGH and survives the initial combat, no ordering
+    prompt appears — the single deferred DEFEATED action triggers immediately."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    explosive_toad = Explosive_toad()  # strength 5, DEFEATED
+    knightmare = Knightmare()  # strength 5, TOUGH, DEFEATED
+
+    player.cards_laid_out = [explosive_toad]
+    opponent.cards_laid_out = [knightmare]
+    player.hand = [Tiger_squirrel()]
+    opponent.hand = [Chameleon_sniper()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    # Both have equal strength, but Knightmare has TOUGH (1 charge) → survives initial combat
+    # No ordering prompt since only 1 DEFEATED actually fires
+    assert game._pending_defeated_ordering is None
+    assert explosive_toad in player.discard_pile  # destroyed, DEFEATED triggers immediately
+
+
+def test_defeated_ordering_validation_rejects_wrong_count() -> None:
+    """Ordering with wrong number of indices raises ValueError."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    toad1 = Explosive_toad()
+    toad2 = Explosive_toad()
+
+    player.cards_laid_out = [toad1]
+    opponent.cards_laid_out = [toad2]
+    player.hand = [Tiger_squirrel()]
+    opponent.hand = [Chameleon_sniper()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert game._pending_defeated_ordering is not None
+
+    try:
+        game.resolve_pending_defeated_ordering([0])  # only 1 index for 2 entries
+        assert False, "Should have raised ValueError"
+    except ValueError:
+        pass
+
+
+def test_defeated_ordering_validation_rejects_invalid_indices() -> None:
+    """Ordering with duplicate or out-of-range indices raises ValueError."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    toad1 = Explosive_toad()
+    toad2 = Explosive_toad()
+
+    player.cards_laid_out = [toad1]
+    opponent.cards_laid_out = [toad2]
+    player.hand = [Tiger_squirrel()]
+    opponent.hand = [Chameleon_sniper()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert game._pending_defeated_ordering is not None
+
+    try:
+        game.resolve_pending_defeated_ordering([0, 0])  # duplicate
+        assert False, "Should have raised ValueError"
+    except ValueError:
+        pass
+
+
+def test_defeated_ordering_game_over_during_queue_stops_processing() -> None:
+    """If game ends during DEFEATED queue processing, remaining actions are skipped."""
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    # Knightmare's DEFEATED: "You lose the game"
+    # Explosive Toad's DEFEATED: "Defeat a creature of your choice"
+    knightmare = Knightmare()
+    knightmare.tough_charges = 0  # disable TOUGH so it actually dies
+    explosive_toad = Explosive_toad()
+
+    player.cards_laid_out = [knightmare]
+    opponent.cards_laid_out = [explosive_toad]
+    player.hand = [Tiger_squirrel()]
+    opponent.hand = [Chameleon_sniper()]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert game._pending_defeated_ordering is not None
+
+    # Trigger Knightmare first → game over (player loses)
+    game.resolve_pending_defeated_ordering([0, 1])
+
+    assert game.game_state == GameState.GAME_OVER
+    assert game.winner == opponent
+    # Queue should be cleared
+    assert game._defeated_action_queue == []

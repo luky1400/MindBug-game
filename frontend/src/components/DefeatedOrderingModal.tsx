@@ -7,6 +7,7 @@ interface DefeatedOrderingModalProps {
   onSelect: (index: number) => void;
   onReset: () => void;
   onConfirm: () => void;
+  onHide: () => void;
 }
 
 export function DefeatedOrderingModal({
@@ -15,6 +16,7 @@ export function DefeatedOrderingModal({
   onSelect,
   onReset,
   onConfirm,
+  onHide,
 }: DefeatedOrderingModalProps) {
   if (!pending.response_required_from_viewer) return null;
 
@@ -65,6 +67,9 @@ export function DefeatedOrderingModal({
           Ordered: {orderedIndices.length}/{pending.entries.length}
         </div>
         <div className="d-flex justify-content-center gap-2 mt-3">
+          <button className="btn btn-outline-secondary" onClick={onHide} type="button">
+            Hide for now
+          </button>
           <button
             className="btn btn-outline-secondary"
             onClick={onReset}

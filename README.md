@@ -107,7 +107,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - add tests regularly for things that are not working
 - Implement New Servants - Hyenix, Hunger Hamster, ..
 - Simplify and unify code
-- Investigate if logs make sense - is order correct?
+- Investigate if logs make sense - is order correct? ... Add log "Player 1" attacks.
 
 ## TODO - frontend
 

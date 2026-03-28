@@ -36,6 +36,7 @@ export function App() {
   const [defeatedOrderingIndices, setDefeatedOrderingIndices] = useState<number[]>([]);
   const [isMindbugModalHidden, setIsMindbugModalHidden] = useState(false);
   const [isChoiceModalHidden, setIsChoiceModalHidden] = useState(false);
+  const [isDefeatedOrderingModalHidden, setIsDefeatedOrderingModalHidden] = useState(false);
   const [statusText, setStatusText] = useState("");
   const [errorText, setErrorText] = useState("");
   const [previewCardLabel, setPreviewCardLabel] = useState<string | null>(null);
@@ -89,6 +90,7 @@ export function App() {
   const canAnswerDefeatedOrdering = Boolean(state?.pending_defeated_ordering?.response_required_from_viewer);
   const hasBlockingMindbugModal = canAnswerMindbug && !isMindbugModalHidden;
   const hasBlockingChoiceModal = canAnswerCardAction && !isChoiceModalHidden;
+  const hasBlockingDefeatedOrderingModal = canAnswerDefeatedOrdering && !isDefeatedOrderingModalHidden;
   const canAct = Boolean(
     state &&
     viewer &&
@@ -357,6 +359,7 @@ export function App() {
 
   useEffect(() => {
     setDefeatedOrderingIndices([]);
+    setIsDefeatedOrderingModalHidden(false);
   }, [pendingDefeatedOrderingIdentity]);
 
   async function createGame() {
@@ -881,13 +884,24 @@ export function App() {
           onHide={hideChoiceModal}
         />
       ) : null}
-      {canAnswerDefeatedOrdering && state?.pending_defeated_ordering ? (
+      {canAnswerDefeatedOrdering && isDefeatedOrderingModalHidden ? (
+        <div className="choice-modal-toggle">
+          <div className="choice-modal-toggle-text">
+            Choose DEFEATED action order
+          </div>
+          <button className="btn btn-outline-light btn-sm" onClick={() => setIsDefeatedOrderingModalHidden(false)} type="button">
+            Show choice
+          </button>
+        </div>
+      ) : null}
+      {hasBlockingDefeatedOrderingModal && state?.pending_defeated_ordering ? (
         <DefeatedOrderingModal
           pending={state.pending_defeated_ordering}
           orderedIndices={defeatedOrderingIndices}
           onSelect={selectDefeatedOrder}
           onReset={resetDefeatedOrder}
           onConfirm={() => void confirmDefeatedOrdering()}
+          onHide={() => setIsDefeatedOrderingModalHidden(true)}
         />
       ) : null}
       <CardPreviewModal label={previewCardLabel} onClose={() => setPreviewCardLabel(null)} />
