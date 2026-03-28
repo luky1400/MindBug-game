@@ -127,5 +127,10 @@ export const socketActions = {
   },
   surrender(socket: Socket) {
     return emitWithAck<SocketAckResponse>(socket, "surrender");
+  },
+  resolveDefeatedOrdering(socket: Socket, orderedIndices: number[]) {
+    return emitWithAck<SocketAckResponse>(socket, "resolve_defeated_ordering", {
+      ordered_indices: orderedIndices,
+    });
   }
 };

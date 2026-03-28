@@ -50,6 +50,17 @@ export interface PendingCardActionState {
   max_choices: number;
 }
 
+export interface DefeatedOrderingEntry {
+  owner_name: string;
+  card_label: CardLabel;
+}
+
+export interface PendingDefeatedOrderingState {
+  responding_player_name: string;
+  response_required_from_viewer: boolean;
+  entries: DefeatedOrderingEntry[];
+}
+
 export interface MultiplayerState {
   room_status: string;
   game_state: string;
@@ -66,6 +77,7 @@ export interface MultiplayerState {
   pending_mindbug: PendingMindbugState | null;
   pending_defense: PendingDefenseState | null;
   pending_card_action: PendingCardActionState | null;
+  pending_defeated_ordering: PendingDefeatedOrderingState | null;
   pending_frenzy_attacker_index: number | null;
   connected_players: number;
   max_players: number;

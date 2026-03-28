@@ -105,8 +105,6 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 
 - handle that player or opponent can choose which cards to play or discard - do for all cards
 - add tests regularly for things that are not working
-- "Pokud probíhá více efektů současně (například pokud se dvě nestvůry porazí navzájem), rozhoduje o pořadí vyhodnocení efektů hráč, jenž je na tahu. Vždy dokončete vyhodnocování jednoho efektu předtím, než začnete vyhodnocovat další."
-  - modular component window - player currently on turn decides which DEFEAT action will be triggered first
 - Implement New Servants - Hyenix, Hunger Hamster, ..
 - Simplify and unify code
 - Investigate if logs make sense - is order correct?
@@ -220,4 +218,5 @@ V případě shody tento proces opakujte."
   5. `_continue_attack_after_action_resolution()` runs:
     - If HUNTER target was destroyed → "Combat is cancelled" → `_finalize_attack_action` (handles FRENZY)
     - If HUNTER target survived → `_resolve_combat()` proceeds normally
+- Pokud probíhá více efektů současně (například pokud se dvě nestvůry porazí navzájem, nebo jich jenomu hraci umre vice v jednom kole), rozhoduje o pořadí vyhodnocení efektů hráč, jenž je na tahu.
 

@@ -121,6 +121,7 @@ class GameSession:
                 "pending_defense": None,
                 "pending_card_action": None,
                 "pending_frenzy_attacker_index": None,
+                "pending_defeated_ordering": None,
                 "connected_players": len(self.players),
                 "max_players": 2,
                 "invite_code": self.game_id,
@@ -286,6 +287,14 @@ def _ensure_pending_defense_responder(game: Game, player_index: int) -> None:
         raise ValueError("There is no pending defense decision.")
     if pending.defending_player_index != player_index:
         raise ValueError("Waiting for the defending player to choose a blocker or lose 1 life.")
+
+
+def _ensure_pending_defeated_ordering_responder(game: Game, player_index: int) -> None:
+    pending = game._pending_defeated_ordering
+    if pending is None:
+        raise ValueError("There is no pending DEFEATED ordering choice.")
+    if pending.responding_player_index != player_index:
+        raise ValueError("Waiting for the other player to choose the DEFEATED action order.")
 
 
 def _ensure_pending_card_action_responder(game: Game, player_index: int) -> None:
@@ -536,6 +545,19 @@ async def resolve_card_action_choice(sid: str, payload: dict[str, Any]) -> dict[
         if not isinstance(selected_indices, list):
             raise ValueError("selected_indices must be a list.")
         game.resolve_pending_card_action([int(index) for index in selected_indices])
+
+    return await _handle_socket_action(sid, action)
+
+
+@sio.event
+async def resolve_defeated_ordering(sid: str, payload: dict[str, Any]) -> dict[str, Any]:
+    def action(session: GameSession, player: SessionPlayer) -> None:
+        game = _require_active_game(session)
+        _ensure_pending_defeated_ordering_responder(game, player.player_index)
+        ordered_indices = payload.get("ordered_indices", [])
+        if not isinstance(ordered_indices, list):
+            raise ValueError("ordered_indices must be a list.")
+        game.resolve_pending_defeated_ordering([int(i) for i in ordered_indices])
 
     return await _handle_socket_action(sid, action)
 

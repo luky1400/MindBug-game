@@ -218,6 +218,24 @@ class PendingAttackContinuation:
     defender_owner_index: int
 
 
+@dataclass
+class DefeatedCreatureEntry:
+    owner_index: int
+    creature: Card
+    owner_name: str
+    card_label: str  # snapshot at time of death
+
+@dataclass
+class PendingDefeatedOrdering:
+    responding_player_index: int
+    entries: list[DefeatedCreatureEntry]
+
+@dataclass
+class PendingCombatFinalization:
+    attacker: Card
+    attacker_owner_index: int
+
+
 class Game:
     def __init__(
         self,
@@ -248,6 +266,9 @@ class Game:
         self._pending_defense_decision: PendingDefenseDecision | None = None
         self._pending_card_action_choice: PendingCardActionChoice | None = None
         self._pending_attack_continuation: PendingAttackContinuation | None = None
+        self._pending_defeated_ordering: PendingDefeatedOrdering | None = None
+        self._defeated_action_queue: list[DefeatedCreatureEntry] = []
+        self._pending_combat_finalization: PendingCombatFinalization | None = None
         self.number_of_players = len(player_names)
         self.number_of_cards_in_game = (
             self.starting_draw_pile_size * self.number_of_players
@@ -340,6 +361,9 @@ class Game:
         self._pending_defense_decision = None
         self._pending_card_action_choice = None
         self._pending_attack_continuation = None
+        self._pending_defeated_ordering = None
+        self._defeated_action_queue = []
+        self._pending_combat_finalization = None
         self._recalculate_ongoing_effects()
 
     # NOTe - mabe beter to split: play_card and play_card_from_hand functions?
@@ -596,6 +620,10 @@ class Game:
                 self._draw_up_to_hand_limit_for_each_player_if_needed()
             self._recalculate_ongoing_effects()
             self._check_game_over()
+            # Continue processing queued DEFEATED actions
+            if self._defeated_action_queue or self._pending_combat_finalization is not None:
+                self._process_next_defeated_action()
+                return
             if self._pending_attack_continuation is not None:
                 self._continue_attack_after_action_resolution()
                 return
@@ -929,6 +957,58 @@ class Game:
         self.log.append(
             f"Waiting for {defender_owner.name} to choose a blocker or lose 1 life."
         )
+
+    def resolve_pending_defeated_ordering(self, ordered_indices: list[int]) -> None:
+        self._ensure_active()
+        if self._pending_defeated_ordering is None:
+            raise ValueError("There is no pending DEFEATED ordering choice.")
+
+        pending = self._pending_defeated_ordering
+        if len(ordered_indices) != len(pending.entries):
+            raise ValueError(
+                f"Must order all {len(pending.entries)} DEFEATED actions."
+            )
+        if sorted(ordered_indices) != list(range(len(pending.entries))):
+            raise ValueError("Invalid ordering indices.")
+
+        self._defeated_action_queue = [pending.entries[i] for i in ordered_indices]
+        self._pending_defeated_ordering = None
+
+        self._process_next_defeated_action()
+
+    def _process_next_defeated_action(self) -> None:
+        if not self._defeated_action_queue:
+            self._draw_up_to_hand_limit_for_each_player_if_needed()
+            self._recalculate_ongoing_effects()
+            self._check_game_over()
+
+            if self._pending_combat_finalization is not None:
+                fin = self._pending_combat_finalization
+                self._pending_combat_finalization = None
+                attacker_owner = self.players[fin.attacker_owner_index]
+                self._finalize_attack_action(attacker_owner, fin.attacker)
+            return
+
+        if self.game_state == GameState.GAME_OVER:
+            self._defeated_action_queue = []
+            self._pending_combat_finalization = None
+            return
+
+        entry = self._defeated_action_queue.pop(0)
+
+        self.log.append(
+            f"{entry.owner_name}'s {entry.creature.name} triggers its DEFEATED action."
+        )
+        entry.creature.trigger_action(self)
+
+        if self._pending_card_action_choice is not None:
+            # Wait for card action to resolve; post-resolution will continue the queue
+            return
+
+        self._draw_up_to_hand_limit_for_each_player_if_needed()
+        self._recalculate_ongoing_effects()
+        self._check_game_over()
+        self._process_next_defeated_action()
 
     def resolve_brain_fly_action(self, source_card: Card) -> None:
         eligible_indices = [
@@ -1313,8 +1393,9 @@ class Game:
         }
 
     def _destroy_creature(
-        self, owner: Player, creature: Card, ignore_tough: bool = False
-    ) -> None:
+        self, owner: Player, creature: Card, ignore_tough: bool = False,
+        defer_defeated_action: bool = False,
+    ) -> bool:
         if (
             CardSpecialType.TOUGH in creature.special_types
             and creature.tough_charges > 0
@@ -1322,13 +1403,12 @@ class Game:
         ):
             creature.tough_charges -= 1
             self.log.append(f"{creature.name} survives due to TOUGH.")
-            return
+            return False
         owner.cards_laid_out.remove(creature)
         owner.move_to_discard(creature)
         self.log.append(f"{owner.name}'s {creature.name} is defeated.")
 
-        # Trigger action if creature has a DEFEATED action type
-        if creature.action_type == CardActionType.DEFEATED:
+        if creature.action_type == CardActionType.DEFEATED and not defer_defeated_action:
             creature.trigger_action(self)
             if self._pending_card_action_choice is None:
                 self._draw_up_to_hand_limit_for_each_player_if_needed()
@@ -1338,6 +1418,7 @@ class Game:
 
         self._recalculate_ongoing_effects()
         self._check_game_over()
+        return creature.action_type == CardActionType.DEFEATED and defer_defeated_action
 
     def _is_defeated(self, defender: Card, attacker: Card) -> bool:
         if CardSpecialType.POISONOUS in attacker.special_types:
@@ -1389,6 +1470,13 @@ class Game:
             ]
             raise ValueError(
                 f"Waiting for {responder.name} to resolve a card action choice."
+            )
+        if self._pending_defeated_ordering is not None:
+            responder = self.players[
+                self._pending_defeated_ordering.responding_player_index
+            ]
+            raise ValueError(
+                f"Waiting for {responder.name} to choose the order of DEFEATED actions."
             )
 
     # TODO - refactor - do not allow to select not eligible blockers
@@ -1462,15 +1550,70 @@ class Game:
     ) -> None:
         self.log.append(
             f"{attacker_owner.name}'s {attacker.name} attacks {defender_owner.name}'s {defender.name}."
-        )        
-        
+        )
+
         attacker_defeated = self._is_defeated(attacker, defender)
         defender_defeated = self._is_defeated(defender, attacker)
 
+        # Check if both will die and both have DEFEATED actions (need ordering)
+        need_ordering = (
+            attacker_defeated
+            and defender_defeated
+            and attacker.action_type == CardActionType.DEFEATED
+            and defender.action_type == CardActionType.DEFEATED
+        )
+
+        deferred_entries: list[DefeatedCreatureEntry] = []
+
         if attacker_defeated:
-            self._destroy_creature(attacker_owner, attacker)
+            was_deferred = self._destroy_creature(
+                attacker_owner, attacker, defer_defeated_action=need_ordering
+            )
+            if was_deferred:
+                deferred_entries.append(DefeatedCreatureEntry(
+                    owner_index=self.players.index(attacker_owner),
+                    creature=attacker,
+                    owner_name=attacker_owner.name,
+                    card_label=attacker.short_label(),
+                ))
         if defender_defeated:
-            self._destroy_creature(defender_owner, defender)
+            was_deferred = self._destroy_creature(
+                defender_owner, defender, defer_defeated_action=need_ordering
+            )
+            if was_deferred:
+                deferred_entries.append(DefeatedCreatureEntry(
+                    owner_index=self.players.index(defender_owner),
+                    creature=defender,
+                    owner_name=defender_owner.name,
+                    card_label=defender.short_label(),
+                ))
+
+        if len(deferred_entries) >= 2:
+            self._pending_combat_finalization = PendingCombatFinalization(
+                attacker=attacker,
+                attacker_owner_index=self.players.index(attacker_owner),
+            )
+            self._pending_defeated_ordering = PendingDefeatedOrdering(
+                responding_player_index=self.turn,
+                entries=deferred_entries,
+            )
+            self.log.append(
+                f"Multiple DEFEATED actions triggered. {self.current_player.name} must choose the trigger order."
+            )
+            return
+
+        # If ordering was attempted but <2 actually deferred (TOUGH saved one),
+        # trigger any single deferred action now
+        if need_ordering and len(deferred_entries) == 1:
+            entry = deferred_entries[0]
+            entry.creature.trigger_action(self)
+            if self._pending_card_action_choice is None:
+                self._draw_up_to_hand_limit_for_each_player_if_needed()
+            self.log.append(
+                f"{entry.owner_name}'s {entry.creature.name} triggers its DEFEATED action."
+            )
+            self._recalculate_ongoing_effects()
+            self._check_game_over()
 
         self._finalize_attack_action(attacker_owner, attacker)
 
@@ -1530,6 +1673,23 @@ class Game:
         pending_card_action = self._serialize_pending_card_action_for_viewer(
             viewer_index
         )
+        pending_defeated_ordering = None
+        if self._pending_defeated_ordering is not None:
+            pending_defeated_ordering = {
+                "responding_player_name": self.players[
+                    self._pending_defeated_ordering.responding_player_index
+                ].name,
+                "response_required_from_viewer": (
+                    self._pending_defeated_ordering.responding_player_index == viewer_index
+                ),
+                "entries": [
+                    {
+                        "owner_name": entry.owner_name,
+                        "card_label": entry.card_label,
+                    }
+                    for entry in self._pending_defeated_ordering.entries
+                ],
+            }
 
         return {
             "game_state": self.game_state.value,
@@ -1549,6 +1709,7 @@ class Game:
             "pending_frenzy_attacker_index": self._get_pending_frenzy_attacker_index(
                 viewer_index
             ),
+            "pending_defeated_ordering": pending_defeated_ordering,
         }
 
     def _serialize_pending_defense(self) -> dict[str, Any] | None:

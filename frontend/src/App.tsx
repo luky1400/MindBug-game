@@ -6,6 +6,7 @@ import { CardPreviewModal } from "./components/CardPreviewModal";
 import { CardBrowserModal } from "./components/CardBrowserModal";
 import { GameLog } from "./components/GameLog";
 import { HandPanel } from "./components/HandPanel";
+import { DefeatedOrderingModal } from "./components/DefeatedOrderingModal";
 import { PendingCardActionModal } from "./components/PendingCardActionModal";
 import { PendingMindbugModal } from "./components/PendingMindbugModal";
 import { CARD_SET_OPTIONS, REQUIRED_CARD_SET, type CardSet, type MultiplayerState } from "./types/game";
@@ -32,6 +33,7 @@ export function App() {
   const [selectedAttackerIndex, setSelectedAttackerIndex] = useState<number | null>(null);
   const [selectedDefenderIndex, setSelectedDefenderIndex] = useState<number | null>(null);
   const [selectedChoiceIndices, setSelectedChoiceIndices] = useState<number[]>([]);
+  const [defeatedOrderingIndices, setDefeatedOrderingIndices] = useState<number[]>([]);
   const [isMindbugModalHidden, setIsMindbugModalHidden] = useState(false);
   const [isChoiceModalHidden, setIsChoiceModalHidden] = useState(false);
   const [statusText, setStatusText] = useState("");
@@ -84,6 +86,7 @@ export function App() {
   const canAnswerMindbug = Boolean(state?.pending_mindbug?.response_required_from_viewer);
   const canAnswerDefense = Boolean(state?.pending_defense?.response_required_from_viewer);
   const canAnswerCardAction = Boolean(state?.pending_card_action?.response_required_from_viewer);
+  const canAnswerDefeatedOrdering = Boolean(state?.pending_defeated_ordering?.response_required_from_viewer);
   const hasBlockingMindbugModal = canAnswerMindbug && !isMindbugModalHidden;
   const hasBlockingChoiceModal = canAnswerCardAction && !isChoiceModalHidden;
   const canAct = Boolean(
@@ -94,7 +97,8 @@ export function App() {
     !gameOver &&
     !state.pending_mindbug &&
     !state.pending_defense &&
-    !state.pending_card_action
+    !state.pending_card_action &&
+    !state.pending_defeated_ordering
   );
   const hasPendingFrenzyAttack = state?.pending_frenzy_attacker_index !== null && state?.pending_frenzy_attacker_index !== undefined;
   const canManuallyEndTurn = Boolean(
@@ -113,6 +117,9 @@ export function App() {
     : null;
   const pendingMindbugIdentity = state?.pending_mindbug
     ? `${state.pending_mindbug.acting_player_name}|${state.pending_mindbug.card_label}|${state.pending_mindbug.responding_player_name}`
+    : null;
+  const pendingDefeatedOrderingIdentity = state?.pending_defeated_ordering
+    ? state.pending_defeated_ordering.entries.map(e => e.card_label).join("|")
     : null;
 
   function persistSession(nextSession: StoredSession) {
@@ -223,10 +230,11 @@ export function App() {
     const defenseStepEnded = Boolean(prev?.pending_defense) && !nextState.pending_defense;
     const mindbugStepEnded = Boolean(prev?.pending_mindbug) && !nextState.pending_mindbug;
     const cardActionStepEnded = Boolean(prev?.pending_card_action) && !nextState.pending_card_action;
+    const defeatedOrderingStepEnded = Boolean(prev?.pending_defeated_ordering) && !nextState.pending_defeated_ordering;
 
     if (turnChanged) {
       clearSelections();
-    } else if (defenseStepEnded || mindbugStepEnded || cardActionStepEnded) {
+    } else if (defenseStepEnded || mindbugStepEnded || cardActionStepEnded || defeatedOrderingStepEnded) {
       setSelectedDefenderIndex(null);
       setSelectedChoiceIndices([]);
     }
@@ -346,6 +354,10 @@ export function App() {
   useEffect(() => {
     setIsMindbugModalHidden(false);
   }, [pendingMindbugIdentity]);
+
+  useEffect(() => {
+    setDefeatedOrderingIndices([]);
+  }, [pendingDefeatedOrderingIdentity]);
 
   async function createGame() {
     setErrorText("");
@@ -525,6 +537,30 @@ export function App() {
     );
   }
 
+  function selectDefeatedOrder(index: number) {
+    setDefeatedOrderingIndices(current => {
+      if (current.includes(index)) return current;
+      return [...current, index];
+    });
+  }
+
+  function resetDefeatedOrder() {
+    setDefeatedOrderingIndices([]);
+  }
+
+  async function confirmDefeatedOrdering() {
+    if (!socketRef.current) return setErrorText("Create or join a room first.");
+    if (!canAnswerDefeatedOrdering) return setErrorText("No DEFEATED ordering is waiting for you.");
+    const entries = state!.pending_defeated_ordering!.entries;
+    if (defeatedOrderingIndices.length !== entries.length) {
+      return setErrorText("Select all DEFEATED cards in order.");
+    }
+    await emitAction(
+      () => socketActions.resolveDefeatedOrdering(socketRef.current as Socket, defeatedOrderingIndices),
+      "DEFEATED order chosen."
+    );
+  }
+
   function leaveSession() {
     socketRef.current?.disconnect();
     socketRef.current = null;
@@ -698,9 +734,13 @@ export function App() {
                             ? state!.pending_card_action.response_required_from_viewer
                               ? `Resolve ${state!.pending_card_action.source_card_label}.`
                               : `Waiting for ${state!.pending_card_action.responding_player_name} to resolve ${state!.pending_card_action.source_card_label}.`
-                            : state!.is_viewer_turn
-                              ? "Your turn."
-                              : `Waiting for ${state!.turn_player}.`}
+                            : state!.pending_defeated_ordering
+                              ? state!.pending_defeated_ordering.response_required_from_viewer
+                                ? "Choose the order of DEFEATED effects."
+                                : `Waiting for ${state!.pending_defeated_ordering.responding_player_name} to choose DEFEATED action order.`
+                              : state!.is_viewer_turn
+                                ? "Your turn."
+                                : `Waiting for ${state!.turn_player}.`}
                   </div>
                   <div className="set-summary mt-2">
                     {state!.selected_sets.map((cardSet) => (
@@ -839,6 +879,15 @@ export function App() {
           onToggle={toggleChoiceIndex}
           onConfirm={() => void resolveCardActionChoice()}
           onHide={hideChoiceModal}
+        />
+      ) : null}
+      {canAnswerDefeatedOrdering && state?.pending_defeated_ordering ? (
+        <DefeatedOrderingModal
+          pending={state.pending_defeated_ordering}
+          orderedIndices={defeatedOrderingIndices}
+          onSelect={selectDefeatedOrder}
+          onReset={resetDefeatedOrder}
+          onConfirm={() => void confirmDefeatedOrdering()}
         />
       ) : null}
       <CardPreviewModal label={previewCardLabel} onClose={() => setPreviewCardLabel(null)} />
