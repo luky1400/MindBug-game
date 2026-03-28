@@ -249,6 +249,7 @@ class Game:
         self.auto_end_turn_after_resolved_attack = auto_end_turn_after_resolved_attack
         self.card_pool: list[Card] = []
         self.selected_sets: list[CardSet] = []
+        self.unused_pile: list[Card] = []
         self.hand_size_limit = 5
 
     @property
@@ -277,6 +278,13 @@ class Game:
         if len(self.card_pool) < self.number_of_cards_in_game:
             raise ValueError("Card pool does not contain enough cards for a game.")
         selected_cards = random.sample(self.card_pool, self.number_of_cards_in_game)
+        selected_names = {card.name for card in selected_cards}
+        self.unused_pile = [
+            card.clone()
+            for card in self.card_pool
+            if card.name not in selected_names
+        ]
+        random.shuffle(self.unused_pile)
         return [card.clone() for card in selected_cards]
 
     def _draw_up_to_hand_limit_if_needed(self, player: Player) -> int:

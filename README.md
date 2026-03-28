@@ -105,7 +105,6 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 
 - handle that player or opponent can choose which cards to play or discard - do for all cards
 - add tests regularly for things that are not working
-- add attribute in Game class that stores game cards - players cards - to implement Future_eric
 - "Pokud probíhá více efektů současně (například pokud se dvě nestvůry porazí navzájem), rozhoduje o pořadí vyhodnocení efektů hráč, jenž je na tahu. Vždy dokončete vyhodnocování jednoho efektu předtím, než začnete vyhodnocovat další."
   - modular component window - player currently on turn decides which DEFEAT action will be triggered first
 - Implement New Servants - Hyenix, Hungery Hamster, ..
@@ -201,4 +200,5 @@ V případě shody tento proces opakujte."
 - TOUGH cards have `TOUGH` badge in the top-right.
 - Dynamic badges of special effects only appear when the is actually gained from an effect, not when it is native on the card (e.g. Lone Yeti, Mummy Cat, Snail Thrower effect, Ram Hopper ).
 - Rooms are stored only in memory, so if the host server restarts, the game is lost.
+- In `_select_cards_for_game()`, after selecting game cards, the remaining cards from the card pool are cloned, shuffled, and stored in `self.unused_pile`
 

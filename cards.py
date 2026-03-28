@@ -20,7 +20,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
     if sets is None:
         sets = [CardSet.FIRST_CONTACT, CardSet.NEW_SERVANTS, CardSet.PROMO_CARDS]
     card_pool = _build_card_pool([
-        # CardSet.FIRST_CONTACT - includes 48 cards
+        # CardSet.FIRST_CONTACT - includes 48/49 cards
         (Axolotl_healer, 2),
         (Bee_bear, 1),
         (Brain_fly, 1),
@@ -55,7 +55,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
         (Tusked_extorter, 2),
         (Urchin_hurler, 1),
 
-        # CardSet.NEW_SERVANTS - includes ... cards
+        # CardSet.NEW_SERVANTS - includes 24 cards
         (Bugserker, 2),
         (Count_draculeech, 2),
         (Creep_from_the_deep, 2),
@@ -73,6 +73,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
         (Battle_beetle, 1),
         (Boar_zooka, 1),
         # (Evilcat, 1), # NOTE - this is 3rd evolution
+        (Future_eric, 1),
         (Knightmare, 1),
         (Macaw_dagon, 1),
         (Mindbug_bug, 1),
@@ -321,21 +322,25 @@ class Froblin_instigator(Card):
         self.strength += 2 * allied_creatures
 
 
-# TODO - need to store unused cards
-# class Future_eric(Card):
-#     name: str = "Future Eric"
-#     strength: int = 3
-#     special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
-#     action_type: CardActionType = CardActionType.PLAY
-#     action_description: str = "Put the top 2 cards of the unused pile on the bottom of your draw pile without looking at them."
-#     set: CardSet = CardSet.PROMO_CARDS
+class Future_eric(Card):
+    name: str = "Future Eric"
+    strength: int = 3
+    special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
+    action_type: CardActionType = CardActionType.PLAY
+    action_description: str = "Put the top 2 cards of the unused pile on the bottom of your draw pile without looking at them."
+    set: CardSet = CardSet.PROMO_CARDS
     
-#     def trigger_action(self, game: Game) -> None:
-#         for _ in range(2):
-#             # TODO - put from unused cards
-#             card = game.current_player.unused_pile.pop(0)
-#             game.current_player.draw_pile.append(card)
-#         game.log.append(f"{game.current_player.name} puts the top 2 cards of the unused pile on the bottom of their draw pile.")
+    def trigger_action(self, game: Game) -> None:
+        cards_moved = 0
+        for _ in range(2):
+            if not game.unused_pile:
+                break
+            card = game.unused_pile.pop(0)
+            game.current_player.draw_pile.add(card)
+            cards_moved += 1
+        # Edge case that will never happen, but just in case.
+        if cards_moved > 0:
+            game.log.append(f"{game.current_player.name} puts {cards_moved} card(s) from the unused pile on the bottom of their draw pile.")
 
 
 class Giraffodile(Card):
