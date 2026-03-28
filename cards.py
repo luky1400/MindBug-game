@@ -14,6 +14,7 @@ def _build_card_pool(card_specs: list[tuple[Callable[[], Card], int]]) -> list[C
     return card_pool
 
 # SOURCE: https://ryanascherr.github.io/mindbug/
+# SOURCE: https://github.com/ryanascherr/mindbug-deck/tree/main
 # SOURCE: https://mindbug.fandom.com/wiki/First_Contact, https://mindbug.fandom.com/wiki/First_Contact_Addon_Pack
 # Additional Promo Cards: https://mindbug.fandom.com/wiki/Promo_Cards
 def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
@@ -338,7 +339,6 @@ class Future_eric(Card):
             card = game.unused_pile.pop(0)
             game.current_player.draw_pile.add(card)
             cards_moved += 1
-        # Edge case that will never happen, but just in case.
         if cards_moved > 0:
             game.log.append(f"{game.current_player.name} puts {cards_moved} card(s) from the unused pile on the bottom of their draw pile.")
 
