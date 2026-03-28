@@ -745,13 +745,6 @@ export function App() {
                                 ? "Your turn."
                                 : `Waiting for ${state!.turn_player}.`}
                   </div>
-                  <div className="set-summary mt-2">
-                    {state!.selected_sets.map((cardSet) => (
-                      <span className="chip" key={cardSet}>
-                        {cardSet}
-                      </span>
-                    ))}
-                  </div>
                 </div>
                 {state!.pending_defense?.response_required_from_viewer ? (
                   <div className="d-flex flex-wrap gap-2 align-items-center">
