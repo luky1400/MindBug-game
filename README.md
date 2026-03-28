@@ -127,6 +127,14 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
   - Refactor hand - dát karty v ruce bliz k sobe a zvetsit. I zvetsit celou ruku najednou? I Smazat Expand button?
   - add icons to buttons - attack, play_card, End turn (lepší by bylo místo click button, přetahovat)
   - Smazat Close button u Card preview
+  - Special effects:
+    - Hrac ukradnul kartu mozkozroutem
+    - when card is defeated
+    - drawing cards
+    - Hunt/No hunt
+    - Hrac utoci
+    - Aktivovala se akce
+    - Zesnovačka zrušila PLAY akci, ..
 
 ## TODO - game rules
 

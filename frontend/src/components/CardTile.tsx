@@ -13,6 +13,7 @@ interface CardTileProps {
   showToughCharge?: boolean;
   showAbilityBadges?: boolean;
   showBattlefieldHighlight?: boolean;
+  animationClass?: string;
 }
 
 export function CardTile({
@@ -25,7 +26,8 @@ export function CardTile({
   showStrength = false,
   showToughCharge = false,
   showAbilityBadges = false,
-  showBattlefieldHighlight = false
+  showBattlefieldHighlight = false,
+  animationClass = ""
 }: CardTileProps) {
   const parsed = parseCardLabel(label);
   const sizeClass = size === "large" ? "card-tile-large" : size === "medium" ? "card-tile-medium" : "";
@@ -37,7 +39,7 @@ export function CardTile({
 
   return (
     <button
-      className={`card-tile ${sizeClass} ${selectableClass} ${selectedClass} ${highlightClass}`}
+      className={`card-tile ${sizeClass} ${selectableClass} ${selectedClass} ${highlightClass} ${animationClass}`}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
       type="button"

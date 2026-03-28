@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Socket } from "socket.io-client";
 import { createGameSocket, gameApi, socketActions } from "./api/client";
 import { BoardZone } from "./components/BoardZone";
@@ -20,6 +20,7 @@ const SESSION_STORAGE_KEY = "mindbug-multiplayer-session";
 
 export function App() {
   const socketRef = useRef<Socket | null>(null);
+  const prevStateRef = useRef<MultiplayerState | null>(null);
   const [gameId, setGameId] = useState<string | null>(null);
   const [state, setState] = useState<MultiplayerState | null>(null);
   const [hostName, setHostName] = useState("Player 1");
@@ -40,6 +41,38 @@ export function App() {
   const [showSurrenderConfirm, setShowSurrenderConfirm] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showCardBrowser, setShowCardBrowser] = useState(false);
+
+  type AnimatedCards = {
+    viewerHand: Set<number>;
+    viewerDiscard: Set<number>;
+    opponentDiscard: Set<number>;
+    viewerBattlefieldStolen: Set<number>;
+    opponentBattlefieldStolen: Set<number>;
+  };
+  const EMPTY_SET = new Set<number>();
+  const emptyAnimatedRef = useRef<AnimatedCards>({
+    viewerHand: EMPTY_SET, viewerDiscard: EMPTY_SET, opponentDiscard: EMPTY_SET,
+    viewerBattlefieldStolen: EMPTY_SET, opponentBattlefieldStolen: EMPTY_SET,
+  });
+  const [animatedCards, setAnimatedCards] = useState<AnimatedCards>(emptyAnimatedRef.current);
+  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const detectNewCards = useCallback((prevArr: string[], nextArr: string[]): Set<number> => {
+    const prevCounts = new Map<string, number>();
+    for (const label of prevArr) {
+      prevCounts.set(label, (prevCounts.get(label) || 0) + 1);
+    }
+    const result = new Set<number>();
+    for (let i = 0; i < nextArr.length; i++) {
+      const remaining = prevCounts.get(nextArr[i]) || 0;
+      if (remaining > 0) {
+        prevCounts.set(nextArr[i], remaining - 1);
+      } else {
+        result.add(i);
+      }
+    }
+    return result;
+  }, []);
 
   const viewer = state?.viewer || null;
   const opponent = state?.opponent || null;
@@ -127,10 +160,11 @@ export function App() {
   }
 
   function normalizeSelections(nextState: MultiplayerState) {
-    const previousHand = state?.viewer?.hand || [];
-    const previousBoard = state?.viewer?.battlefield || [];
-    const previousDefenderPool = getDefenderSelectionPool(state);
-    const previousChoicePool = getPendingCardActionPool(state);
+    const prev = prevStateRef.current;
+    const previousHand = prev?.viewer?.hand || [];
+    const previousBoard = prev?.viewer?.battlefield || [];
+    const previousDefenderPool = getDefenderSelectionPool(prev);
+    const previousChoicePool = getPendingCardActionPool(prev);
     const nextHand = nextState.viewer?.hand || [];
     const nextBoard = nextState.viewer?.battlefield || [];
     const defenderSelectionPool = getDefenderSelectionPool(nextState);
@@ -184,10 +218,11 @@ export function App() {
   }
 
   function applyState(nextState: MultiplayerState) {
-    const turnChanged = state?.turn_player !== nextState.turn_player;
-    const defenseStepEnded = Boolean(state?.pending_defense) && !nextState.pending_defense;
-    const mindbugStepEnded = Boolean(state?.pending_mindbug) && !nextState.pending_mindbug;
-    const cardActionStepEnded = Boolean(state?.pending_card_action) && !nextState.pending_card_action;
+    const prev = prevStateRef.current;
+    const turnChanged = prev?.turn_player !== nextState.turn_player;
+    const defenseStepEnded = Boolean(prev?.pending_defense) && !nextState.pending_defense;
+    const mindbugStepEnded = Boolean(prev?.pending_mindbug) && !nextState.pending_mindbug;
+    const cardActionStepEnded = Boolean(prev?.pending_card_action) && !nextState.pending_card_action;
 
     if (turnChanged) {
       clearSelections();
@@ -196,7 +231,61 @@ export function App() {
       setSelectedChoiceIndices([]);
     }
 
+    // Detect card animations only when there is a previous game state
+    if (prev?.viewer && nextState.viewer) {
+      const prevHand = prev.viewer.hand || [];
+      const nextHand = nextState.viewer.hand || [];
+      const prevViewerDiscard = prev.viewer.discard;
+      const nextViewerDiscard = nextState.viewer.discard || [];
+      const prevOpponentDiscard = prev.opponent?.discard || [];
+      const nextOpponentDiscard = nextState.opponent?.discard || [];
+
+      const newHandIndices = detectNewCards(prevHand, nextHand);
+      const newViewerDiscard = detectNewCards(prevViewerDiscard, nextViewerDiscard);
+      const newOpponentDiscard = detectNewCards(prevOpponentDiscard, nextOpponentDiscard);
+
+      // Detect Mindbug steal: responding player's battlefield gained a card after mindbug ended
+      let viewerBattlefieldStolen = EMPTY_SET;
+      let opponentBattlefieldStolen = EMPTY_SET;
+      if (mindbugStepEnded && prev.pending_mindbug) {
+        const prevViewerBf = prev.viewer.battlefield;
+        const nextViewerBf = nextState.viewer?.battlefield || [];
+        const prevOpponentBf = prev.opponent?.battlefield || [];
+        const nextOpponentBf = nextState.opponent?.battlefield || [];
+
+        if (prev.pending_mindbug.response_required_from_viewer) {
+          // Viewer was the responding player — if viewer's battlefield grew, viewer stole it
+          const newOnViewer = detectNewCards(prevViewerBf, nextViewerBf);
+          if (newOnViewer.size > 0) viewerBattlefieldStolen = newOnViewer;
+        } else {
+          // Opponent was the responding player — if opponent's battlefield grew, opponent stole it
+          const newOnOpponent = detectNewCards(prevOpponentBf, nextOpponentBf);
+          if (newOnOpponent.size > 0) opponentBattlefieldStolen = newOnOpponent;
+        }
+      }
+
+      const hasAny =
+        newHandIndices.size > 0 || newViewerDiscard.size > 0 || newOpponentDiscard.size > 0 ||
+        viewerBattlefieldStolen.size > 0 || opponentBattlefieldStolen.size > 0;
+
+      if (hasAny) {
+        if (animTimerRef.current) clearTimeout(animTimerRef.current);
+        setAnimatedCards({
+          viewerHand: newHandIndices,
+          viewerDiscard: newViewerDiscard,
+          opponentDiscard: newOpponentDiscard,
+          viewerBattlefieldStolen,
+          opponentBattlefieldStolen,
+        });
+        animTimerRef.current = setTimeout(() => {
+          setAnimatedCards(emptyAnimatedRef.current);
+          animTimerRef.current = null;
+        }, 700);
+      }
+    }
+
     normalizeSelections(nextState);
+    prevStateRef.current = nextState;
     setState(nextState);
   }
 
@@ -648,6 +737,8 @@ export function App() {
                 selectedBattlefieldIndex={canAnswerDefense && !hasBlockingChoiceModal ? selectedDefenderIndex : null}
                 onSelectBattlefield={canAnswerDefense || hasBlockingChoiceModal ? undefined : (index) => toggleSelected("defender", index)}
                 onPreview={(label) => setPreviewCardLabel(label)}
+                animatedDiscardIndices={animatedCards.opponentDiscard}
+                animatedBattlefieldStolenIndices={animatedCards.opponentBattlefieldStolen}
               />
             </div>
             <div className="col-12">
@@ -659,6 +750,8 @@ export function App() {
                 selectedBattlefieldIndex={hasBlockingChoiceModal ? null : canAnswerDefense ? selectedDefenderIndex : selectedAttackerIndex}
                 onSelectBattlefield={hasBlockingChoiceModal ? undefined : (index) => toggleSelected(canAnswerDefense ? "defender" : "attacker", index)}
                 onPreview={(label) => setPreviewCardLabel(label)}
+                animatedDiscardIndices={animatedCards.viewerDiscard}
+                animatedBattlefieldStolenIndices={animatedCards.viewerBattlefieldStolen}
               />
             </div>
             <div className="col-12">
@@ -704,6 +797,7 @@ export function App() {
                     selectable={!hasBlockingChoiceModal}
                     onSelect={(index) => toggleSelected("hand", index)}
                     onPreview={(label) => setPreviewCardLabel(label)}
+                    animatedIndices={animatedCards.viewerHand}
                   />
                 </div>
               </section>

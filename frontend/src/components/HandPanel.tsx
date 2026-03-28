@@ -7,9 +7,10 @@ interface HandPanelProps {
   selectable?: boolean;
   onSelect: (index: number) => void;
   onPreview: (label: string) => void;
+  animatedIndices?: Set<number>;
 }
 
-export function HandPanel({ cards, selectedIndex, selectable = true, onSelect, onPreview }: HandPanelProps) {
+export function HandPanel({ cards, selectedIndex, selectable = true, onSelect, onPreview, animatedIndices }: HandPanelProps) {
   const [expanded, setExpanded] = useState(false);
   const handTitle = useMemo(() => (expanded ? "Hand (expanded)" : "Hand (compact)"), [expanded]);
 
@@ -43,6 +44,7 @@ export function HandPanel({ cards, selectedIndex, selectable = true, onSelect, o
               size={expanded ? "large" : "medium"}
               onClick={selectable ? () => onSelect(index) : undefined}
               onDoubleClick={() => onPreview(label)}
+              animationClass={animatedIndices?.has(index) ? "card-tile-draw-anim" : ""}
             />
           ))
         )}

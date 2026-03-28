@@ -9,6 +9,8 @@ interface BoardZoneProps {
   selectedBattlefieldIndex: number | null;
   onSelectBattlefield?: (index: number) => void;
   onPreview?: (label: string) => void;
+  animatedDiscardIndices?: Set<number>;
+  animatedBattlefieldStolenIndices?: Set<number>;
 }
 
 export function BoardZone({
@@ -18,7 +20,9 @@ export function BoardZone({
   battlefieldMode,
   selectedBattlefieldIndex,
   onSelectBattlefield,
-  onPreview
+  onPreview,
+  animatedDiscardIndices,
+  animatedBattlefieldStolenIndices
 }: BoardZoneProps) {
   const battlefieldClickable = battlefieldMode !== "readonly";
 
@@ -54,6 +58,7 @@ export function BoardZone({
                 showBattlefieldHighlight
                 onClick={battlefieldClickable ? () => onSelectBattlefield?.(index) : undefined}
                 onDoubleClick={() => onPreview?.(label)}
+                animationClass={animatedBattlefieldStolenIndices?.has(index) ? "card-tile-stolen-anim" : ""}
               />
             ))
           )}
@@ -64,7 +69,11 @@ export function BoardZone({
             <div className="placeholder">No cards</div>
           ) : (
             player.discard.map((label, index) => (
-              <CardTile key={`${label}-${index}`} label={label} />
+              <CardTile
+                key={`${label}-${index}`}
+                label={label}
+                animationClass={animatedDiscardIndices?.has(index) ? "card-tile-defeated-anim" : ""}
+              />
             ))
           )}
         </div>
