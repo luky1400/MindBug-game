@@ -113,14 +113,13 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - **Improve UI layout**
   - make Game UI to fit one screen size - users cannot roll up and down
   - upravit obrazovku dle pravidel (+ když najedu with mouse cursor on any of discard_piles, it will render cards in it)
+    - Discard Pile dát nějak nastranu a karty zobrazit, pouze když na to user klikne - zobrazi se stejne modal window a user muze kliknout na hide.
 - **UI additonal:**
   - Když defender vybira, jestli a cim bude branit, tak mu ukazat kartu utocnika - zvyrznit ji:
     - Prompt: can you make orange/red border/glow to card that was selected as attacker. This border should only apply until defender is selected.
-    - adjust resolution size, ...
   - Show attack/play/end turn buttons only during players turn, otherwise show defend/lose life button.
 - dont show Game status: "Your turn". But rather: "Play card or attack" / "Play card" / "Attack."
 - Hide redundant information in UI
-- Discard Pile dát nějak nastranu a karty zobrazit, pouze když na to user klikne - zobrazi se stejne modal window a user muze kliknout na hide.
 - udělat nejakou signalizaci (dát Game status mezi Boards), která upozorní hrace, ze je na tahu (play_card/attack, Mindbug, Defend, etc.)
 - Refactor hand - dát karty v ruce bliz k sobe a zvetsit. I zvetsit celou ruku najednou? I Smazat Expand button?
 - add icons to buttons - attack, play_card, End turn (lepší by bylo místo click button, přetahovat)

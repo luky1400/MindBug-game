@@ -846,6 +846,8 @@ class Game:
         giving_player = self.players[pending.responding_player_index]
         receiving_player = self.players[1 - pending.responding_player_index]
         card = giving_player.hand.pop(selected_indices[0])
+        # A card left the giver's hand, so refill hands before the follow-up choice.
+        self._draw_up_to_hand_limit_for_each_player_if_needed()
         self.log.append(
             f"{giving_player.name} gives {card.name} to {receiving_player.name} because of Hungry Hungry Hamster."
         )

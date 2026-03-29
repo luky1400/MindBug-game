@@ -256,8 +256,10 @@ def test_play_hungry_hungry_hamster_lets_opponent_choose_card_to_give() -> None:
 
     ignored_card = Tiger_squirrel()
     chosen_card = Chameleon_sniper()
+    drawn_card = Axolotl_healer()
     player.hand = [Hungry_hungry_hamster()]
     opponent.hand = [ignored_card, chosen_card]
+    opponent.draw_pile = DrawPile([drawn_card])
 
     game.play_card(hand_index=0)
     game.resolve_pending_card_action([1])
@@ -266,6 +268,7 @@ def test_play_hungry_hungry_hamster_lets_opponent_choose_card_to_give() -> None:
     assert chosen_card in player.hand
     assert ignored_card in opponent.hand
     assert chosen_card not in opponent.hand
+    assert drawn_card in opponent.hand
 
 
 def test_play_hungry_hungry_hamster_lets_player_play_received_card() -> None:
