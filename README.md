@@ -1,6 +1,6 @@
 # Mindbug Python Prototype
 
-This project replicates of a Mindbug-style card game.
+This project replicates of a Mindbug card game, following its rules.
 
 - [Czech rules](https://www.rexhry.cz/storage/instructions/mb.rulebook.v3.cze_.web_.pdf), [English rules](https://mindbug.me/wp-content/uploads/2023/08/mindbug-rulebook-ENGLISH-small.pdf)
 
@@ -64,6 +64,35 @@ If `frontend/dist` does not exist, FastAPI falls back to `web/index.html`.
 4. Join that room from a second browser window or another device.
 5. Both players receive live state updates through Socket.IO.
 
+
+### 5) Run multiplayer (tunnel your local server) with ngrok
+
+```bash
+python3 -m pip install -r requirements.txt
+cd frontend
+npm install
+npm run build
+cd ..
+python3 -m uvicorn web_app:app --host 0.0.0.0 --port 8000
+```
+
+In another terminal, use
+
+```bash
+ngrok http 8000
+```
+
+That gives you a public https://... URL.
+
+Then:
+Both players use that same URL
+You open the public URL
+Your friend opens the same public URL
+You click Create room
+Send your friend only the invite code shown in the UI
+Your friend enters the code and clicks Join room
+
+
 ## Run Tests
 
 ```bash
@@ -79,13 +108,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 ## Current Features
 
 - 2-player turn-based game loop
-- Play a creature or attack each turn
-- Mindbug steal mechanic
-- Realtime multiplayer rooms with FastAPI + Socket.IO
-- Separate player sessions with hidden opponent hands
-- Creature combat with `TOUGH`, `POISONOUS`, `HUNTER`, `FRENZY`, and `SNEAKY` creature types
-- Creature actions are supported
-- Life tracking and winner detection
+- Realtime multiplayer rooms with FastAPI + [Socket.IO](http://Socket.IO)
 - Web API for room creation, join, and session restore
 - Room-level card set selection for multiplayer games
 - React browser UI
