@@ -137,7 +137,7 @@ class Boar_zooka(Card):
     set: CardSet = CardSet.PROMO_CARDS
 
     def trigger_action(self, game: Game) -> None:
-        for card in game.opponent.cards_laid_out:
+        for card in game.opponent.cards_laid_out.copy():
             game._destroy_creature(game.opponent, card)
         game.log.append(f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} defeats all enemy creatures.")
 

@@ -64,7 +64,6 @@ If `frontend/dist` does not exist, FastAPI falls back to `web/index.html`.
 4. Join that room from a second browser window or another device.
 5. Both players receive live state updates through Socket.IO.
 
-
 ### 5) Run multiplayer (tunnel your local server) with ngrok
 
 ```bash
@@ -91,7 +90,6 @@ Your friend opens the same public URL
 You click Create room
 Send your friend only the invite code shown in the UI
 Your friend enters the code and clicks Join room
-
 
 ## Run Tests
 
@@ -129,6 +127,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - add tests regularly for things that are not working
 - Simplify and unify code
 - Investigate if logs make sense - is order correct? ... Add log "Player 1" attacks.
+- I cannot attack twice when hunting -  Gorilla ALpha - FRENZY + HUNTER
 
 ## TODO - frontend
 
@@ -214,13 +213,15 @@ V případě shody tento proces opakujte."
 
 ## Bugs - backend
 
-- 
+- Snail Hydra: player schould choose, but opponent does.
 
 ## Bugs - frontend
 
 - In Knightmare, Steamforger cards, I dont see green actual strength if it is higher than normal.
 - (Opponents cards laid out can be selected for target attack but they have no blue border when selected.)
 - I see FRENZY above Hyenix card when deciding whether to play it or not.
+- End turn button should disappear immediatelly after clicking 2nd attack button
+- Prejmenovat Game status: "Responde to Mindbug"
 
 ## Documentation notes
 
@@ -242,4 +243,8 @@ V případě shody tento proces opakujte."
     - If HUNTER target was destroyed → "Combat is cancelled" → `_finalize_attack_action` (handles FRENZY)
     - If HUNTER target survived → `_resolve_combat()` proceeds normally
 - Pokud probíhá více efektů současně (například pokud se dvě nestvůry porazí navzájem, nebo jich jenomu hraci umre vice v jednom kole), rozhoduje o pořadí vyhodnocení efektů hráč, jenž je na tahu.
+
+
+
+- Zesnovačka platí pouze na soupeře
 
