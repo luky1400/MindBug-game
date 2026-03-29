@@ -555,7 +555,10 @@ body {
   flex-direction: column;
   align-items: center;
   width: min(940px, 94vw);
+  max-height: calc(100vh - 32px);
   margin: 0 auto;
+  padding: 16px 12px 20px;
+  overflow-y: auto;
 }
 
 .mindbug-overlay-image {
@@ -616,9 +619,10 @@ body {
 
 .choice-preview-image {
   width: 100%;
-  max-width: 300px;
-  max-height: none;
+  max-width: 240px;
+  max-height: 340px;
   display: block;
+  object-fit: contain;
 }
 
 .choice-modal-toggle {
