@@ -1372,8 +1372,8 @@ class Game:
         self._set_pending_card_action_choice(
             action_key="snail_hydra",
             source_card=source_card,
-            responding_player_index=1 - self.turn,
-            selection_owner_index=1 - self.turn,
+            responding_player_index=self.turn, # NOTE - current player chooses the creature to defeat
+            selection_owner_index=1 - self.turn, # NOTE - target selection points to opponent battlefield
             selection_zone="battlefield",
             eligible_indices=eligible_indices,
             min_choices=1,

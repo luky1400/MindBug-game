@@ -199,6 +199,28 @@ def test_attack_turf_the_surfer_sets_selected_enemy_cannot_block() -> None:
     assert selected_enemy.cannot_block is True
 
 
+def test_attack_snail_hydra_choice_is_made_by_current_player() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    target_enemy = Luchataur()
+    other_enemy = Majestic_manticore()
+    player.cards_laid_out = [Snail_hydra()]
+    opponent.cards_laid_out = [target_enemy, other_enemy]
+
+    game.attack(attacker_index=0)
+
+    assert game._pending_card_action_choice is not None
+    assert game._pending_card_action_choice.responding_player_index == game.turn
+    assert game._pending_card_action_choice.selection_owner_index == 1 - game.turn
+
+    game.resolve_pending_card_action([0])
+
+    assert target_enemy in opponent.discard_pile
+    assert target_enemy not in opponent.cards_laid_out
+
+
 def test_attack_the_lurker_gains_sneaky_when_owner_controls_more_creatures() -> None:
     game = _new_game()
     player = game.current_player

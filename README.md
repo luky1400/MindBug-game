@@ -127,7 +127,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - add tests regularly for things that are not working
 - Simplify and unify code
 - Investigate if logs make sense - is order correct? ... Add log "Player 1" attacks.
-- I cannot attack twice when hunting -  Gorilla ALpha - FRENZY + HUNTER
+- I cannot attack twice when hunting with Gorilla ALpha - FRENZY + HUNTER
 
 ## TODO - frontend
 
@@ -213,7 +213,7 @@ V případě shody tento proces opakujte."
 
 ## Bugs - backend
 
-- Snail Hydra: player schould choose, but opponent does.
+- 
 
 ## Bugs - frontend
 
@@ -243,8 +243,5 @@ V případě shody tento proces opakujte."
     - If HUNTER target was destroyed → "Combat is cancelled" → `_finalize_attack_action` (handles FRENZY)
     - If HUNTER target survived → `_resolve_combat()` proceeds normally
 - Pokud probíhá více efektů současně (například pokud se dvě nestvůry porazí navzájem, nebo jich jenomu hraci umre vice v jednom kole), rozhoduje o pořadí vyhodnocení efektů hráč, jenž je na tahu.
-
-
-
 - Zesnovačka platí pouze na soupeře
 
