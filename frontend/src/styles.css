@@ -340,6 +340,22 @@ body {
   overflow-y: auto;
 }
 
+.battlefield-cards-row {
+  justify-content: flex-start;
+  align-items: flex-end;
+  align-content: flex-end;
+  padding-top: 14px;
+  padding-bottom: 0;
+}
+
+.battlefield-cards-row > .card-tile.card-tile-large {
+  width: 188px;
+}
+
+.battlefield-cards-row > .card-tile.card-tile-large .card-image {
+  height: 242px;
+}
+
 .hand-row {
   display: flex;
   justify-content: center;

@@ -134,8 +134,9 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 - Když defender vybira, jestli a cim bude branit, tak mu ukazat kartu utocnika - zvyrznit ji:
   - Prompt: can you make orange/red border/glow to card that was selected as attacker. This border should only apply until defender is selected.
 - dont show Game status: "Your turn". But rather: "Play card or attack" / "Play card" / "Attack."
-- udělat nejakou signalizaci, která upozorní hrace, ze je na tahu (play_card/attack, Mindbug, Defend, etc.)
-- Ukazat pouzehorni pulku karet v ruce?
+- udělat nejakou signalizaci/Iconu, která upozorní hrace, ze je na tahu/dela akci?
+- Kdyz zahraju kartu a cekam na opponenta, jeslti pouzije Mindbug, tak kartu dát doprava doprostred, stejne jako v Mindbug online?
+- Ukazat pouze horni pulku karet v ruce?
 - create icons for number of lives, cards in hand, ..
 - Smazat Close button u Card preview
 - Special effects:

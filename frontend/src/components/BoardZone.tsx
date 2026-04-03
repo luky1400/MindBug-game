@@ -66,7 +66,7 @@ export function BoardZone({
               </button>
             </div>
             <div className="board-zone-battlefield">
-              <div className="cards-row">
+              <div className="cards-row battlefield-cards-row">
                 {player.battlefield.length === 0 ? (
                   <div className="placeholder">No cards</div>
                 ) : (
@@ -74,7 +74,7 @@ export function BoardZone({
                     <CardTile
                       key={`${label}-${index}`}
                       label={label}
-                      size="medium"
+                      size="large"
                       selected={selectedBattlefieldIndex === index}
                       clickable={battlefieldClickable}
                       showStrength
