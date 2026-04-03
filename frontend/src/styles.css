@@ -79,6 +79,8 @@ body {
   min-height: 120px;
   overflow: visible;
   position: relative;
+  display: flex;
+  align-items: flex-end;
 }
 
 .hand-scroll {
@@ -88,6 +90,7 @@ body {
   z-index: 30;
   padding-top: 52px;
   margin-top: -52px;
+  width: 100%;
 }
 
 .setup-grid {
@@ -340,7 +343,7 @@ body {
   gap: 0;
   width: max-content;
   min-width: 100%;
-  padding: 8px 20px 16px;
+  padding: 8px 20px 4px;
 }
 
 .hand-row > .card-tile {
@@ -351,7 +354,11 @@ body {
 }
 
 .hand-row > .card-tile.card-tile-medium {
-  width: 145px;
+  width: 160px;
+}
+
+.hand-row > .card-tile.card-tile-medium .card-image {
+  height: 198px;
 }
 
 .hand-row > .card-tile:first-child {
@@ -1051,13 +1058,16 @@ body {
     width: 160px;
   }
   .hand-row {
-    padding: 8px 12px 14px;
+    padding: 8px 12px 4px;
   }
   .hand-row > .card-tile {
     margin-left: -24px;
   }
   .hand-row > .card-tile.card-tile-medium {
-    width: 132px;
+    width: 145px;
+  }
+  .hand-row > .card-tile.card-tile-medium .card-image {
+    height: 182px;
   }
   .card-image {
     height: 130px;
