@@ -41,17 +41,20 @@ export function BoardZone({
                     <span className="life-heart-number">{player.lives}</span>
                   </div>
                 </div>
-                <div className="stat-item">
-                  <span className="stat-value">{player.mindbugs_remaining}</span>
-                  <span className="stat-label">Mindbugs</span>
+                <div className="stat-item stat-icon-only">
+                  <div className="mindbug-icon" aria-label={`${player.mindbugs_remaining} mindbugs remaining`}>
+                    <span className="icon-stat-number">{player.mindbugs_remaining}</span>
+                  </div>
                 </div>
-                <div className="stat-item">
-                  <span className="stat-value">{player.hand_count}</span>
-                  <span className="stat-label">Hand</span>
+                <div className="stat-item stat-icon-only">
+                  <div className="hand-icon" aria-label={`${player.hand_count} cards in hand`}>
+                    <span className="icon-stat-number">{player.hand_count}</span>
+                  </div>
                 </div>
-                <div className="stat-item">
-                  <span className="stat-value">{player.draw_count}</span>
-                  <span className="stat-label">Draw</span>
+                <div className="stat-item stat-icon-only">
+                  <div className="draw-pile-icon" aria-label={`${player.draw_count} cards in draw pile`}>
+                    <span className="icon-stat-number">{player.draw_count}</span>
+                  </div>
                 </div>
               </div>
               <button
