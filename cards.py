@@ -83,6 +83,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
             (Mindbug_bug, 1),
             (Ram_hopper, 1),
             (Steamforger, 1),
+            (The_pack, 1),
             (Unigon, 1),
         ]
     )
@@ -515,6 +516,18 @@ class Chameleon_sniper(Card):
             game.log.append(
                 f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name}, but they cannot lose life."
             )
+
+
+# class Ivybug(Card):
+#     name: str = "Ivybug"
+#     strength: int = 5
+#     special_types: list[CardSpecialType] = []
+#     description: str = "You may use your life as Mindbugs."
+#     set: CardSet = CardSet.PROMO_CARDS
+
+#     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+#         # TODO - implement
+#         pass
 
 
 # class Jazz_dog(Card):
@@ -966,6 +979,26 @@ class The_lurker(Card):
             )
 
 
+class The_pack(Card):
+    name: str = "The Pack"
+    strength: int = 4
+    special_types: list[CardSpecialType] = [
+        CardSpecialType.HUNTER,
+        CardSpecialType.TOUGH,
+    ]
+    description: str = (
+        f"While this creature is exhausted, it has {CardSpecialType.SNEAKY.value}."
+    )
+    set: CardSet = CardSet.PROMO_CARDS
+
+    def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+        if self.tough_charges == 0 and CardSpecialType.SNEAKY not in self.special_types:
+            self.special_types.append(CardSpecialType.SNEAKY)
+            game.log.append(
+                f"{game.current_player.name}'s {self.name} has {CardSpecialType.SNEAKY.value}."
+            )
+
+
 class Tiger_squirrel(Card):
     name: str = "Tiger Squirrel"
     strength: int = 3
@@ -1068,6 +1101,19 @@ class Urchin_hurler(Card):
 #     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
 #     description: str = "Can only be blocked by creatures with no keywords."
 #     set: CardSet = CardSet.PROMO_CARDS
+
+
+# class Wheatl_e(Card):
+#     name: str = "Wheatle"
+#     strength: int = 6
+#     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY, CardSpecialType.TOUGH]
+#     action_type: CardActionType = CardActionType.ATTACK
+#     action_description: str = "Choose a number. An opponent gives you all cards from their hand with power equal to the chosen number that number. Put them into your hand."
+#     set: CardSet = CardSet.PROMO_CARDS
+
+#     def trigger_action(self, game: Game) -> None:
+#         # TODO - player chooses a number between 1 and 10?
+#         game.resolve_wheatle_action(self)
 
 
 # class Wolfman_steve(Card):
