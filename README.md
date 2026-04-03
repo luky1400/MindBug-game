@@ -131,7 +131,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
 
 ## TODO - frontend
 
-- TODO - add SNEAKY badge for The pack
+- Do not show Play button if no cards to played (even if you cannot play card from hand because of ongoing effect), and do not show attack button if no cards to attack with (even if you cannot attack because of ongoing effect)
 - [Inspiration](https://www.google.com/search?q=mindbug+sharkdog+kills+target+before+combat&sca_esv=a02f3e9b87f4a5a7&biw=928&bih=929&sxsrf=ANbL-n7HQ14P5EW6K1BdKcbbh2tpTjZctA%3A1774706171802&ei=-93HabrZML6N-d8Py-v86A0&ved=0ahUKEwj6ws3X38KTAxW-Rv4FHcs1H90Q4dUDCBE&uact=5&oq=mindbug+sharkdog+kills+target+before+combat&gs_lp=Egxnd3Mtd2l6LXNlcnAiK21pbmRidWcgc2hhcmtkb2cga2lsbHMgdGFyZ2V0IGJlZm9yZSBjb21iYXQyBRAhGKABMgUQIRigAUiAX1CkC1iPXnABeACQAQCYAYYBoAGVFaoBBDE5Ljm4AQPIAQD4AQGYAhygArsVwgIIEAAYsAMY7wXCAgsQABiABBiwAxiiBMICCBAAGBYYChgewgIFEAAY7wXCAggQABiABBiiBMICBxAhGKABGAqYAwCIBgGQBgWSBwUxNy4xMaAHk1-yBwUxNi4xMbgHtxXCBwYxLjIzLjTIBzmACAA&sclient=gws-wiz-serp#fpstate=ive&vld=cid:9515da25,vid:kjw0N0Uhvm8,st:0)
 - Když defender vybira, jestli a cim bude branit, tak mu ukazat kartu utocnika - zvyraznit ji:
   - Prompt: can you make orange/red border/glow to card that was selected as attacker. This border should only be applied until defender is selected.
@@ -174,7 +174,7 @@ V případě shody tento proces opakujte."
 
 ## Bugs - backend
 
-- 
+- If player wins, sometimes GameOverModal window is not shown, only Game is over message pops up.
 
 ## Bugs - frontend
 
