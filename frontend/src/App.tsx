@@ -416,7 +416,7 @@ export function App() {
     }
   }
 
-  async function emitAction(action: () => Promise<{ ok: boolean; error?: string }>, successText: string) {
+  async function emitAction(action: () => Promise<{ ok: boolean; error?: string }>) {
     setErrorText("");
     try {
       const response = await action();
@@ -424,7 +424,6 @@ export function App() {
         setErrorText(response.error || "Action failed.");
         return;
       }
-      setStatusText(successText);
     } catch (error) {
       setErrorText((error as Error).message);
     }
@@ -435,7 +434,7 @@ export function App() {
     if (!canAct) return setErrorText("You cannot play a card right now.");
     const handIndex = forcedHandIndex ?? selectedHandIndex;
     if (handIndex === null) return setErrorText("Select a hand card first.");
-    await emitAction(() => socketActions.playCard(socketRef.current as Socket, handIndex), "Card played.");
+    await emitAction(() => socketActions.playCard(socketRef.current as Socket, handIndex));
   }
 
   async function attackSelected() {
@@ -470,8 +469,7 @@ export function App() {
         socketActions.attack(socketRef.current as Socket, {
           attacker_index: attackerIndex,
           defender_index: isHunter ? normalizedDefenderIndex : null
-        }),
-      isHunter && normalizedDefenderIndex !== null ? "Hunter attack resolved." : "Attack declared."
+        })
     );
   }
 
@@ -485,8 +483,7 @@ export function App() {
 
     clearSelections();
     await emitAction(
-      () => socketActions.defend(socketRef.current as Socket, { defender_index: selectedDefenderIndex }),
-      "Blocker selected."
+      () => socketActions.defend(socketRef.current as Socket, { defender_index: selectedDefenderIndex })
     );
   }
 
@@ -495,23 +492,21 @@ export function App() {
     if (!canAnswerDefense) return setErrorText("No defense response is waiting for you.");
     clearSelections();
     await emitAction(
-      () => socketActions.defend(socketRef.current as Socket, { defender_index: null }),
-      "Attack goes through."
+      () => socketActions.defend(socketRef.current as Socket, { defender_index: null })
     );
   }
 
   async function endTurn() {
     if (!socketRef.current) return setErrorText("Create or join a room first.");
     if (!state?.is_viewer_turn) return setErrorText("It is not your turn.");
-    await emitAction(() => socketActions.endTurn(socketRef.current as Socket), "Turn ended.");
+    await emitAction(() => socketActions.endTurn(socketRef.current as Socket));
   }
 
   async function answerMindbug(useMindbug: boolean) {
     if (!socketRef.current) return setErrorText("Create or join a room first.");
     if (!canAnswerMindbug) return setErrorText("No Mindbug response is waiting for you.");
     await emitAction(
-      () => socketActions.mindbugResponse(socketRef.current as Socket, useMindbug),
-      useMindbug ? "Mindbug used." : "Mindbug declined."
+      () => socketActions.mindbugResponse(socketRef.current as Socket, useMindbug)
     );
   }
 
@@ -535,16 +530,14 @@ export function App() {
       () =>
         socketActions.resolveCardActionChoice(socketRef.current as Socket, {
           selected_indices: selectedIndices
-        }),
-      "Card action resolved."
+        })
     );
   }
 
   async function confirmSurrender() {
     setShowSurrenderConfirm(false);
     await emitAction(
-      () => socketActions.surrender(socketRef.current as Socket),
-      "You surrendered."
+      () => socketActions.surrender(socketRef.current as Socket)
     );
   }
 
@@ -567,8 +560,7 @@ export function App() {
       return setErrorText("Select all DEFEATED cards in order.");
     }
     await emitAction(
-      () => socketActions.resolveDefeatedOrdering(socketRef.current as Socket, defeatedOrderingIndices),
-      "DEFEATED order chosen."
+      () => socketActions.resolveDefeatedOrdering(socketRef.current as Socket, defeatedOrderingIndices)
     );
   }
 
@@ -767,7 +759,6 @@ export function App() {
                   </div>
                 ) : null}
               </div>
-              {statusText ? <div className="status-text mt-2">{statusText}</div> : null}
               {errorText ? <div className="error-text mt-2">{errorText}</div> : null}
             </div>
           </section>
