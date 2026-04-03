@@ -342,15 +342,35 @@ body {
   filter: drop-shadow(0 0 10px rgba(113, 163, 255, 0.22));
 }
 
-.draw-pile-icon::before {
-  content: "🃏";
+.draw-pile-icon::before,
+.draw-pile-icon::after {
+  content: "";
   position: absolute;
-  inset: 0;
-  font-size: 34px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 24px;
+  height: 30px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #f7fbff 0%, #d8e7ff 100%);
+  border: 1px solid rgba(60, 95, 160, 0.55);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.28);
+}
+
+.draw-pile-icon::before {
+  transform: translate(4px, 2px) rotate(8deg);
+  opacity: 0.92;
+}
+
+.draw-pile-icon::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 30px;
+  border-radius: 6px;
+  background:
+    linear-gradient(135deg, rgba(113, 163, 255, 0.22) 0%, rgba(113, 163, 255, 0) 45%),
+    linear-gradient(180deg, #ffffff 0%, #eaf2ff 100%);
+  border: 1px solid rgba(60, 95, 160, 0.75);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.34);
+  transform: translate(-4px, -2px) rotate(-8deg);
 }
 
 .icon-stat-number {
