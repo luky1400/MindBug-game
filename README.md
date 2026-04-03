@@ -135,7 +135,7 @@ PYTHONPATH=. pytest tests/tests_mindbug_use.py
   - Prompt: can you make orange/red border/glow to card that was selected as attacker. This border should only apply until defender is selected.
 - dont show Game status: "Your turn". But rather: "Play card or attack" / "Play card" / "Attack."
 - udělat nejakou signalizaci, která upozorní hrace, ze je na tahu (play_card/attack, Mindbug, Defend, etc.)
-- Refactor hand - dát karty v ruce bliz k sobe a zvetsit. I zvetsit celou ruku najednou? I Smazat Expand button?
+- Ukazat pouzehorni pulku karet v ruce?
 - Smazat Close button u Card preview
 - Special effects:
   - Hrac ukradnul kartu mozkozroutem
