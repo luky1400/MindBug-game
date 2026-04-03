@@ -319,17 +319,44 @@ body {
   overflow-y: auto;
 }
 
-.hand-grid {
-  display: grid;
-  gap: 10px;
+.hand-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0;
+  padding: 0 10px;
 }
 
-.hand-grid-compact {
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+.hand-row > .card-tile {
+  width: 100px;
+  transition: transform 0.15s ease, z-index 0s;
+  margin-left: -12px;
+  position: relative;
 }
 
-.hand-grid-expanded {
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+.hand-row > .card-tile:first-child {
+  margin-left: 0;
+}
+
+.hand-row > .card-tile:hover {
+  transform: translateY(-10px) scale(1.08);
+  z-index: 10;
+}
+
+.hand-row > .card-tile:nth-child(odd) {
+  transform: rotate(-2deg);
+}
+
+.hand-row > .card-tile:nth-child(even) {
+  transform: rotate(2deg);
+}
+
+.hand-row > .card-tile:nth-child(odd):hover {
+  transform: translateY(-10px) scale(1.08) rotate(0deg);
+}
+
+.hand-row > .card-tile:nth-child(even):hover {
+  transform: translateY(-10px) scale(1.08) rotate(0deg);
 }
 
 .placeholder {
