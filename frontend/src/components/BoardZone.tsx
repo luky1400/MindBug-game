@@ -37,7 +37,10 @@ export function BoardZone({
             <div className="board-zone-sidebar">
               <div className="sidebar-stats">
                 <div className="stat-item stat-lives">
-                  <span className="stat-value">{player.lives}</span>
+                  <div className="stat-value stat-value-with-icon">
+                    <span className="stat-icon" aria-hidden="true">♥</span>
+                    <span>{player.lives}</span>
+                  </div>
                   <span className="stat-label">Lives</span>
                 </div>
                 <div className="stat-item">

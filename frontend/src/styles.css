@@ -249,6 +249,19 @@ body {
   line-height: 1.2;
 }
 
+.stat-value-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-icon {
+  color: #ff6b7d;
+  font-size: 0.88rem;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(255, 107, 125, 0.35);
+}
+
 .stat-label {
   font-size: 0.58rem;
   color: var(--muted);
