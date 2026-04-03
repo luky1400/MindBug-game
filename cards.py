@@ -14,8 +14,8 @@ def _build_card_pool(card_specs: list[tuple[Callable[[], Card], int]]) -> list[C
     return card_pool
 
 # SOURCE: https://ryanascherr.github.io/mindbug/
-# SOURCE: https://github.com/ryanascherr/mindbug-deck/tree/main
-# SOURCE: https://mindbug.fandom.com/wiki/First_Contact, https://mindbug.fandom.com/wiki/First_Contact_Addon_Pack
+# IMG: https://github.com/ryanascherr/mindbug-deck/tree/main
+# # copies: https://mindbug.fandom.com/wiki/First_Contact, https://mindbug.fandom.com/wiki/First_Contact_Addon_Pack
 # Additional Promo Cards: https://mindbug.fandom.com/wiki/Promo_Cards
 def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
     if sets is None:
@@ -84,6 +84,29 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
     ])
     allowed_sets = set(sets)
     return [card for card in card_pool if card.set in allowed_sets]
+
+
+# class Alien_brain(Card):
+#     name: str = "Alien Brain"
+#     strength: int = 3
+#     special_types: list[CardSpecialType] = [CardSpecialType.POISONOUS]
+#     description: str = "Opponent cannot put cards into their hand."
+#     set: CardSet = CardSet.PROMO_CARDS 
+    
+#     # TODO
+#     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+#         opponent.cannot_put_cards_into_hand = True
+
+
+# # Hard
+# class Alpacoodle(Card):
+#     name: str = "Alpacoodle"
+#     strength: int = 2
+#     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
+#     action_type: CardActionType = CardActionType.PLAY # TODO
+#     play_action_description: str = "Set aside all other creatures."
+#     defeated_action_description: str = "Return them to play without activating their Play effects."
+#     set: CardSet = CardSet.PROMO_CARDS
 
 
 class Axolotl_healer(Card):
@@ -167,26 +190,6 @@ class Bugserker(Card):
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if owner.number_of_lives == 1:
             self.strength += 8
-
-
-class Chameleon_sniper(Card):
-    name: str = "Chameleon Sniper"
-    strength: int = 1
-    special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
-    action_type: CardActionType = CardActionType.ATTACK
-    action_description: str = "The opponent loses 1 life."
-    set: CardSet = CardSet.FIRST_CONTACT
-
-    def trigger_action(self, game: Game) -> None:
-        lost_life = game.lose_life(1 - game.turn, 1, auto_end_after_attack=True)
-        if lost_life > 0:
-            game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name} for {lost_life} life."
-            )
-        else:
-            game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name}, but they cannot lose life."
-            )
 
 
 class Compost_dragon(Card):
@@ -455,6 +458,81 @@ class Hyenix(Card):
     )
     set: CardSet = CardSet.NEW_SERVANTS
 
+
+# class Chameleon_sniper(Card):
+#     name: str = "Chameleon Sniper"
+#     strength: int = 3
+#     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
+#     action_type: CardActionType = CardActionType.PLAY
+#     action_description: str = "Roll a 6-sided die. On 4 to 6, defeat an enemy creature and then repeat this effect."
+#     set: CardSet = CardSet.PROMO_CARDS
+
+#     def trigger_action(self, game: Game) -> None:
+#         roll = random.randint(1, 6)
+#         if roll >= 4:
+              # TODO - Player choice
+#             game._destroy_creature(game.opponent, game.opponent.cards_laid_out[0])
+#             game.log.append(
+#                 f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} rolls a {roll} and defeats {game.opponent.name}'s {game.opponent.cards_laid_out[0].name}."
+#             )
+#         else:
+#             game.log.append(
+#                 f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} rolls a {roll} and does not defeat an enemy creature."
+#             )
+
+
+class Chuck(Card):
+    name: str = "Chuck"
+    strength: int = 1
+    special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
+    action_type: CardActionType = CardActionType.ATTACK
+    action_description: str = "The opponent loses 1 life."
+    set: CardSet = CardSet.FIRST_CONTACT
+
+    def trigger_action(self, game: Game) -> None:
+        lost_life = game.lose_life(1 - game.turn, 1, auto_end_after_attack=True)
+        if lost_life > 0:
+            game.log.append(
+                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name} for {lost_life} life."
+            )
+        else:
+            game.log.append(
+                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name}, but they cannot lose life."
+            )
+
+
+# class Jazz_dog(Card):
+#     name: str = "Jazz Dog"
+#     strength: int = 5
+#     special_types: list[CardSpecialType] = []
+#     description: str = "At the end of your turn, if an enemy creature blocked this turn and is still in play, take control of it ."
+#     set: CardSet = CardSet.PROMO_CARDS
+
+#     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+#         for card in opponent.cards_laid_out:
+#             if card.blocked_this_turn and card.is_in_play:
+#                 game._destroy_creature(opponent, card)
+#                 game.log.append(
+#                     f"{game.current_player.name} takes control of {card.name} from {game.opponent.name}."
+#                 )
+
+
+# Hard
+# class Jean_claw_pandamme(Card):
+#     name: str = "Jean Claw Pandamme"
+#     strength: int = 5
+#     special_types: list[CardSpecialType] = []
+#     description: str = "Enemy creatues have 'Attack: Discard a card'."
+#     set: CardSet = CardSet.PROMO_CARDS
+
+#     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+#         for card in opponent.cards_laid_out:
+#             # TODO
+#             # Which attack effect trigger first when creature have 2 attack effects?
+#             card.action_type = CardActionType.ATTACK
+#             card.action_description = "Discard a card."
+
+
 class Kangasaurus_rex(Card):
     name: str = "Kangasaurus Rex"
     strength: int = 7
@@ -617,6 +695,19 @@ class Ram_hopper(Card):
                 card.special_types.append(CardSpecialType.FRENZY)
 
 
+# class Ratomanger(Card):
+#     name: str = "Ratomanger"
+#     strength: int = 2
+#     special_types: list[CardSpecialType] = []
+#     action_type: CardActionType = CardActionType.PLAY
+#     action_description: str = "Play any number of cards with power 4 or less from your discard pile without activating their Play effects."
+#     set: CardSet = CardSet.PROMO_CARDS
+    
+#     def trigger_action(self, game: Game) -> None:
+#         # TODO - Player choice
+#         game.resolve_ratomanger_action(self)
+
+
 class Rhino_turtle(Card):
     name: str = "Rhino Turtle"
     strength: int = 8
@@ -687,6 +778,31 @@ class Short_neck_giraffodile(Card):
 
     def trigger_action(self, game: Game) -> None:
         game.resolve_short_neck_giraffodile_action(self)
+
+
+# class Slugapult(Card):
+#     name: str = "Slugapult"
+#     strength: int = 5
+#     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH, CardSpecialType.FRENZY]
+#     action_type: CardActionType = CardActionType.ATTACK
+#     action_description: str = "You may defeat another allied creature. If you do, defeat an enemy creature."
+#     set: CardSet = CardSet.PROMO_CARDS
+    
+#     def trigger_action(self, game: Game) -> None:
+#         # TODO - Player choice
+#         game.resolve_slugapult_action(self)
+
+
+# class Sluggernaut(Card):
+#     name: str = "Sluggernaut"
+#     strength: int = 6
+#     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH] 
+#     action_type: CardActionType = CardActionType.LOSE_TOUGH_CHARGE # TODO - add action_description
+#     set: CardSet = CardSet.PROMO_CARDS
+
+#     def trigger_action(self, game: Game) -> None:
+#         # TODO - Player choice
+#         game.resolve_sluggernaut_action(self)
 
 
 class Snail_hydra(Card):
@@ -778,6 +894,24 @@ class Strange_barrel(Card):
 #         game.log.append(f"{game.opponent.name} loses 2 lives.")
     
 
+
+class Steamforger(Card):
+    name: str = "Steamforger"
+    strength: int = 9
+    special_types: list[CardSpecialType] = []
+    action_type: CardActionType = CardActionType.ATTACK
+    action_description: str = "If you control at least 3 more creatures than an opponent, you win the game."
+    set: CardSet = CardSet.PROMO_CARDS
+    
+    def trigger_action(self, game: Game) -> None:
+        if len(game.current_player.cards_laid_out) >= len(game.opponent.cards_laid_out) + 3:
+            game.game_state = GameState.GAME_OVER
+            game.winner = game.current_player
+            game.log.append(f"{game.current_player.name} wins the game with Steamforger.")
+        else:
+            game.log.append(f"{game.current_player.name} does not win the game with Steamforger.")
+
+
 class The_lurker(Card):
     name: str = "The Lurker"
     strength: int = 4
@@ -799,23 +933,6 @@ class The_lurker(Card):
             game.log.append(
                 f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} does not have {CardSpecialType.SNEAKY.value} this turn."
             )
-
-
-class Steamforger(Card):
-    name: str = "Steamforger"
-    strength: int = 9
-    special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
-    action_description: str = "If you control at least 3 more creatures than an opponent, you win the game."
-    set: CardSet = CardSet.PROMO_CARDS
-    
-    def trigger_action(self, game: Game) -> None:
-        if len(game.current_player.cards_laid_out) >= len(game.opponent.cards_laid_out) + 3:
-            game.game_state = GameState.GAME_OVER
-            game.winner = game.current_player
-            game.log.append(f"{game.current_player.name} wins the game with Steamforger.")
-        else:
-            game.log.append(f"{game.current_player.name} does not win the game with Steamforger.")
 
 
 class Tiger_squirrel(Card):
@@ -910,3 +1027,22 @@ class Urchin_hurler(Card):
         for card in owner.cards_laid_out:
             if card is not self:
                 card.strength += 2
+
+
+# class Watts_dog(Card):
+#     name: str = "Watts Dog"
+#     strength: int = 5
+#     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
+#     description: str = "Can only be blocked by creatures with no keywords."
+#     set: CardSet = CardSet.PROMO_CARDS
+
+
+# class Wolfman_steve(Card):
+#     name: str = "Wolfman Steve"
+#     strength: int = 8
+#     special_types: list[CardSpecialType] = []
+#     description: str = "Opponent cannot play cards with power 4 or less from their hand."
+#     set: CardSet = CardSet.PROMO_CARDS
+
+#     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+#         opponent.cannot_play_cards_with_power_4_or_less_from_hand = True
