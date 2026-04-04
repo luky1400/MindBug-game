@@ -85,7 +85,7 @@ Open: [http://localhost:5173](http://localhost:5173)
 
 ## Play with friend online (tunnel your local server with ngrok)
 
-### 1) Create account in [ngrok]([https://ngrok.com/](https://ngrok.com/)) (free version is available).
+### 1) Create account in [ngrok](https://ngrok.com) (free version is available).
 
 ### 2) Install ngrok
 
