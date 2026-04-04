@@ -92,7 +92,7 @@ Open: [http://localhost:5173](http://localhost:5173)
 On Mac:
 
 ```bash
-brew install ngrok/ngrok/ngrok
+brew install --cask ngrok
 ```
 
 ### 3) Then authenticate once with your account token from ngrok.com:
