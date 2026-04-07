@@ -45,7 +45,6 @@
 - "Začínajícího hráče určíte tak, že si každý hráč náhodně vylosuje jednu kartu z hromádky nepoužitých karet nestvůr a poté si hráči porovnají sílu těchto karet. Hráč, jehož karta má vyšší hodnotu síly, bude začínajícím hráčem.
 V případě shody tento proces opakujte."
 - dát na rozklikávatko (vpravo nahoře): pravidla
-- Ukazat pouze horni pulku karet v ruce?
 - Kdyz zahraju kartu a cekam na opponenta, jestli pouzije Mindbug, tak kartu dát doprava doprostred, stejne jako v Mindbug online?
 
 ## Bugs - backend
@@ -54,7 +53,6 @@ V případě shody tento proces opakujte."
 
 ## Bugs - frontend
 
-- TODO - make Game fit one screen. If zoom out. it should be dynamic.
 - Opponents cards laid out can be selected for target attack but they have no blue border when selected!
 - In Knightmare, Steamforger cards, I dont see green actual strength if it is higher than normal.
 - I see FRENZY above Hyenix card when deciding whether to play it or not.
