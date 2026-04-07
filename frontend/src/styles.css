@@ -460,11 +460,11 @@ body {
 }
 
 .battlefield-cards-row > .card-tile.card-tile-large {
-  width: 188px;
+  width: 206px; /* TODO - adjust this to be more accurate */
 }
 
 .battlefield-cards-row > .card-tile.card-tile-large .card-image {
-  height: 242px;
+  height: 268px; /* TODO - adjust this to be more accurate */
 }
 
 .hand-row {
@@ -484,11 +484,11 @@ body {
 }
 
 .hand-row > .card-tile.card-tile-medium {
-  width: 172px;
+  width: 190px; /* TODO - adjust this to be more accurate */
 }
 
 .hand-row > .card-tile.card-tile-medium .card-image {
-  height: 214px;
+  height: 250px; /* TODO - adjust this to be more accurate */
 }
 
 .hand-row > .card-tile:first-child {
