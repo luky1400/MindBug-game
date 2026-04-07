@@ -473,7 +473,7 @@ body {
   align-items: flex-end;
   gap: 0;
   padding: 0 20px;
-  margin-bottom: -50px; /* negative margin to move the hand up */
+  margin-bottom: -65px; /* negative margin to move the hand up */
 }
 
 .hand-row > .card-tile {
