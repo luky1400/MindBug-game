@@ -180,46 +180,48 @@ body {
 .board-zone-layout {
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .board-zone-sidebar {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 4px;
-  min-width: 58px;
-  width: 58px;
   flex-shrink: 0;
-  overflow-y: auto;
 }
 
 .sidebar-stats {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 3px;
+}
+
+.board-zone-battlefield {
+  flex: 1;
+  min-width: 0;
 }
 
 .stat-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  background: #0e1a30;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 2px 4px 1px;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .stat-lives {
   background: transparent;
-  border-color: transparent;
-  padding: 2px 0 0;
-  box-shadow: none;
+  border: none;
+  padding: 0;
 }
 
 .stat-icon-only {
   background: transparent;
-  border-color: transparent;
-  padding: 2px 0 0;
-  box-shadow: none;
+  border: none;
+  padding: 0;
 }
 
 .stat-value {
@@ -231,8 +233,8 @@ body {
 
 .life-heart {
   position: relative;
-  width: 42px;
-  height: 38px;
+  width: 48px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,7 +246,7 @@ body {
   content: "♥";
   position: absolute;
   inset: 0;
-  font-size: 38px;
+  font-size: 44px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -271,8 +273,8 @@ body {
 .hand-icon,
 .draw-pile-icon {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -287,7 +289,7 @@ body {
   content: "👾";
   position: absolute;
   inset: 0;
-  font-size: 34px;
+  font-size: 40px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -302,7 +304,7 @@ body {
   content: "✋";
   position: absolute;
   inset: 0;
-  font-size: 34px;
+  font-size: 40px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -317,8 +319,8 @@ body {
 .draw-pile-icon::after {
   content: "";
   position: absolute;
-  width: 24px;
-  height: 30px;
+  width: 28px;
+  height: 34px;
   border-radius: 6px;
   background: linear-gradient(180deg, #f7fbff 0%, #d8e7ff 100%);
   border: 1px solid rgba(60, 95, 160, 0.55);
@@ -333,8 +335,8 @@ body {
 .draw-pile-icon::after {
   content: "";
   position: absolute;
-  width: 24px;
-  height: 30px;
+  width: 28px;
+  height: 34px;
   border-radius: 6px;
   background:
     linear-gradient(135deg, rgba(113, 163, 255, 0.22) 0%, rgba(113, 163, 255, 0) 45%),
@@ -384,8 +386,8 @@ body {
 
 .discard-icon {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -397,7 +399,7 @@ body {
   content: "🪦";
   position: absolute;
   inset: 0;
-  font-size: 34px;
+  font-size: 40px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -414,10 +416,7 @@ body {
   transform: translateY(3px);
 }
 
-.board-zone-battlefield {
-  flex: 1;
-  min-width: 0;
-}
+
 
 /* ── Discard pile modal ───────────────────────────────────────────── */
 
