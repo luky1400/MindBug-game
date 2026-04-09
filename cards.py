@@ -223,7 +223,7 @@ class Count_draculeech(Card):
     strength: int = 7
     special_types: list[CardSpecialType] = []
     action_type: CardActionType = CardActionType.ATTACK
-    action_description: str = "Lose 1 life. Defeat a creature of your choice."
+    action_description: str = "Lose 1 life. Defeat a creature."
     set: CardSet = CardSet.NEW_SERVANTS
 
     def trigger_action(self, game: Game) -> None:
@@ -528,10 +528,11 @@ class Chameleon_sniper(Card):
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
-#         # TODO - implement
+#         # TODO - implement - when player has more than 1 life, they can use life as Mindbugs - they will always get a choice Modular window with extra option use Life as Mindbug
 #         pass
 
 
+# Hard - add attribute - blocked_this_turn that will reset when player ends their turn.
 # class Jazz_dog(Card):
 #     name: str = "Jazz Dog"
 #     strength: int = 5
@@ -548,18 +549,18 @@ class Chameleon_sniper(Card):
 #                 )
 
 
-# Hard
+# Hard - when opponent's attacker already has ATTACK effect, opponent must choose which effect will trigger first
 # class Jean_claw_pandamme(Card):
 #     name: str = "Jean Claw Pandamme"
 #     strength: int = 5
 #     special_types: list[CardSpecialType] = []
-#     description: str = "Enemy creatues have 'Attack: Discard a card'."
+#     description: str = "Enemy creatures have 'Attack: Discard a card'."
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
 #         for card in opponent.cards_laid_out:
 #             # TODO
-#             # Which attack effect trigger first when creature have 2 attack effects?
+#             # Which attack effect trigger first when creature has 2 attack effects?
 #             card.action_type = CardActionType.ATTACK
 #             card.action_description = "Discard a card."
 
@@ -740,7 +741,7 @@ class Ram_hopper(Card):
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def trigger_action(self, game: Game) -> None:
-#         # TODO - Player choice
+#         # TODO - Player choice - 0 up to number of cards with power 4 in owner's discard pile
 #         game.resolve_ratomanger_action(self)
 
 
@@ -827,7 +828,7 @@ class Short_neck_giraffodile(Card):
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def trigger_action(self, game: Game) -> None:
-#         # TODO - Player choice
+#         # TODO - Player choice - Select a creature to defeat / no defeat - 2 Modular windows will show up one after another if player chooses to defeat a creature
 #         game.resolve_slugapult_action(self)
 
 
@@ -1096,7 +1097,7 @@ class Urchin_hurler(Card):
             if card is not self:
                 card.strength += 2
 
-
+# TODO - implement
 # class Watts_dog(Card):
 #     name: str = "Watts Dog"
 #     strength: int = 5
@@ -1125,4 +1126,5 @@ class Wheatl_e(Card):
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+#         # TODO - implement - raise Error on backend, card should not be allowed for selection on frontend - if no feasible hand cards to play, no PLAY button appears, if player cannot play any card and cannot attack, he loses the game
 #         opponent.cannot_play_cards_with_power_4_or_less_from_hand = True
