@@ -1489,7 +1489,7 @@ class Game:
             min_choices=1,
             max_choices=max_choices,
             draw_up_to_hand_limit_after_resolution=True,
-            auto_end_after_attack=True,
+            auto_end_after_attack=True, # NOTE - this is here so that when attack harpy mother, turn auto-ends after combat
         )
 
     def resolve_hungry_hungry_hamster_action(self, source_card: Card) -> None:
