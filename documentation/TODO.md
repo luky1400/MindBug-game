@@ -14,6 +14,7 @@
 - move cards laid out more top (vice nahoru)
 - zlepšit zobrazení actual strength - stejně změnit i number of copies
 - Smazat Close button u Card preview?
+- Show Mindbug icon somewhere
 - Special effects:
   - when card is defeated
   - when card is discarded
@@ -53,7 +54,6 @@
 
 ## Bugs - frontend
 
-- Opponents cards laid out can be selected for target attack but they have no blue border when selected!
 - In Knightmare, Steamforger cards, I dont see green actual strength if it is higher than normal.
 - I see FRENZY above Hyenix card when deciding whether to play it or not.
 - End turn button should disappear immediatelly after clicking 2nd attack button. Now, it stays there when waiting for opponent choice whether to defeat or lose life.
