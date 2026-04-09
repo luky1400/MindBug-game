@@ -180,6 +180,8 @@ class Player:
         return previous_life - self.number_of_lives
 
     def move_to_discard(self, card: Card) -> None:
+        if CardSpecialType.TOUGH in card.special_types:
+            card.tough_charges = 1
         self.discard_pile.append(card)
 
 
