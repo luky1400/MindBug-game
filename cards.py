@@ -836,11 +836,10 @@ class Short_neck_giraffodile(Card):
 #     name: str = "Sluggernaut"
 #     strength: int = 6
 #     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
-#     action_type: CardActionType = CardActionType.LOSE_TOUGH_CHARGE # TODO - add action_description
 #     set: CardSet = CardSet.PROMO_CARDS
 
-#     def trigger_action(self, game: Game) -> None:
-#         # TODO - Player choice
+#     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+#         # TODO - Player choice - player choice will be saved to card attribute - base son it given effect will be applied at the beginning of each turn
 #         game.resolve_sluggernaut_action(self)
 
 
@@ -998,9 +997,8 @@ class The_pack(Card):
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if self.tough_charges == 0 and CardSpecialType.SNEAKY not in self.special_types:
             self.special_types.append(CardSpecialType.SNEAKY)
-            game.log.append(
-                f"{game.current_player.name}'s {self.name} has {CardSpecialType.SNEAKY.value}."
-            )
+            owner = next(p for p in game.players if self in p.cards_laid_out)
+            game.log.append(f"{owner.name}'s {self.name} has {CardSpecialType.SNEAKY.value}.")
 
 
 class Tiger_squirrel(Card):
