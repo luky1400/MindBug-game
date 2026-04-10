@@ -4,7 +4,13 @@ from dataclasses import dataclass, field
 import random
 from typing import Any, Iterable, Optional
 
-from enums import CardActionType, CardSet, CardSpecialType, GameState
+from enums import (
+    CardActionType,
+    CardSet,
+    CardSpecialType,
+    GameState,
+    OngoingEffectPriority,
+)
 
 
 @dataclass
@@ -29,6 +35,7 @@ class Card:
     base_cannot_block: bool = field(init=False)
     base_cannot_attack: bool = field(init=False)
     temporary_cannot_block_until_turn_end: bool = False
+    apply_ongoing_effect_priority: OngoingEffectPriority = OngoingEffectPriority.NORMAL
 
     def __post_init__(self) -> None:
         cls = type(self)
@@ -608,7 +615,9 @@ class Game:
         if pending.action_key == "tusked_extorter":
             return f"Waiting for {responder_name} to choose a card to discard for Tusked Extorter."
         if pending.action_key == "wheatle":
-            return f"Waiting for {responder_name} to choose a number (1-10) for Wheatle."
+            return (
+                f"Waiting for {responder_name} to choose a number (1-10) for Wheatle."
+            )
         return f"Waiting for {responder_name} to resolve a card action choice."
 
     def resolve_pending_card_action(self, selected_indices: list[int]) -> None:
@@ -987,7 +996,9 @@ class Game:
         owner = self.players[pending.responding_player_index]
         opponent = self.players[1 - pending.responding_player_index]
         chosen_number = selected_indices[0] + 1
-        matching_cards = [card for card in opponent.hand if card.strength == chosen_number]
+        matching_cards = [
+            card for card in opponent.hand if card.strength == chosen_number
+        ]
         for card in matching_cards:
             opponent.hand.remove(card)
             owner.hand.append(card)
@@ -1515,7 +1526,7 @@ class Game:
             min_choices=1,
             max_choices=max_choices,
             draw_up_to_hand_limit_after_resolution=True,
-            auto_end_after_attack=True, # NOTE - this is here so that when attack harpy mother, turn auto-ends after combat
+            auto_end_after_attack=True,  # NOTE - this is here so that when attack harpy mother, turn auto-ends after combat
         )
 
     def resolve_hungry_hungry_hamster_action(self, source_card: Card) -> None:
@@ -2230,10 +2241,18 @@ class Game:
                 )
                 card.cannot_attack = card.base_cannot_attack
 
-        for owner_idx, owner in enumerate(self.players):
-            opponent = self.players[1 - owner_idx]
-            for card in owner.cards_laid_out:
-                card.apply_ongoing_effect(self, owner, opponent)
+        # TODO - we must assign apply_ongoing_effect_priority to cards in cards.py to apply ongoing effects in order of priority
+        # Jazz_dog should be applied before other cards, because it can give control of other cards to the player
+        # Sharky_crab_dog_mummypus should be applied after other cards, because it can give new tags to the card
+        all_cards: list[tuple[Card, Any, Any]] = [
+            (card, self.players[owner_idx], self.players[1 - owner_idx])
+            for owner_idx, owner in enumerate(self.players)
+            for card in owner.cards_laid_out
+        ]
+        for card, owner, opponent in sorted(
+            all_cards, key=lambda t: t[0].apply_ongoing_effect_priority
+        ):
+            card.apply_ongoing_effect(self, owner, opponent)
 
         for player in self.players:
             if player.cannot_block_with_creatures_with_power_4_or_less:

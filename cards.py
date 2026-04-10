@@ -1,5 +1,11 @@
 from base_classes import Card
-from enums import CardActionType, CardSet, CardSpecialType, GameState
+from enums import (
+    CardActionType,
+    CardSet,
+    CardSpecialType,
+    GameState,
+    OngoingEffectPriority,
+)
 from typing import Optional
 from collections.abc import Callable
 from base_classes import Game
@@ -534,12 +540,13 @@ class Chameleon_sniper(Card):
 #         pass
 
 
-# Hard - add attribute - blocked_this_turn that will reset when player ends their turn.
+# Hard - add attribute blocked_this_turn=False to Card class that will reset when player ends their turn.
 # class Jazz_dog(Card):
 #     name: str = "Jazz Dog"
 #     strength: int = 5
 #     special_types: list[CardSpecialType] = []
 #     description: str = "At the end of your turn, if an enemy creature blocked this turn and is still in play, take control of it ."
+#     apply_ongoing_effect_priority: OngoingEffectPriority = OngoingEffectPriority.EARLY
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
@@ -777,6 +784,7 @@ class Sharky_crab_dog_mummypus(Card):
     name: str = "Sharky Crab Dog Mummypus"
     strength: int = 5
     special_types: list[CardSpecialType] = []
+    apply_ongoing_effect_priority: OngoingEffectPriority = OngoingEffectPriority.LATE
     description: str = (
         f"Has {CardSpecialType.HUNTER.value} while an enemy creature does. Repeat for {CardSpecialType.SNEAKY.value},{CardSpecialType.FRENZY.value}, and {CardSpecialType.POISONOUS.value}."
     )
@@ -1001,8 +1009,10 @@ class The_pack(Card):
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if self.tough_charges == 0 and CardSpecialType.SNEAKY not in self.special_types:
             self.special_types.append(CardSpecialType.SNEAKY)
-            owner = next(p for p in game.players if self in p.cards_laid_out)
-            game.log.append(f"{owner.name}'s {self.name} has {CardSpecialType.SNEAKY.value}.")
+            # owner = next(p for p in game.players if self in p.cards_laid_out)
+            game.log.append(
+                f"{owner.name}'s {self.name} has {CardSpecialType.SNEAKY.value}."
+            )
 
 
 class Tiger_squirrel(Card):
@@ -1100,6 +1110,7 @@ class Urchin_hurler(Card):
             if card is not self:
                 card.strength += 2
 
+
 # TODO - implement
 # class Watts_dog(Card):
 #     name: str = "Watts Dog"
@@ -1112,9 +1123,14 @@ class Urchin_hurler(Card):
 class Wheatl_e(Card):
     name: str = "Wheatle"
     strength: int = 6
-    special_types: list[CardSpecialType] = [CardSpecialType.FRENZY, CardSpecialType.TOUGH]
+    special_types: list[CardSpecialType] = [
+        CardSpecialType.FRENZY,
+        CardSpecialType.TOUGH,
+    ]
     action_type: CardActionType = CardActionType.ATTACK
-    action_description: str = "Choose a number. An opponent gives you all cards from their hand with power equal to the chosen number that number. Put them into your hand."
+    action_description: str = (
+        "Choose a number. An opponent gives you all cards from their hand with power equal to the chosen number that number. Put them into your hand."
+    )
     set: CardSet = CardSet.PROMO_CARDS
 
     def trigger_action(self, game: Game) -> None:

@@ -1,4 +1,10 @@
-from enum import Enum
+from enum import Enum, IntEnum
+
+
+class OngoingEffectPriority(IntEnum):
+    EARLY = 0
+    NORMAL = 1
+    LATE = 2
 
 
 class CardSpecialType(Enum):
