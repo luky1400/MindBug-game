@@ -92,6 +92,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
     return [card for card in card_pool if card.set in allowed_sets]
 
 
+# HARD - does it mean that cards stay where they are when they should be added to opponents hand?
 # class Alien_brain(Card):
 #     name: str = "Alien Brain"
 #     strength: int = 3
@@ -172,6 +173,7 @@ class Boar_zooka(Card):
     set: CardSet = CardSet.PROMO_CARDS
 
     def trigger_action(self, game: Game) -> None:
+        # TODO - destroy cards of the other than owner of this card - same as Barrel
         for card in game.opponent.cards_laid_out.copy():
             game._destroy_creature(game.opponent, card)
         game.log.append(
@@ -611,6 +613,7 @@ class Knightmare(Card):
 
     def trigger_action(self, game: Game) -> None:
         game.game_state = GameState.GAME_OVER
+        # TODO - winner is not owner of the card - it should be opponent of the owner of the card
         game.winner = game.opponent
         game.log.append(
             f"{game.opponent.name} wins the game because {game.current_player.name}'s {self.name} was defeated."
@@ -929,6 +932,7 @@ class Strange_barrel(Card):
 #         game.log.append(f"{game.opponent.name} takes control of {self.name}.")
 
 #     def trigger_defeated_effect(self, game: Game) -> None:
+#         # TODO - owner of this card loses 2 lives - not opponent
 #         game.opponent.lose_life(2)
 #         game.log.append(f"{game.opponent.name} loses 2 lives.")
 
