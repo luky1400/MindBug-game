@@ -165,15 +165,8 @@ export function hasActiveToughCharge(cardLabel: string): boolean {
 
 export function getActiveAbilityBadges(cardLabel: string): string[] {
   const parsed = parseCardLabel(cardLabel);
-  if (parsed.name === "Lone Yeti") {
-    return parsed.activeTags.includes("FRENZY") ? ["FRENZY"] : [];
-  }
-  if (parsed.name === "Sharky Crab Dog Mummypus") {
-    const supportedTags = ["FRENZY", "HUNTER", "POISONOUS", "SNEAKY"];
-    return supportedTags.filter((tag) => parsed.activeTags.includes(tag));
-  }
   const nativeTags = nativeAbilityTagsByName[parsed.name] || [];
-  const effectGrantedVisibleTags = ["FRENZY", "HUNTER", "POISONOUS"];
+  const effectGrantedVisibleTags = ["FRENZY", "HUNTER", "POISONOUS", "SNEAKY"];
   return effectGrantedVisibleTags.filter(
     (tag) => parsed.activeTags.includes(tag) && !nativeTags.includes(tag)
   );

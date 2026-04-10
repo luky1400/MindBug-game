@@ -904,6 +904,7 @@ class Strange_barrel(Card):
     def trigger_action(self, game: Game) -> None:
         for _ in range(2):
             if len(game.opponent.hand) > 0:
+                # TODO - if defeated in oppoents turn, it gives card to opponent - we must make it independent - check also for othr defeated
                 card = game.opponent.hand.pop(randint(0, len(game.opponent.hand) - 1))
                 game.current_player.hand.append(card)
                 game.log.append(

@@ -791,7 +791,7 @@ export function App() {
           </div>
 
           <BoardZone
-            title={`${viewer.name}${state!.is_viewer_turn ? " (your turn)" : ""}`}
+            title={`${viewer.name}`}
             player={viewer}
             active={state!.is_viewer_turn}
             battlefieldMode={hasBlockingChoiceModal ? "readonly" : canAnswerDefense ? "defender" : "attacker"}
