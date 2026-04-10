@@ -56,6 +56,9 @@ class Card:
             self.set = getattr(cls, "set", None)
         if self.min_blocker_strength is None:
             self.min_blocker_strength = getattr(cls, "min_blocker_strength", None)
+        # Using cls.__dict__ (not getattr) to only match direct definitions on the subclass, not inherited ones.
+        if "apply_ongoing_effect_priority" in cls.__dict__:
+            self.apply_ongoing_effect_priority = cls.__dict__["apply_ongoing_effect_priority"]
         if self.tough_charges == 0 and CardSpecialType.TOUGH in self.special_types:
             self.tough_charges = 1
         if self.cannot_block is None:
