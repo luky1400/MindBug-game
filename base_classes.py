@@ -1217,6 +1217,8 @@ class Game:
         assert cont is not None
         self._pending_attack_continuation = None
 
+        self._draw_up_to_hand_limit_for_each_player_if_needed()
+
         if self.game_state == GameState.GAME_OVER:
             return
 
@@ -1379,7 +1381,6 @@ class Game:
             eligible_indices=eligible_indices,
             min_choices=1,
             max_choices=1,
-            draw_up_to_hand_limit_after_resolution=True,
             auto_end_after_attack=True,
         )
 
@@ -1471,7 +1472,6 @@ class Game:
             eligible_indices=eligible_indices,
             min_choices=1,
             max_choices=1,
-            draw_up_to_hand_limit_after_resolution=True,
             auto_end_after_attack=True,
         )
 
@@ -1528,7 +1528,7 @@ class Game:
             eligible_indices=eligible_indices,
             min_choices=1,
             max_choices=max_choices,
-            draw_up_to_hand_limit_after_resolution=True,
+            draw_up_to_hand_limit_after_resolution=True, # Probbaly redundant in Harpy mother case
             auto_end_after_attack=True,  # NOTE - this is here so that when attack harpy mother, turn auto-ends after combat
         )
 
@@ -1571,7 +1571,6 @@ class Game:
             eligible_indices=eligible_indices,
             min_choices=1,
             max_choices=1,
-            draw_up_to_hand_limit_after_resolution=True,
             auto_end_after_attack=True,
         )
 
@@ -1614,7 +1613,6 @@ class Game:
             eligible_indices=eligible_indices,
             min_choices=1,
             max_choices=1,
-            draw_up_to_hand_limit_after_resolution=True,
             auto_end_after_attack=True,
         )
 
@@ -1634,7 +1632,6 @@ class Game:
             eligible_indices=eligible_indices,
             min_choices=1,
             max_choices=1,
-            draw_up_to_hand_limit_after_resolution=True,
             auto_end_after_attack=True,
         )
 
