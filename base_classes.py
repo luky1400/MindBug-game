@@ -169,9 +169,6 @@ class Player:
     cannot_activate_play_effects: bool = False
     life_loss_before_using_mindbug: int = 0
     cannot_lose_life: bool = False
-    cannot_block_with_creatures_with_power_4_or_less: bool = False
-    cannot_block_with_creatures_with_highest_power: bool = False
-    cannot_attack_with_creatures_with_lowest_power: bool = False
 
     def draw(self, amount: int = 1) -> None:
         self.hand.extend(self.draw_pile.draw(amount))
@@ -2231,9 +2228,6 @@ class Game:
             player.cannot_activate_play_effects = False
             player.life_loss_before_using_mindbug = 0
             player.cannot_lose_life = False
-            player.cannot_block_with_creatures_with_power_4_or_less = False
-            player.cannot_block_with_creatures_with_highest_power = False
-            player.cannot_attack_with_creatures_with_lowest_power = False
             for card in player.cards_laid_out:
                 card.strength = card.base_strength
                 card.special_types = list(card.base_special_types)
@@ -2255,26 +2249,5 @@ class Game:
         ):
             card.apply_ongoing_effect(self, owner, opponent)
 
-        for player in self.players:
-            if player.cannot_block_with_creatures_with_power_4_or_less:
-                for card in player.cards_laid_out:
-                    if card.strength <= 4:
-                        card.cannot_block = True
 
-            if (
-                player.cannot_block_with_creatures_with_highest_power
-                and player.cards_laid_out
-            ):
-                highest_power = max(card.strength for card in player.cards_laid_out)
-                for card in player.cards_laid_out:
-                    if card.strength == highest_power:
-                        card.cannot_block = True
-
-            if (
-                player.cannot_attack_with_creatures_with_lowest_power
-                and player.cards_laid_out
-            ):
-                lowest_power = min(card.strength for card in player.cards_laid_out)
-                for card in player.cards_laid_out:
-                    if card.strength == lowest_power:
-                        card.cannot_attack = True
+        self.log.append(f"Ongoing effects recalculated.")

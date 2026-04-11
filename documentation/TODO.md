@@ -15,6 +15,7 @@
 - Smazat Close button u Card preview?
 - Show Mindbug icon somewhere
 - Improve Whaetl_e choosing number appearance.
+- enhance UI - change colours, ..
 - Special effects:
   - when card is defeated
   - when card is discarded
@@ -56,4 +57,6 @@
 
 - I see FRENZY above Hyenix card when deciding whether to play it or not.
 - "End turn" button should disappear immediatelly after clicking 2nd attack button. Now, it stays there when waiting for opponent choice whether to defeat or lose life.
+- FOr cards with purple border, I dont see that they are selected when being clicked.
+- 
 

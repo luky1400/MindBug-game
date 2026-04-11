@@ -98,7 +98,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
     return [card for card in card_pool if card.set in allowed_sets]
 
 
-# HARD - does it mean that cards stay where they are when they should be added to opponents hand?
+# Hard - does it mean that cards stay where they are when they should be added to opponents hand?
 # class Alien_brain(Card):
 #     name: str = "Alien Brain"
 #     strength: int = 3
@@ -275,7 +275,9 @@ class Elephantopus(Card):
     set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
-        opponent.cannot_block_with_creatures_with_power_4_or_less = True
+        for card in opponent.cards_laid_out:
+            if card.strength <= 4:
+                card.cannot_block = True
 
 
 class Evilcat(Card):
@@ -324,8 +326,12 @@ class Ferret_pacifier(Card):
     set: CardSet = CardSet.NEW_SERVANTS
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
-        if len(opponent.cards_laid_out) > 0:
-            opponent.cannot_block_with_creatures_with_highest_power = True
+        if not opponent.cards_laid_out:
+            return
+        highest_power = max(card.strength for card in opponent.cards_laid_out)
+        for card in opponent.cards_laid_out:
+            if card.strength == highest_power:
+                card.cannot_block = True
 
 
 class Froblin_instigator(Card):
@@ -442,8 +448,12 @@ class Hamster_lion(Card):
     set: CardSet = CardSet.NEW_SERVANTS
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
-        if len(opponent.cards_laid_out) > 0:
-            opponent.cannot_attack_with_creatures_with_lowest_power = True
+        if not opponent.cards_laid_out:
+            return
+        lowest_power = min(card.strength for card in opponent.cards_laid_out)
+        for card in opponent.cards_laid_out:
+            if card.strength == lowest_power:
+                card.cannot_attack = True
 
 
 class Harpy_mother(Card):
@@ -527,6 +537,7 @@ class Chameleon_sniper(Card):
             )
 
 
+# Hard - add attribute can_use_life_as_mindbugs to Player class - when True, player can use life as Mindbugs
 # class Ivybug(Card):
 #     name: str = "Ivybug"
 #     strength: int = 5
@@ -581,7 +592,7 @@ class Kangasaurus_rex(Card):
     set: CardSet = CardSet.FIRST_CONTACT
 
     def trigger_action(self, game: Game) -> None:
-        # NOTE: we need to use iteration over a copy of the list, otherwise - when you remove items while looping, Python’s loop index advances but the list shrinks/reindexes, so some elements are skipped.
+        # NOTE - we need to use iteration over a copy of the list, otherwise - when you remove items while looping, Python’s loop index advances but the list shrinks/reindexes, so some elements are skipped.
         for card in game.opponent.cards_laid_out.copy():
             if card.strength <= 4:
                 game._destroy_creature(game.opponent, card)
@@ -751,7 +762,9 @@ class Ram_hopper(Card):
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def trigger_action(self, game: Game) -> None:
-#         # TODO - Player choice - 0 up to number of cards with power 4 in owner's discard pile
+#         # TODO - Player choice - selects from feasible cards in owner's discard pile (0 up to number of cards with power 4 in owner's discard pile)
+#         # NOTE - if no feasible cards, no window will show up
+#         # NOTE - no play function used - just appending cards to cards_laid_out
 #         game.resolve_ratomanger_action(self)
 
 
@@ -839,7 +852,9 @@ class Short_neck_giraffodile(Card):
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def trigger_action(self, game: Game) -> None:
-#         # TODO - Player choice - Select a creature to defeat / no defeat - 2 Modular windows will show up one after another if player chooses to defeat a creature
+#         # TODO - Player choice - Select a creature to defeat / no defeat - 2 Modular windows will show up one after another if player chooses to defeat a creature (otherwise only one window will show up)
+#         # NOTE - when no allied creature to defeat, no window will show up
+#         # NOTE - You can also defeat allied creature when opponent has no creatures on board
 #         game.resolve_slugapult_action(self)
 
 
@@ -850,7 +865,7 @@ class Short_neck_giraffodile(Card):
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
-#         # TODO - Player choice - player choice will be saved to card attribute - base son it given effect will be applied at the beginning of each turn
+#         # TODO - Player choice - player choice will be saved to card attribute - based on that, given effect will be applied at the beginning of each turn
 #         game.resolve_sluggernaut_action(self)
 
 
@@ -913,7 +928,7 @@ class Strange_barrel(Card):
 
     def trigger_action(self, game: Game) -> None:
         # NOTE - two different copies of the same card would incorrectly match with "in" operator. Using "is" checks object identity, guaranteeing the exact instance is found.
-        # card is in the owner's discard pile by the time trigger_action runs
+        # NOTE - card is in the owner's discard pile by the time trigger_action runs
         owner = next(p for p in game.players if any(c is self for c in p.discard_pile))
         opponent = game.players[1 - game.players.index(owner)]
         for _ in range(2):
@@ -1012,7 +1027,6 @@ class The_pack(Card):
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
         if self.tough_charges == 0 and CardSpecialType.SNEAKY not in self.special_types:
             self.special_types.append(CardSpecialType.SNEAKY)
-            # owner = next(p for p in game.players if self in p.cards_laid_out)
             game.log.append(
                 f"{owner.name}'s {self.name} has {CardSpecialType.SNEAKY.value}."
             )
@@ -1114,7 +1128,7 @@ class Urchin_hurler(Card):
                 card.strength += 2
 
 
-# TODO - implement
+# TODO - implement - add attribute cannot_be_blocked_by_creatures_with_keywords (special_types) to Card class
 # class Watts_dog(Card):
 #     name: str = "Watts Dog"
 #     strength: int = 5
@@ -1148,5 +1162,7 @@ class Wheatl_e(Card):
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+#         if game.current_player is not owner:
+#         # TODO - add attribute cannot_play_cards_with_power_4_or_less_from_hand to Player class
 #         # TODO - implement - raise Error on backend, card should not be allowed for selection on frontend - if no feasible hand cards to play, no PLAY button appears, if player cannot play any card and cannot attack, he loses the game
 #         opponent.cannot_play_cards_with_power_4_or_less_from_hand = True
