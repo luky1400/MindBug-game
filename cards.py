@@ -237,11 +237,11 @@ class Count_draculeech(Card):
         lost_life = game.lose_life(game.turn, 1, auto_end_after_attack=True)
         if lost_life > 0:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} causes {game.current_player.name} to lose {lost_life} life."
+                f"{game.current_player.name}'s {self.name} causes {game.current_player.name} to lose {lost_life} life."
             )
         else:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} would make its owner lose life, but they cannot lose life."
+                f"{game.current_player.name}'s {self.name} would make its owner lose life, but they cannot lose life."
             )
         game.resolve_count_draculeech_action(self)
 
@@ -421,11 +421,11 @@ class Goreagle_alpha(Card):
         lost_life = game.lose_life(game.turn, 1, auto_end_after_play=True)
         if lost_life > 0:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} causes {game.current_player.name} to lose {lost_life} life."
+                f"{game.current_player.name}'s {self.name} causes {game.current_player.name} to lose {lost_life} life."
             )
         else:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} would make its owner lose life, but they cannot lose life."
+                f"{game.current_player.name}'s {self.name} would make its owner lose life, but they cannot lose life."
             )
 
 
@@ -510,11 +510,11 @@ class Hyenix(Card):
 # TODO - Player choice
 #             game._destroy_creature(game.opponent, game.opponent.cards_laid_out[0])
 #             game.log.append(
-#                 f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} rolls a {roll} and defeats {game.opponent.name}'s {game.opponent.cards_laid_out[0].name}."
+#                 f"{game.current_player.name}'s {self.name} rolls a {roll} and defeats {game.opponent.name}'s {game.opponent.cards_laid_out[0].name}."
 #             )
 #         else:
 #             game.log.append(
-#                 f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} rolls a {roll} and does not defeat an enemy creature."
+#                 f"{game.current_player.name}'s {self.name} rolls a {roll} and does not defeat an enemy creature."
 #             )
 
 
@@ -530,11 +530,11 @@ class Chameleon_sniper(Card):
         lost_life = game.lose_life(1 - game.turn, 1, auto_end_after_attack=True)
         if lost_life > 0:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name} for {lost_life} life."
+                f"{game.current_player.name}'s {self.name} attacks {game.opponent.name} for {lost_life} life."
             )
         else:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name}, but they cannot lose life."
+                f"{game.current_player.name}'s {self.name} attacks {game.opponent.name}, but they cannot lose life."
             )
 
 
@@ -598,7 +598,7 @@ class Kangasaurus_rex(Card):
             if card.strength <= 4:
                 game._destroy_creature(game.opponent, card)
         game.log.append(
-            f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} defeats all enemy creatures with power 4 or less."
+            f"{game.current_player.name}'s {self.name} defeats all enemy creatures with power 4 or less."
         )
 
 
@@ -700,7 +700,7 @@ class Majestic_manticore(Card):
             if card.strength == lowest_power:
                 game._destroy_creature(game.opponent, card)
         game.log.append(
-            f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} defeats the creature(s) with the lowest power."
+            f"{game.current_player.name}'s {self.name} defeats the creature(s) with the lowest power."
         )
 
 
@@ -1005,11 +1005,11 @@ class The_lurker(Card):
             if CardSpecialType.SNEAKY not in self.special_types:
                 self.special_types.append(CardSpecialType.SNEAKY)
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} has {CardSpecialType.SNEAKY.value} this turn."
+                f"{game.current_player.name}'s {self.name} has {CardSpecialType.SNEAKY.value} this turn."
             )
         else:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} does not have {CardSpecialType.SNEAKY.value} this turn."
+                f"{game.current_player.name}'s {self.name} does not have {CardSpecialType.SNEAKY.value} this turn."
             )
 
 
@@ -1063,11 +1063,11 @@ class Turbo_bug(Card):
         )
         if lost_life > 0:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name} for {lost_life} life."
+                f"{game.current_player.name}'s {self.name} attacks {game.opponent.name} for {lost_life} life."
             )
         else:
             game.log.append(
-                f"{game.current_player.name}'s {game.current_player.cards_laid_out[0].name} attacks {game.opponent.name}, but they cannot lose life."
+                f"{game.current_player.name}'s {self.name} attacks {game.opponent.name}, but they cannot lose life."
             )
 
 
