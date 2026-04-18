@@ -1789,6 +1789,7 @@ class Game:
         ignore_tough: bool = False,
         defer_defeated_action: bool = False,
     ) -> bool:
+        # TODO -  refactor - returned boolean is used
         if (
             CardSpecialType.TOUGH in creature.special_types
             and creature.tough_charges > 0
@@ -1796,6 +1797,10 @@ class Game:
         ):
             creature.tough_charges -= 1
             self.log.append(f"{creature.name} survives due to TOUGH.")
+            # This is here to cover future cards effects
+            self._draw_up_to_hand_limit_for_each_player_if_needed()
+            self._recalculate_ongoing_effects() # this is here to cover that The_pack gets SNEAKY when exhaused
+            self._check_game_over()
             return False
         owner.cards_laid_out.remove(creature)
         owner.move_to_discard(creature)

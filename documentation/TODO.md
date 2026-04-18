@@ -15,6 +15,7 @@
 
 - TODO - fix - full cards in battlefields are not visible, neither all icons
 - Do not show Play button if no cards to be played (even if you cannot play card from hand because of ongoing effect), and do not show attack button if no cards to attack with (even if you cannot attack because of ongoing effect)
+  - Also, show only Attack or End turn button when FRENZY card can attack again
 - [Inspiration](https://www.google.com/search?q=mindbug+sharkdog+kills+target+before+combat&sca_esv=a02f3e9b87f4a5a7&biw=928&bih=929&sxsrf=ANbL-n7HQ14P5EW6K1BdKcbbh2tpTjZctA%3A1774706171802&ei=-93HabrZML6N-d8Py-v86A0&ved=0ahUKEwj6ws3X38KTAxW-Rv4FHcs1H90Q4dUDCBE&uact=5&oq=mindbug+sharkdog+kills+target+before+combat&gs_lp=Egxnd3Mtd2l6LXNlcnAiK21pbmRidWcgc2hhcmtkb2cga2lsbHMgdGFyZ2V0IGJlZm9yZSBjb21iYXQyBRAhGKABMgUQIRigAUiAX1CkC1iPXnABeACQAQCYAYYBoAGVFaoBBDE5Ljm4AQPIAQD4AQGYAhygArsVwgIIEAAYsAMY7wXCAgsQABiABBiwAxiiBMICCBAAGBYYChgewgIFEAAY7wXCAggQABiABBiiBMICBxAhGKABGAqYAwCIBgGQBgWSBwUxNy4xMaAHk1-yBwUxNi4xMbgHtxXCBwYxLjIzLjTIBzmACAA&sclient=gws-wiz-serp#fpstate=ive&vld=cid:9515da25,vid:kjw0N0Uhvm8,st:0)
 - zlepšit zobrazení actual strength - stejně změnit i number of copies
 - Smazat Close button u Card preview?
@@ -29,6 +30,17 @@
   - Hrac utoci
   - Aktivovala se akce
   - Zesnovačka zrušila PLAY akci, ..
+
+## Bugs - backend
+
+- CHeck if The_pack gets SNEAKY before FRENZY attacks second time.
+
+## Bugs - frontend
+
+- "End turn" button should disappear immediatelly after clicking 2nd attack button. Now, it stays there when waiting for opponent choice whether to defeat or lose life.
+- For cards with purple border, I dont see that they are selected when being clicked.
+- I see FRENZY above Hyenix card when deciding whether to play it or not.
+- I can select card as defender when Turf the surfer forbits it from defending
 
 ## TODO - game rules
 
@@ -53,14 +65,4 @@
 - add persistent database-backed sessions so rooms survive server restarts.
 - add Time limit for action - 1 min
 - (dát na rozklikávatko (vpravo nahoře) pro pravidla)
-
-## Bugs - backend
-
-- klokanosaurus PLAY effect didnt take down TOUGH from scorpion. Opponent had 2 scorpions, one with tough, one without.
-
-## Bugs - frontend
-
-- "End turn" button should disappear immediatelly after clicking 2nd attack button. Now, it stays there when waiting for opponent choice whether to defeat or lose life.
-- For cards with purple border, I dont see that they are selected when being clicked.
-- I see FRENZY above Hyenix card when deciding whether to play it or not.
 
