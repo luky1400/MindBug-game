@@ -621,7 +621,7 @@ export function App() {
       <main className="app-shell container-xl py-3">
         <section className="card border-0 bg-panel">
           <div className="card-body">
-            <h1 className="app-title mb-4">Mindbug Multiplayer</h1>
+            <h1 className="app-title mb-4 text-center">Mindbug Multiplayer</h1>
 
             <div className="setup-grid">
               <div className="setup-panel">
@@ -684,6 +684,10 @@ export function App() {
 
             {statusText ? <div className="status-text mt-3">{statusText}</div> : null}
             {errorText ? <div className="error-text mt-2">{errorText}</div> : null}
+
+            <div className="lobby-logo">
+              <img src="/fav_icon.png" alt="Mindbug" />
+            </div>
           </div>
         </section>
       </main>

@@ -112,7 +112,21 @@ body {
 }
 
 .app-title {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  color: rgb(207, 163, 31);
+}
+
+.lobby-logo {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.lobby-logo img {
+  width: 220px;
+  max-width: 60%;
+  height: auto;
+  display: block;
 }
 
 .meta-text {
