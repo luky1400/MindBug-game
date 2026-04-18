@@ -202,16 +202,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Distribute the icons evenly along the full sidebar height so the spacing
+     between every pair (lives/mindbug, mindbug/hand, hand/draw, draw/discard)
+     stays equal as the zone grows on larger screens, instead of all the slack
+     piling up between the draw pile and the discard pile. */
   justify-content: space-between;
-  gap: 4px;
   flex-shrink: 0;
-}
-
-.sidebar-stats {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
 }
 
 .board-zone-battlefield {

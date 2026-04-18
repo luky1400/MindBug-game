@@ -35,26 +35,24 @@ export function BoardZone({
           <h2 className="zone-title">{title}</h2>
           <div className="board-zone-layout">
             <div className="board-zone-sidebar">
-              <div className="sidebar-stats">
-                <div className="stat-item stat-lives">
-                  <div className="life-heart" aria-label={`${player.lives} lives`}>
-                    <span className="life-heart-number">{player.lives}</span>
-                  </div>
+              <div className="stat-item stat-lives">
+                <div className="life-heart" aria-label={`${player.lives} lives`}>
+                  <span className="life-heart-number">{player.lives}</span>
                 </div>
-                <div className="stat-item stat-icon-only">
-                  <div className="mindbug-icon" aria-label={`${player.mindbugs_remaining} mindbugs remaining`}>
-                    <span className="icon-stat-number">{player.mindbugs_remaining}</span>
-                  </div>
+              </div>
+              <div className="stat-item stat-icon-only">
+                <div className="mindbug-icon" aria-label={`${player.mindbugs_remaining} mindbugs remaining`}>
+                  <span className="icon-stat-number">{player.mindbugs_remaining}</span>
                 </div>
-                <div className="stat-item stat-icon-only">
-                  <div className="hand-icon" aria-label={`${player.hand_count} cards in hand`}>
-                    <span className="icon-stat-number">{player.hand_count}</span>
-                  </div>
+              </div>
+              <div className="stat-item stat-icon-only">
+                <div className="hand-icon" aria-label={`${player.hand_count} cards in hand`}>
+                  <span className="icon-stat-number">{player.hand_count}</span>
                 </div>
-                <div className="stat-item stat-icon-only">
-                  <div className="draw-pile-icon" aria-label={`${player.draw_count} cards in draw pile`}>
-                    <span className="icon-stat-number">{player.draw_count}</span>
-                  </div>
+              </div>
+              <div className="stat-item stat-icon-only">
+                <div className="draw-pile-icon" aria-label={`${player.draw_count} cards in draw pile`}>
+                  <span className="icon-stat-number">{player.draw_count}</span>
                 </div>
               </div>
               <button

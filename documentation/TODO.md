@@ -34,7 +34,6 @@
 
 ## Bugs - frontend
 
-- TODO - fix - full cards in battlefields are not visible, neither all icons
 - I can select card as defender when Turf the surfer forbits it from defending
 
 ## TODO - game rules
