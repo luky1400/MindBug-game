@@ -648,16 +648,16 @@ body {
 
 .strength-tag {
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: 0px;
+  left: 14px;
   background: rgba(7, 18, 36, 0.86);
   border: 1px solid var(--border);
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 900;
+  padding: 4px 10px;
   color: #dce8ff;
-  min-width: 26px;
+  min-width: 32px;
   text-align: center;
 }
 
