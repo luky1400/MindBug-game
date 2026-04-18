@@ -17,8 +17,7 @@
 - [Inspiration](https://www.google.com/search?q=mindbug+sharkdog+kills+target+before+combat&sca_esv=a02f3e9b87f4a5a7&biw=928&bih=929&sxsrf=ANbL-n7HQ14P5EW6K1BdKcbbh2tpTjZctA%3A1774706171802&ei=-93HabrZML6N-d8Py-v86A0&ved=0ahUKEwj6ws3X38KTAxW-Rv4FHcs1H90Q4dUDCBE&uact=5&oq=mindbug+sharkdog+kills+target+before+combat&gs_lp=Egxnd3Mtd2l6LXNlcnAiK21pbmRidWcgc2hhcmtkb2cga2lsbHMgdGFyZ2V0IGJlZm9yZSBjb21iYXQyBRAhGKABMgUQIRigAUiAX1CkC1iPXnABeACQAQCYAYYBoAGVFaoBBDE5Ljm4AQPIAQD4AQGYAhygArsVwgIIEAAYsAMY7wXCAgsQABiABBiwAxiiBMICCBAAGBYYChgewgIFEAAY7wXCAggQABiABBiiBMICBxAhGKABGAqYAwCIBgGQBgWSBwUxNy4xMaAHk1-yBwUxNi4xMbgHtxXCBwYxLjIzLjTIBzmACAA&sclient=gws-wiz-serp#fpstate=ive&vld=cid:9515da25,vid:kjw0N0Uhvm8,st:0)
 - Smazat Close button u Card preview?
 - Show Mindbug icon somewhere
-- Improve Whaetl_e choosing number appearance.
-- enhance UI - change colours, ..
+- enhance UI - change colours, choosing windows, ..
 - Special effects:
   - when card is defeated
   - when card is discarded
@@ -35,7 +34,6 @@
 
 ## Bugs - frontend
 
-- For cards with purple border, I dont see that they are selected when being clicked.
 - TODO - fix - full cards in battlefields are not visible, neither all icons
 - I can select card as defender when Turf the surfer forbits it from defending
 

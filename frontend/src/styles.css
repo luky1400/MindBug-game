@@ -612,6 +612,14 @@ body {
   box-shadow: 0 0 0 2px rgba(138, 125, 255, 0.34), 0 0 20px rgba(73, 144, 255, 0.24);
 }
 
+/* When a purple-bordered battlefield card is selected, the selection border
+   would otherwise be hidden by the highlight rule above (same specificity,
+   later in the file wins). Combine both classes to keep the selection visible. */
+.card-tile-selected.card-tile-battlefield-highlight {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent), 0 0 18px rgba(138, 125, 255, 0.45);
+}
+
 .card-image {
   width: 100%;
   height: 138px;
