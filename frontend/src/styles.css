@@ -104,7 +104,7 @@ body {
 }
 
 .zone > .card-body {
-  padding: 4px 12px;
+  padding: 4px 12px; /* TODO - adjust battle field cards move up/down */
 }
 
 .zone-active {
@@ -471,8 +471,8 @@ body {
    the cards shrink with the viewport so the whole game still fits without
    scrolling the outer page. */
 .battlefield-cards-row > .card-tile.card-tile-large {
-  height: min(268px, 31dvh);
-  width: min(206px, calc(min(268px, 31dvh) * 206 / 268));
+  height: min(268px, 31dvh); /* TODO - adjust battle field cards height */
+  width: min(206px, calc(min(268px, 31dvh) * 206 / 268)); /* TODO - adjust battle field cards width */
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
