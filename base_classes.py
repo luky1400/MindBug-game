@@ -58,7 +58,9 @@ class Card:
             self.min_blocker_strength = getattr(cls, "min_blocker_strength", None)
         # Using cls.__dict__ (not getattr) to only match direct definitions on the subclass, not inherited ones.
         if "apply_ongoing_effect_priority" in cls.__dict__:
-            self.apply_ongoing_effect_priority = cls.__dict__["apply_ongoing_effect_priority"]
+            self.apply_ongoing_effect_priority = cls.__dict__[
+                "apply_ongoing_effect_priority"
+            ]
         if self.tough_charges == 0 and CardSpecialType.TOUGH in self.special_types:
             self.tough_charges = 1
         if self.cannot_block is None:
@@ -259,6 +261,12 @@ class PendingHyenixTrigger:
     auto_end_after_attack: bool = False
 
 
+@dataclass
+class PendingSluggernautFormChoice:
+    owner_index: int
+    card: Card
+
+
 class Game:
     def __init__(
         self,
@@ -293,6 +301,7 @@ class Game:
         self._pending_combat_finalization: PendingCombatFinalization | None = None
         self._play_is_stolen_by_mindbug: bool = False
         self._pending_hyenix_triggers: list[PendingHyenixTrigger] = []
+        self._pending_sluggernaut_form_choices: list[PendingSluggernautFormChoice] = []
         self.number_of_players = len(player_names)
         self.number_of_cards_in_game = (
             self.starting_draw_pile_size * self.number_of_players
@@ -387,6 +396,7 @@ class Game:
         self._defeated_action_queue = []
         self._pending_combat_finalization = None
         self._pending_hyenix_triggers = []
+        self._pending_sluggernaut_form_choices = []
         self._recalculate_ongoing_effects()
 
     # NOTe - mabe beter to split: play_card and play_card_from_hand functions?
@@ -608,6 +618,8 @@ class Game:
             return f"Waiting for {responder_name} to choose whether to play the received card or put it into their hand."
         if pending.action_key == "shark_dog":
             return f"Waiting for {responder_name} to choose a creature with power 6 or more to defeat with Shark Dog."
+        if pending.action_key == "sluggernaut":
+            return f"Waiting for {responder_name} to choose Sluggernaut's new form."
         if pending.action_key == "tiger_squirrel":
             return f"Waiting for {responder_name} to choose a creature with power 7 or more to defeat with Tiger Squirrel."
         if pending.action_key == "turf_the_surfer":
@@ -663,6 +675,8 @@ class Game:
             self._apply_hungry_hungry_hamster_place_choice(pending, selected_indices)
         elif pending.action_key == "shark_dog":
             self._apply_shark_dog_choice(pending, selected_indices)
+        elif pending.action_key == "sluggernaut":
+            self._apply_sluggernaut_choice(pending, selected_indices)
         elif pending.action_key == "tiger_squirrel":
             self._apply_tiger_squirrel_choice(pending, selected_indices)
         elif pending.action_key == "turf_the_surfer":
@@ -846,7 +860,9 @@ class Game:
             f"{owner.name} plays {card.name} from {opponent.name}'s discard pile."
         )
         # NOTE - same as in Compost Dragon case - if card is stolen by Mindbug, it should not consume turn action
-        is_mindbug_stolen = not pending.auto_end_after_play or self._play_is_stolen_by_mindbug
+        is_mindbug_stolen = (
+            not pending.auto_end_after_play or self._play_is_stolen_by_mindbug
+        )
         self._finalize_played_card(
             owner_index=pending.responding_player_index,
             card=card,
@@ -955,6 +971,24 @@ class Game:
         self.log.append(
             f"{owner.name}'s Shark Dog defeats {defeated_creature.name} with power 6 or more."
         )
+
+    def _apply_sluggernaut_choice(
+        self, pending: PendingCardActionChoice, selected_indices: list[int]
+    ) -> None:
+        owner = self.players[pending.responding_player_index]
+        card = pending.staged_card
+        if card is None:
+            raise ValueError("Sluggernaut choice is missing the staged card.")
+        if selected_indices[0] == 0:
+            card.chosen_form = "hunter"
+            self.log.append(
+                f"{owner.name}'s {card.name} becomes {CardSpecialType.HUNTER.value} with strength 6."
+            )
+        else:
+            card.chosen_form = "frenzy"
+            self.log.append(
+                f"{owner.name}'s {card.name} becomes {CardSpecialType.FRENZY.value} with strength 8."
+            )
 
     def _apply_tiger_squirrel_choice(
         self, pending: PendingCardActionChoice, selected_indices: list[int]
@@ -1088,6 +1122,49 @@ class Game:
                 staged_card=trigger.card,
                 auto_end_after_play=trigger.auto_end_after_play,
                 auto_end_after_attack=trigger.auto_end_after_attack,
+            )
+            return
+
+    def queue_sluggernaut_form_choice(self, card: Card, owner: Player) -> None:
+        owner_index = self.players.index(owner)
+        for pending in self._pending_sluggernaut_form_choices:
+            if pending.card is card:
+                return
+        self._pending_sluggernaut_form_choices.append(
+            PendingSluggernautFormChoice(owner_index=owner_index, card=card)
+        )
+
+    def _process_next_sluggernaut_form_choice_if_needed(self) -> None:
+        if self.game_state == GameState.GAME_OVER:
+            self._pending_sluggernaut_form_choices = []
+            return
+        if self._pending_card_action_choice is not None:
+            return
+        while self._pending_sluggernaut_form_choices:
+            pending = self._pending_sluggernaut_form_choices.pop(0)
+            owner = self.players[pending.owner_index]
+            card = pending.card
+            # Skip stale entries: card must still be in play, exhausted, and unset.
+            if card not in owner.cards_laid_out:
+                continue
+            if card.tough_charges != 0:
+                continue
+            if getattr(card, "chosen_form", None) is not None:
+                continue
+            self._set_pending_card_action_choice(
+                action_key="sluggernaut",
+                source_card=card,
+                responding_player_index=pending.owner_index,
+                selection_owner_index=pending.owner_index,
+                selection_zone="options",
+                eligible_indices=[0, 1],
+                min_choices=1,
+                max_choices=1,
+                option_labels=[
+                    f"{CardSpecialType.HUNTER.value} (strength 6)",
+                    f"{CardSpecialType.FRENZY.value} (strength 8)",
+                ],
+                staged_card=card,
             )
             return
 
@@ -1526,7 +1603,7 @@ class Game:
             eligible_indices=eligible_indices,
             min_choices=1,
             max_choices=max_choices,
-            draw_up_to_hand_limit_after_resolution=True, # Probbaly redundant in Harpy mother case
+            draw_up_to_hand_limit_after_resolution=True,  # Probbaly redundant in Harpy mother case
             auto_end_after_attack=True,  # NOTE - this is here so that when attack harpy mother, turn auto-ends after combat
         )
 
@@ -1799,7 +1876,7 @@ class Game:
             self.log.append(f"{creature.name} survives due to TOUGH.")
             # This is here to cover future cards effects
             self._draw_up_to_hand_limit_for_each_player_if_needed()
-            self._recalculate_ongoing_effects() # this is here to cover that The_pack gets SNEAKY when exhaused
+            self._recalculate_ongoing_effects()  # this is here to cover that The_pack gets SNEAKY when exhaused
             self._check_game_over()
             return False
         owner.cards_laid_out.remove(creature)
@@ -2254,5 +2331,7 @@ class Game:
         ):
             card.apply_ongoing_effect(self, owner, opponent)
 
-
         self.log.append(f"Ongoing effects recalculated.")
+        # NOTE - to handle Multiple Sluggernauts losing TOUGH simultaneously each get their own prompt sequentially.
+        # TODO - Is this the right spot? similar to _process_next_hyenix_trigger_if_needed?
+        self._process_next_sluggernaut_form_choice_if_needed()

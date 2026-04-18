@@ -858,15 +858,39 @@ class Short_neck_giraffodile(Card):
 #         game.resolve_slugapult_action(self)
 
 
-# class Sluggernaut(Card):
-#     name: str = "Sluggernaut"
-#     strength: int = 6
-#     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
-#     set: CardSet = CardSet.PROMO_CARDS
+class Sluggernaut(Card):
+    name: str = "Sluggernaut"
+    strength: int = 6
+    special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
+    description: str = (
+        "When this creature loses its TOUGH charge, choose: it becomes "
+        f"{CardSpecialType.HUNTER.value} with strength 6 or "
+        f"{CardSpecialType.FRENZY.value} with strength 8 until it is discarded."
+    )
+    chosen_form: Optional[str] = None
+    set: CardSet = CardSet.PROMO_CARDS
 
-#     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
-#         # TODO - Player choice - player choice will be saved to card attribute - based on that, given effect will be applied at the beginning of each turn
-#         game.resolve_sluggernaut_action(self)
+    def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
+        # While TOUGH is intact, no transformation has been chosen. The form is
+        # reset here so that the card behaves as a fresh creature when replayed
+        # from the discard pile (where TOUGH is restored).
+        if self.tough_charges > 0:
+            if self.chosen_form is not None:
+                self.chosen_form = None
+            return
+
+        if self.chosen_form is None:
+            game.queue_sluggernaut_form_choice(self, owner)
+            return
+
+        if self.chosen_form == "hunter":
+            self.strength = 6
+            if CardSpecialType.HUNTER not in self.special_types:
+                self.special_types.append(CardSpecialType.HUNTER)
+        elif self.chosen_form == "frenzy":
+            self.strength = 8
+            if CardSpecialType.FRENZY not in self.special_types:
+                self.special_types.append(CardSpecialType.FRENZY)
 
 
 class Snail_hydra(Card):

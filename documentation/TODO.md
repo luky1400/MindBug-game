@@ -9,7 +9,6 @@
   Player 2 declines to use Mindbug.
   Ongoing effects recalculated.
   Ongoing effects recalculated.
-- Todo - implement Sluggernaut
 
 ## TODO - frontend
 
@@ -33,7 +32,8 @@
 
 ## Bugs - backend
 
-- CHeck if The_pack gets SNEAKY before FRENZY attacks second time.
+- Check if The_pack gets SNEAKY before FRENZY attacks second time.
+- TODO - check that Sluggernaut/ The_pack has basic set up of keywords when played from discard pile
 
 ## Bugs - frontend
 
