@@ -982,7 +982,7 @@ class Game:
         if selected_indices[0] == 0:
             card.chosen_form = "hunter"
             self.log.append(
-                f"{owner.name}'s {card.name} becomes {CardSpecialType.HUNTER.value} with strength 6."
+                f"{owner.name}'s {card.name} becomes {CardSpecialType.HUNTER.value} with strength 5."
             )
         else:
             card.chosen_form = "frenzy"
@@ -1161,7 +1161,7 @@ class Game:
                 min_choices=1,
                 max_choices=1,
                 option_labels=[
-                    f"{CardSpecialType.HUNTER.value} (strength 6)",
+                    f"{CardSpecialType.HUNTER.value} (strength 5)",
                     f"{CardSpecialType.FRENZY.value} (strength 8)",
                 ],
                 staged_card=card,
