@@ -29,7 +29,6 @@
 
 ## Bugs - backend
 
-- 
 - When each player has Hyenix in discard pile and both lose life simultaneously. Player who is on turn must decide which player resolves Hyenix choice first.
   - this situation probably cannot happen
 

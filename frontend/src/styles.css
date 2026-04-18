@@ -97,20 +97,14 @@ body {
   border: 1px solid var(--border);
   flex: 1 1 0;
   min-height: 0;
+  /* Right-side scrollbar appears automatically when the inner content (e.g.
+     a battlefield with several wrapped rows of cards) is taller than the
+     zone's allotted height. */
   overflow-y: auto;
-  /* Flex column so the inner card-body / layout / battlefield row all have a
-     real measurable height. This lets battlefield cards size themselves to
-     fill the available vertical space. */
-  display: flex;
-  flex-direction: column;
 }
 
 .zone > .card-body {
   padding: 8px 12px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
 }
 
 .zone-active {
@@ -194,8 +188,6 @@ body {
      keeps the lives heart near the player-name title at the top while the
      discard pile button stays aligned with the bottom edge of the cards. */
   align-items: stretch;
-  flex: 1;
-  min-height: 0;
 }
 
 .board-zone-sidebar {
@@ -213,8 +205,6 @@ body {
 .board-zone-battlefield {
   flex: 1;
   min-width: 0;
-  min-height: 0;
-  display: flex;
 }
 
 .stat-item {
@@ -470,24 +460,22 @@ body {
   align-content: flex-end;
   padding-top: 8px;
   padding-bottom: 0;
-  /* Fill the parent (.board-zone-battlefield) so card heights below can be
-     expressed as a fraction of the actual available vertical space. */
-  flex: 1;
-  min-height: 0;
+  /* Let wrapped rows grow the row's intrinsic height. When this exceeds the
+     zone height, .zone shows a vertical scrollbar on the right. */
   width: 100%;
 }
 
-/* Battlefield cards fill the available zone height (so they're as large as
-   possible without overflowing into the next section), capped at the original
-   268x206 design size on tall screens. Width is derived from height via
-   `aspect-ratio` so the card never gets distorted. */
+/* Battlefield cards have a viewport-bounded fixed size so wrapped rows don't
+   collapse and each card stays a comfortable size. The 268x206 original
+   design size acts as the upper bound on tall monitors; on shorter screens
+   the cards shrink with the viewport so the whole game still fits without
+   scrolling the outer page. */
 .battlefield-cards-row > .card-tile.card-tile-large {
-  height: 100%;
-  max-height: 268px;
-  width: auto;
-  aspect-ratio: 206 / 268;
+  height: min(268px, 30dvh);
+  width: min(206px, calc(min(268px, 30dvh) * 206 / 268));
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
 }
 
 .battlefield-cards-row > .card-tile.card-tile-large .card-image {
