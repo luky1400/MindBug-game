@@ -16,11 +16,12 @@ from cards import (
     Plated_scorpion,
     Shark_dog,
     Shield_bugs,
+    Suspicious_gift,
     Tiger_squirrel,
     Urchin_hurler,
     Watts_dog,
     Wolfman_steve,
-    killer_bee,
+    Killer_bee,
 )
 
 
@@ -218,7 +219,7 @@ def test_knightmare_prevents_its_owner_from_losing_life_from_card_effects() -> N
     attacking_player = game.players[1]
 
     protected_player.cards_laid_out = [Knightmare()]
-    attacking_player.hand = [killer_bee()]
+    attacking_player.hand = [Killer_bee()]
     game.turn = 1
 
     game.play_card(hand_index=0)
@@ -289,3 +290,60 @@ def test_wolfman_steve_restriction_lifts_when_removed_from_battlefield() -> None
     game.play_card(hand_index=0)
 
     assert weak_card in opponent.cards_laid_out
+
+
+def test_suspicious_gift_play_transfers_control_to_opponent() -> None:
+    game = _new_game()
+    owner = game.current_player
+    opponent = game.opponent
+
+    gift = Suspicious_gift()
+    owner.hand = [gift]
+
+    game.play_card(hand_index=0)
+
+    assert gift not in owner.cards_laid_out
+    assert gift in opponent.cards_laid_out
+
+
+def test_suspicious_gift_defeated_makes_current_owner_lose_two_lives() -> None:
+    game = _new_game()
+    original_owner = game.current_player
+    new_owner = game.opponent
+
+    gift = Suspicious_gift()
+    original_owner.hand = [gift]
+    starting_lives_original = original_owner.number_of_lives
+    starting_lives_new = new_owner.number_of_lives
+
+    game.play_card(hand_index=0)
+
+    assert gift in new_owner.cards_laid_out
+    assert original_owner.number_of_lives == starting_lives_original
+    assert new_owner.number_of_lives == starting_lives_new
+
+    new_owner.cards_laid_out.remove(gift)
+    new_owner.move_to_discard(gift)
+    gift.trigger_defeated_effect(game)
+
+    assert new_owner.number_of_lives == starting_lives_new - 2
+    assert original_owner.number_of_lives == starting_lives_original
+
+
+def test_suspicious_gift_defeated_in_combat_makes_new_controller_lose_two_lives() -> None:
+    game = _new_game()
+    attacker_player = game.players[0]
+    defender_player = game.players[1]
+
+    gift = Suspicious_gift()
+    blocker = Luchataur()
+    attacker_player.cards_laid_out = [blocker]
+    defender_player.cards_laid_out = [gift]
+    starting_lives_defender = defender_player.number_of_lives
+
+    game.turn = 0
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert gift in defender_player.discard_pile
+    assert defender_player.number_of_lives == starting_lives_defender - 2

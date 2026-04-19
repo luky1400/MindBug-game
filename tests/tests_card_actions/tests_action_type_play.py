@@ -10,7 +10,7 @@ from cards import (
     Grave_robber,
     Hyenix,
     Hungry_hungry_hamster,
-    killer_bee,
+    Killer_bee,
     Kangasaurus_rex,
     Mysterious_mermaid,
     Plated_scorpion,
@@ -158,7 +158,7 @@ def test_play_killer_bee_opponent_loses_1_life() -> None:
     player = game.current_player
     opponent = game.opponent
     opponent.number_of_lives = 4
-    player.hand = [killer_bee()]
+    player.hand = [Killer_bee()]
 
     game.play_card(hand_index=0)
 
@@ -171,7 +171,7 @@ def test_play_killer_bee_loses_last_life_and_opponent_loses_game() -> None:
     player = game.current_player
     opponent = game.opponent
     opponent.number_of_lives = 1
-    player.hand = [killer_bee()]
+    player.hand = [Killer_bee()]
 
     game.play_card(hand_index=0)
 

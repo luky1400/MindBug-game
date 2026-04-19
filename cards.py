@@ -44,7 +44,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
             (Grave_robber, 2),
             (Harpy_mother, 1),
             (Kangasaurus_rex, 2),
-            (killer_bee, 2),
+            (Killer_bee, 2),
             (Lone_yeti, 1),
             (Luchataur, 2),
             (Mysterious_mermaid, 1),
@@ -88,6 +88,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
             (Mindbug_bug, 1),
             (Ram_hopper, 1),
             (Sluggernaut, 1),
+            (Suspicious_gift, 1),
             (Steamforger, 1),
             (The_pack, 1),
             (Unigon, 1),
@@ -118,7 +119,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
 #     name: str = "Alpacoodle"
 #     strength: int = 2
 #     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
-#     action_type: CardActionType = CardActionType.PLAY # TODO
+#     action_types: list[CardActionType] = [CardActionType.PLAY] # TODO
 #     play_action_description: str = "Set aside all other creatures."
 #     defeated_action_description: str = "Return them to play without activating their Play effects."
 #     set: CardSet = CardSet.PROMO_CARDS
@@ -128,11 +129,11 @@ class Axolotl_healer(Card):
     name: str = "Axolotl Healer"
     strength: int = 4
     special_types: list[CardSpecialType] = [CardSpecialType.POISONOUS]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "Gain 2 lifes."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.current_player.number_of_lives = game.current_player.number_of_lives + 2
         game.log.append(f"{game.current_player.name} gains 2 lives.")
 
@@ -141,13 +142,13 @@ class Battle_beetle(Card):
     name: str = "Battle Beetle"
     strength: int = 8
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = (
         "If you have the same number of Mindbugs as the opponent, the opponent loses 2 lives."
     )
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         if game.current_player.mindbugs_remaining == game.opponent.mindbugs_remaining:
             lost_life = game.lose_life(1 - game.turn, 2, auto_end_after_attack=True)
             if lost_life > 0:
@@ -175,14 +176,14 @@ class Boar_zooka(Card):
     name: str = "Boar Zooka"
     strength: int = 6
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.DEFEATED
+    action_types: list[CardActionType] = [CardActionType.DEFEATED]
     action_description: str = "Defeat all enemy creatures."
     description: str = "Cannot block."
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
-        owner = next(p for p in game.players if any(c is self for c in p.discard_pile))
-        opponent = game.players[1 - game.players.index(owner)]
+    def trigger_defeated_effect(self, game: Game) -> None:
+        owner = self.get_owner(game)
+        opponent = self.get_opponent(game)
         for card in opponent.cards_laid_out.copy():
             game._destroy_creature(opponent, card)
         game.log.append(f"{owner.name}'s {self.name} defeats all enemy creatures.")
@@ -195,11 +196,11 @@ class Brain_fly(Card):
     name: str = "Brain Fly"
     strength: int = 4
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "Take control of a creature with power 6 or more."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.resolve_brain_fly_action(self)
 
 
@@ -219,11 +220,11 @@ class Compost_dragon(Card):
     name: str = "Compost Dragon"
     strength: int = 3
     special_types: list[CardSpecialType] = [CardSpecialType.HUNTER]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "Play a card from your discard pile."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.resolve_compost_dragon_action(self)
 
 
@@ -231,11 +232,11 @@ class Count_draculeech(Card):
     name: str = "Count Draculeech"
     strength: int = 7
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "Lose 1 life. Defeat a creature."
     set: CardSet = CardSet.NEW_SERVANTS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         lost_life = game.lose_life(game.turn, 1, auto_end_after_attack=True)
         if lost_life > 0:
             game.log.append(
@@ -286,11 +287,11 @@ class Evilcat(Card):
     name: str = "Evilcat"
     strength: int = 3
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "You win the game."
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         game.game_state = GameState.GAME_OVER
         game.winner = game.current_player
         game.log.append(f"{game.current_player.name} wins the game with Evilcat.")
@@ -300,11 +301,11 @@ class Explosive_toad(Card):
     name: str = "Explosive Toad"
     strength: int = 5
     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
-    action_type: CardActionType = CardActionType.DEFEATED
+    action_types: list[CardActionType] = [CardActionType.DEFEATED]
     action_description: str = "Defeat a creature of your choice."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_defeated_effect(self, game: Game) -> None:
         game.resolve_explosive_toad_action(self)
 
 
@@ -312,11 +313,11 @@ class Ferret_bomber(Card):
     name: str = "Ferret Bomber"
     strength: int = 2
     special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "An opponent discards 2 cards from their hand."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.resolve_ferret_bomber_action(self)
 
 
@@ -352,13 +353,13 @@ class Future_eric(Card):
     name: str = "Future Eric"
     strength: int = 3
     special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = (
         "Put the top 2 cards of the unused pile on the bottom of your draw pile without looking at them."
     )
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         cards_moved = 0
         for _ in range(2):
             if not game.unused_pile:
@@ -379,11 +380,11 @@ class Giraffodile(Card):
     name: str = "Giraffodile"
     strength: int = 7
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "Draw your entire dicard pile."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.current_player.hand.extend(game.current_player.discard_pile)
         game.current_player.discard_pile = []
         game.log.append(f"{game.current_player.name} draws their entire discard pile.")
@@ -417,11 +418,11 @@ class Goreagle_alpha(Card):
         CardSpecialType.TOUGH,
         CardSpecialType.HUNTER,
     ]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "Lose 1 life."
     set: CardSet = CardSet.NEW_SERVANTS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         lost_life = game.lose_life(game.turn, 1, auto_end_after_play=True)
         if lost_life > 0:
             game.log.append(
@@ -437,11 +438,11 @@ class Grave_robber(Card):
     name: str = "Grave Robber"
     strength: int = 7
     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "Play a card from an opponent's discard pile."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.resolve_grave_robber_action(self)
 
 
@@ -465,13 +466,13 @@ class Harpy_mother(Card):
     name: str = "Harpy Mother"
     strength: int = 5
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.DEFEATED
+    action_types: list[CardActionType] = [CardActionType.DEFEATED]
     action_description: str = (
         "Take control of up to 2 enemy creatures with power 5 or less."
     )
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_defeated_effect(self, game: Game) -> None:
         game.resolve_harpy_mother_action(self)
 
 
@@ -479,13 +480,13 @@ class Hungry_hungry_hamster(Card):
     name: str = "Hungry Hungry Hamster"
     strength: int = 2
     special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = (
         "An opponent gives you a card from their hand. Play it or put it into your hand."
     )
     set: CardSet = CardSet.NEW_SERVANTS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.resolve_hungry_hungry_hamster_action(self)
 
 
@@ -504,11 +505,11 @@ class Hyenix(Card):
 #     name: str = "Chuck"
 #     strength: int = 3
 #     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
-#     action_type: CardActionType = CardActionType.PLAY
+#     action_types: list[CardActionType] = [CardActionType.PLAY]
 #     action_description: str = "Roll a 6-sided die. On 4 to 6, defeat an enemy creature and then repeat this effect."
 #     set: CardSet = CardSet.PROMO_CARDS
 
-#     def trigger_action(self, game: Game) -> None:
+#     def trigger_play_effect(self, game: Game) -> None:
 #         roll = random.randint(1, 6)
 #         if roll >= 4:
 # TODO - Player choice
@@ -526,11 +527,11 @@ class Chameleon_sniper(Card):
     name: str = "Chameleon Sniper"
     strength: int = 1
     special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "The opponent loses 1 life."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         lost_life = game.lose_life(1 - game.turn, 1, auto_end_after_attack=True)
         if lost_life > 0:
             game.log.append(
@@ -585,18 +586,18 @@ class Chameleon_sniper(Card):
 #         for card in opponent.cards_laid_out:
 #             # TODO
 #             # Which attack effect trigger first when creature has 2 attack effects?
-#             card.action_type = CardActionType.ATTACK
+#             card.action_types = [CardActionType.ATTACK]
 #             card.action_description = "Discard a card."
 
 
 class Kangasaurus_rex(Card):
     name: str = "Kangasaurus Rex"
     strength: int = 7
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "Defeat all enemy creatures with power 4 or less."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         # NOTE - we need to use iteration over a copy of the list, otherwise - when you remove items while looping, Python’s loop index advances but the list shrinks/reindexes, so some elements are skipped.
         for card in game.opponent.cards_laid_out.copy():
             if card.strength <= 4:
@@ -606,15 +607,15 @@ class Kangasaurus_rex(Card):
         )
 
 
-class killer_bee(Card):
+class Killer_bee(Card):
     name: str = "Killer Bee"
     strength: int = 5
     special_types: list[CardSpecialType] = [CardSpecialType.HUNTER]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "The opponent loses 1 life."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         lost_life = game.lose_life(1 - game.turn, 1, auto_end_after_play=True)
         if lost_life > 0:
             game.log.append(
@@ -628,14 +629,14 @@ class Knightmare(Card):
     name: str = "Knightmare"
     strength: int = 5
     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
-    action_type: CardActionType = CardActionType.DEFEATED
+    action_types: list[CardActionType] = [CardActionType.DEFEATED]
     action_description: str = "You lose the game."
     description: str = "You cannot lose life."
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
-        owner = next(p for p in game.players if any(c is self for c in p.discard_pile))
-        opponent = game.players[1 - game.players.index(owner)]
+    def trigger_defeated_effect(self, game: Game) -> None:
+        owner = self.get_owner(game)
+        opponent = self.get_opponent(game)
         game.game_state = GameState.GAME_OVER
         game.winner = opponent
         game.log.append(
@@ -675,11 +676,11 @@ class Macaw_dagon(Card):
     name: str = "Macaw Dagon"
     strength: int = 8
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "Swap hand with the opponent."
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         game.current_player.hand, game.opponent.hand = (
             game.opponent.hand,
             game.current_player.hand,
@@ -693,11 +694,11 @@ class Majestic_manticore(Card):
     name: str = "Majestic Manticore"
     strength: int = 6
     special_types: list[CardSpecialType] = [CardSpecialType.POISONOUS]
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "Defeat the creature(s) with the lowest power."
     set: CardSet = CardSet.NEW_SERVANTS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         lowest_power = min(card.strength for card in game.opponent.cards_laid_out)
         # Iterate over a copy because _destroy_creature mutates cards_laid_out.
         for card in game.opponent.cards_laid_out.copy():
@@ -723,11 +724,11 @@ class Mysterious_mermaid(Card):
     name: str = "Mysterious Mermaid"
     strength: int = 7
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = "Set your life equal to the opponent's."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.current_player.number_of_lives = game.opponent.number_of_lives
         game.log.append(
             f"{game.current_player.name} sets their life equal to {game.opponent.name}'s life."
@@ -762,11 +763,11 @@ class Ram_hopper(Card):
 #     name: str = "Ratomanger"
 #     strength: int = 2
 #     special_types: list[CardSpecialType] = []
-#     action_type: CardActionType = CardActionType.PLAY
+#     action_types: list[CardActionType] = [CardActionType.PLAY]
 #     action_description: str = "Play any number of cards with power 4 or less from your discard pile without activating their Play effects."
 #     set: CardSet = CardSet.PROMO_CARDS
 
-#     def trigger_action(self, game: Game) -> None:
+#     def trigger_play_effect(self, game: Game) -> None:
 #         # TODO - Player choice - selects from feasible cards in owner's discard pile (0 up to number of cards with power 4 in owner's discard pile)
 #         # NOTE - if no feasible cards, no window will show up
 #         # NOTE - no play function used - just appending cards to cards_laid_out
@@ -788,13 +789,13 @@ class Shark_dog(Card):
     name: str = "Shark Dog"
     strength: int = 4
     special_types: list[CardSpecialType] = [CardSpecialType.HUNTER]
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = (
         "Defeat an enemy creature with power 6 or more of your choice."
     )
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         game.resolve_shark_dog_action(self)
 
 
@@ -840,11 +841,11 @@ class Short_neck_giraffodile(Card):
     name: str = "Short Neck Giraffodile"
     strength: int = 7
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "Draw 2 cards from your discard pile."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         game.resolve_short_neck_giraffodile_action(self)
 
 
@@ -852,11 +853,11 @@ class Short_neck_giraffodile(Card):
 #     name: str = "Slugapult"
 #     strength: int = 5
 #     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH, CardSpecialType.FRENZY]
-#     action_type: CardActionType = CardActionType.ATTACK
+#     action_types: list[CardActionType] = [CardActionType.ATTACK]
 #     action_description: str = "You may defeat another allied creature. If you do, defeat an enemy creature."
 #     set: CardSet = CardSet.PROMO_CARDS
 
-#     def trigger_action(self, game: Game) -> None:
+#     def trigger_attack_effect(self, game: Game) -> None:
 #         # TODO - Player choice - Select a creature to defeat / no defeat - 2 Modular windows will show up one after another if player chooses to defeat a creature (otherwise only one window will show up)
 #         # NOTE - when no allied creature to defeat, no window will show up
 #         # NOTE - You can also defeat allied creature when opponent has no creatures on board
@@ -902,13 +903,13 @@ class Snail_hydra(Card):
     name: str = "Snail Hydra"
     strength: int = 9
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = (
         "If you control fewer creatures than an opponent, defeat a creature of your choice."
     )
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         if len(game.current_player.cards_laid_out) < len(game.opponent.cards_laid_out):
             game.resolve_snail_hydra_action(self)
         else:
@@ -951,15 +952,13 @@ class Strange_barrel(Card):
     name: str = "Strange Barrel"
     strength: int = 6
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.DEFEATED
+    action_types: list[CardActionType] = [CardActionType.DEFEATED]
     action_description: str = "Steal 2 random cards from an opponent's hand."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
-        # NOTE - two different copies of the same card would incorrectly match with "in" operator. Using "is" checks object identity, guaranteeing the exact instance is found.
-        # NOTE - card is in the owner's discard pile by the time trigger_action runs
-        owner = next(p for p in game.players if any(c is self for c in p.discard_pile))
-        opponent = game.players[1 - game.players.index(owner)]
+    def trigger_defeated_effect(self, game: Game) -> None:
+        owner = self.get_owner(game)
+        opponent = self.get_opponent(game)
         for _ in range(2):
             if len(opponent.hand) > 0:
                 card = opponent.hand.pop(randint(0, len(opponent.hand) - 1))
@@ -973,36 +972,54 @@ class Strange_barrel(Card):
                 )
 
 
-# NOTE - I will need to do list for action_type and make functions: trigger_play_effect, trigger_attack_effect and trigger_defeated_effect
-# class Suspicious_gift(Card):
-#     name: str = "Suspicious Gift"
-#     strength: int = 1
-#     special_types: list[CardSpecialType] = []
-#     action_types: list[CardActionType] = [CardActionType.PLAY, CardActionType.DEFEATED]
-#     action_description: str = "An opponent takes control of this card. / Lose 2 lives."
-#     set: CardSet = CardSet.PROMO_CARDS
+class Suspicious_gift(Card):
+    name: str = "Suspicious Gift"
+    strength: int = 1
+    special_types: list[CardSpecialType] = []
+    action_types: list[CardActionType] = [CardActionType.PLAY, CardActionType.DEFEATED]
+    action_description: str = (
+        "PLAY: An opponent takes control of this card. DEFEATED: Owner loses 2 life."
+    )
+    set: CardSet = CardSet.PROMO_CARDS
 
-#     def trigger_play_effect(self, game: Game) -> None:
-#         game.opponent.cards_laid_out.append(self)
-#         game.log.append(f"{game.opponent.name} takes control of {self.name}.")
+    def trigger_play_effect(self, game: Game) -> None:
+        # Card is in the controller's cards_laid_out by the time PLAY runs;
+        # locate the controller by identity to handle Mindbug steals correctly.
+        controller = next(
+            p for p in game.players if any(c is self for c in p.cards_laid_out)
+        )
+        new_controller = game.players[1 - game.players.index(controller)]
+        controller.cards_laid_out.remove(self)
+        new_controller.cards_laid_out.append(self)
+        game.log.append(
+            f"{controller.name}'s {self.name} is given to {new_controller.name}."
+        )
 
-#     def trigger_defeated_effect(self, game: Game) -> None:
-#         # TODO - owner of this card loses 2 lives - not opponent
-#         game.opponent.lose_life(2)
-#         game.log.append(f"{game.opponent.name} loses 2 lives.")
+    def trigger_defeated_effect(self, game: Game) -> None:
+        owner = self.get_owner(game)
+        owner_index = game.players.index(owner)
+        lost = game.lose_life(owner_index, 2)
+        if lost > 0:
+            game.log.append(
+                f"{owner.name} loses {lost} life from {self.name}'s DEFEATED effect."
+            )
+        else:
+            game.log.append(
+                f"{owner.name} cannot lose life from {self.name}'s DEFEATED effect."
+            )
 
 
 class Steamforger(Card):
     name: str = "Steamforger"
     strength: int = 9
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = (
         "If you control at least 3 more creatures than an opponent, you win the game."
     )
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         if (
             len(game.current_player.cards_laid_out)
             >= len(game.opponent.cards_laid_out) + 3
@@ -1022,13 +1039,13 @@ class The_lurker(Card):
     name: str = "The Lurker"
     strength: int = 4
     special_types: list[CardSpecialType] = [CardSpecialType.TOUGH]
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = (
         f"If you control more creatures than an opponent, this has {CardSpecialType.SNEAKY.value} this turn."
     )
     set: CardSet = CardSet.NEW_SERVANTS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         if len(game.current_player.cards_laid_out) > len(game.opponent.cards_laid_out):
             if CardSpecialType.SNEAKY not in self.special_types:
                 self.special_types.append(CardSpecialType.SNEAKY)
@@ -1065,13 +1082,13 @@ class Tiger_squirrel(Card):
     name: str = "Tiger Squirrel"
     strength: int = 3
     special_types: list[CardSpecialType] = [CardSpecialType.SNEAKY]
-    action_type: CardActionType = CardActionType.PLAY
+    action_types: list[CardActionType] = [CardActionType.PLAY]
     action_description: str = (
         "Defeat an enemy creature with power 7 or more of your choice."
     )
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_play_effect(self, game: Game) -> None:
         game.resolve_tiger_squirrel_action(self)
 
 
@@ -1079,11 +1096,11 @@ class Turbo_bug(Card):
     name: str = "Turbo Bug"
     strength: int = 4
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "The opponent loses all life except one."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         lost_life = game.lose_life(
             1 - game.turn,
             game.opponent.number_of_lives - 1,
@@ -1103,11 +1120,11 @@ class Turf_the_surfer(Card):
     name: str = "Turf the Surfer"
     strength: int = 8
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "Choose a creature. It cannot block this turn."
     set: CardSet = CardSet.NEW_SERVANTS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         game.resolve_turf_the_surfer_action(self)
 
 
@@ -1115,11 +1132,11 @@ class Tusked_extorter(Card):
     name: str = "Tusked Extorter"
     strength: int = 8
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "The opponent discards a card from their hand."
     set: CardSet = CardSet.FIRST_CONTACT
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         game.resolve_tusked_extorter_action(self)
 
 
@@ -1127,11 +1144,11 @@ class Unigon(Card):
     name: str = "Unigon"
     strength: int = 9
     special_types: list[CardSpecialType] = []
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = "If your hand is empty, you win the game."
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         if len(game.current_player.hand) == 0:
             game.game_state = GameState.GAME_OVER
             game.winner = game.current_player
@@ -1174,13 +1191,13 @@ class Wheatl_e(Card):
         CardSpecialType.FRENZY,
         CardSpecialType.TOUGH,
     ]
-    action_type: CardActionType = CardActionType.ATTACK
+    action_types: list[CardActionType] = [CardActionType.ATTACK]
     action_description: str = (
         "Choose a number. An opponent gives you all cards from their hand with power equal to the chosen number that number. Put them into your hand."
     )
     set: CardSet = CardSet.PROMO_CARDS
 
-    def trigger_action(self, game: Game) -> None:
+    def trigger_attack_effect(self, game: Game) -> None:
         game.resolve_wheatle_action(self)
 
 

@@ -9,6 +9,7 @@
   Player 2 declines to use Mindbug.
   Ongoing effects recalculated.
   Ongoing effects recalculated.
+- Implement: Jazz_dog, Ratomanger, Slugapult
 
 ## TODO - frontend
 
@@ -32,7 +33,7 @@
 
 ## Bugs - backend
 
-- 
+- TODO - check tht if I steal gorrilla alpha with Mindbug, I lose life, not opponent
 - When each player has Hyenix in discard pile and both lose life simultaneously. Player who is on turn must decide which player resolves Hyenix choice first.
   - this situation probably cannot happen
 

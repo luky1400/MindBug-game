@@ -259,7 +259,7 @@ def test_defeated_ordering_triggers_actions_in_chosen_order() -> None:
     # Choose order: [1, 0] means defender_harpy's DEFEATED fires first
     # Harpy Mother: take control of enemy creatures with power <= 5
     # But Harpy Mother belongs to opponent, and game.current_player is the attacker.
-    # So harpy's trigger_action uses game.opponent's cards (attacker's creatures)
+    # So harpy's trigger_defeated_effect uses game.opponent's cards (attacker's creatures)
     # Attacker has no creatures left (toad was destroyed), so harpy has nothing to take.
     # Then Explosive Toad fires: defeat a creature of choice from opponent's side.
     # extra_enemy is still on opponent's battlefield.

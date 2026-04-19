@@ -48,6 +48,7 @@ const baseStrengthByName: Record<string, number> = {
   "Spider Owl": 3,
   "Steamforger": 9,
   "Strange Barrel": 6,
+  "Suspicious Gift": 1,
   "The Lurker": 4,
   "The Pack": 4,
   "Tiger Squirrel": 3,

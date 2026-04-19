@@ -22,7 +22,7 @@ class Card:
         default_factory=list
     )  # TODO - rename to keywords
     tough_charges: int = 0
-    action_type: Optional[CardActionType] = None
+    action_types: list[CardActionType] = field(default_factory=list)
     action_description: Optional[str] = None
     set: Optional[CardSet] = None  # TODO - remove Optional?
     cannot_block: bool = False
@@ -49,8 +49,8 @@ class Card:
             self.description = getattr(cls, "description", None)
         if not self.special_types and hasattr(cls, "special_types"):
             self.special_types = list(getattr(cls, "special_types"))
-        if self.action_type is None:
-            self.action_type = getattr(cls, "action_type", None)
+        if not self.action_types and hasattr(cls, "action_types"):
+            self.action_types = list(getattr(cls, "action_types"))
         if self.action_description is None:
             self.action_description = getattr(cls, "action_description", None)
         if self.set is None:
@@ -85,7 +85,7 @@ class Card:
             description=self.description,
             special_types=list(self.special_types),
             tough_charges=1 if CardSpecialType.TOUGH in self.special_types else 0,
-            action_type=self.action_type,
+            action_types=list(self.action_types),
             action_description=self.action_description,
             set=self.set,
             cannot_block=self.cannot_block,
@@ -105,21 +105,34 @@ class Card:
         # Render tags as <...> if any
         if tags:
             label += f" <{','.join(tags)}>"
-        # Render action_type and action_description if action_type present
-        if self.action_type is not None:
-            label += f" | {self.action_type.value}"
+        # Render action_types and action_description if any action_types present
+        if self.action_types:
+            label += " | " + " / ".join(at.value for at in self.action_types)
             if self.action_description:
                 label += f": {self.action_description}"
         return label
 
-    def trigger_action(self, game: Game) -> None:
-        game.log.append(f"{self.name} has no action.")
+    def trigger_play_effect(self, game: Game) -> None:
+        return
+
+    def trigger_attack_effect(self, game: Game) -> None:
+        return
+
+    def trigger_defeated_effect(self, game: Game) -> None:
+        return
 
     def apply_ongoing_effect(
         self, game: "Game", owner: "Player", opponent: "Player"
     ) -> None:
         return
 
+    def get_owner(self, game: "Game") -> "Player":
+        # NOTE - two different copies of the same card would incorrectly match with "in" operator. Using "is" checks object identity, guaranteeing the exact instance is found.
+        # NOTE - card is in the owner's discard pile by the time CardActionType.DEFEATED runs
+        return next(p for p in game.players if any(c is self for c in p.discard_pile))
+
+    def get_opponent(self, game: "Game") -> "Player":
+        return game.players[1 - game.players.index(self.get_owner(game))]
 
 class Deck:
     def __init__(self, cards: Iterable[Card]):
@@ -187,7 +200,6 @@ class Player:
             raise ValueError("Invalid hand index.")
         return self.hand.pop(hand_index)
 
-    # NOTE - not used, lose_life method on Game is used instead
     def lose_life(self, amount: int = 1) -> int:
         if amount <= 0 or self.cannot_lose_life:
             return 0
@@ -1254,8 +1266,8 @@ class Game:
             hunter_defender = defender_owner.cards_laid_out[defender_index]
 
         # Trigger action if attacker has an action type
-        if attacker.action_type == CardActionType.ATTACK:
-            attacker.trigger_action(self)
+        if CardActionType.ATTACK in attacker.action_types:
+            attacker.trigger_attack_effect(self)
             # ATTACK actions that cause the opponent to lose life (e.g. Turbo Bug,
             # Chameleon Sniper) only queue Hyenix triggers; surface them now so
             # the opponent gets the choice to play Hyenix from their discard pile
@@ -1420,7 +1432,7 @@ class Game:
         self.log.append(
             f"{entry.owner_name}'s {entry.creature.name} triggers its DEFEATED action."
         )
-        entry.creature.trigger_action(self)
+        entry.creature.trigger_defeated_effect(self)
 
         if self._pending_card_action_choice is not None:
             # Wait for card action to resolve; post-resolution will continue the queue
@@ -1952,10 +1964,10 @@ class Game:
         self.log.append(f"{owner.name}'s {creature.name} is defeated.")
 
         if (
-            creature.action_type == CardActionType.DEFEATED
+            CardActionType.DEFEATED in creature.action_types
             and not defer_defeated_action
         ):
-            creature.trigger_action(self)
+            creature.trigger_defeated_effect(self)
             if self._pending_card_action_choice is None:
                 self._draw_up_to_hand_limit_for_each_player_if_needed()
             self.log.append(
@@ -1964,7 +1976,9 @@ class Game:
 
         self._recalculate_ongoing_effects()
         self._check_game_over()
-        return creature.action_type == CardActionType.DEFEATED and defer_defeated_action
+        return (
+            CardActionType.DEFEATED in creature.action_types and defer_defeated_action
+        )
 
     def _is_defeated(self, defender: Card, attacker: Card) -> bool:
         if CardSpecialType.POISONOUS in attacker.special_types:
@@ -2061,7 +2075,7 @@ class Game:
         owner.cards_laid_out.append(card)
         self._recalculate_ongoing_effects()
         if (
-            card.action_type == CardActionType.PLAY
+            CardActionType.PLAY in card.action_types
             and not owner.cannot_activate_play_effects
         ):
             original_turn = self.turn
@@ -2069,7 +2083,7 @@ class Game:
             stolen = not consume_turn_action
             self._play_is_stolen_by_mindbug = stolen
             try:
-                card.trigger_action(self)
+                card.trigger_play_effect(self)
             finally:
                 self.turn = original_turn
                 self._play_is_stolen_by_mindbug = False
@@ -2121,8 +2135,8 @@ class Game:
         need_ordering = (
             attacker_defeated
             and defender_defeated
-            and attacker.action_type == CardActionType.DEFEATED
-            and defender.action_type == CardActionType.DEFEATED
+            and CardActionType.DEFEATED in attacker.action_types
+            and CardActionType.DEFEATED in defender.action_types
         )
 
         deferred_entries: list[DefeatedCreatureEntry] = []
@@ -2173,7 +2187,7 @@ class Game:
         # trigger any single deferred action now
         if need_ordering and len(deferred_entries) == 1:
             entry = deferred_entries[0]
-            entry.creature.trigger_action(self)
+            entry.creature.trigger_defeated_effect(self)
             if self._pending_card_action_choice is None:
                 self._draw_up_to_hand_limit_for_each_player_if_needed()
             self.log.append(
