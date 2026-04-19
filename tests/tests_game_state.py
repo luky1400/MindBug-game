@@ -1,7 +1,7 @@
 import pytest
 
 from base_classes import Game
-from cards import Luchataur, Tiger_squirrel
+from cards import Hamster_lion, Luchataur, Tiger_squirrel, Wolfman_steve
 from enums import CardSet, GameState
 
 
@@ -42,6 +42,8 @@ def test_start_game_sets_state_to_active_and_resets_winner() -> None:
 def test_end_turn_switches_player_and_sets_start_turn_state() -> None:
     game = _new_game()
     first_player = game.current_player
+    next_player = game.opponent
+    next_player.hand = [Tiger_squirrel()]
 
     game.end_turn()
 
@@ -108,3 +110,47 @@ def test_start_game_stores_all_available_sets_when_no_filter_is_passed() -> None
         CardSet.NEW_SERVANTS,
         CardSet.PROMO_CARDS,
     ]
+
+
+def test_player_loses_when_no_playable_hand_card_and_no_attackable_creature() -> None:
+    game = _new_game()
+    next_player = game.opponent
+    # Hand contains only a weak card that Wolfman Steve forbids,
+    # board contains only a creature that Hamster Lion locks down.
+    next_player.hand = [Tiger_squirrel()]
+    next_player.cards_laid_out = [Tiger_squirrel()]
+    game.current_player.cards_laid_out = [Wolfman_steve(), Hamster_lion()]
+
+    expected_winner = game.current_player
+
+    game.end_turn()
+
+    assert game.game_state == GameState.GAME_OVER
+    assert game.winner is expected_winner
+
+
+def test_player_does_not_lose_when_at_least_one_hand_card_is_playable() -> None:
+    game = _new_game()
+    next_player = game.opponent
+    # Wolfman Steve forbids power<=4 plays; Luchataur (9) is still playable.
+    next_player.hand = [Tiger_squirrel(), Luchataur()]
+    game.current_player.cards_laid_out = [Wolfman_steve()]
+
+    game.end_turn()
+
+    assert game.game_state == GameState.START_TURN
+    assert game.winner is None
+
+
+def test_player_does_not_lose_when_at_least_one_creature_can_attack() -> None:
+    game = _new_game()
+    next_player = game.opponent
+    # All hand cards forbidden, but a free creature on board can attack.
+    next_player.hand = [Tiger_squirrel()]
+    next_player.cards_laid_out = [Luchataur()]
+    game.current_player.cards_laid_out = [Wolfman_steve()]
+
+    game.end_turn()
+
+    assert game.game_state == GameState.START_TURN
+    assert game.winner is None

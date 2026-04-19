@@ -1845,6 +1845,53 @@ class Game:
         self._recalculate_ongoing_effects()
         self.game_state = GameState.START_TURN
         self.log.append(f"Turn passes to {self.current_player.name}.")
+        self._check_active_player_loses_if_no_legal_actions()
+
+    def _player_can_play_any_hand_card(self, player_index: int) -> bool:
+        player = self.players[player_index]
+        if not player.hand:
+            return False
+        if not player.cannot_play_cards_with_power_4_or_less_from_hand:
+            return True
+        return any(
+            card.strength is None or card.strength > 4 for card in player.hand
+        )
+
+    def _player_can_attack_with_any_creature(self, player_index: int) -> bool:
+        player = self.players[player_index]
+        if not player.cards_laid_out:
+            return False
+        unable = set(self._get_unable_to_attack_indices(player_index))
+        return any(i not in unable for i in range(len(player.cards_laid_out)))
+
+    def _check_active_player_loses_if_no_legal_actions(self) -> None:
+        # Per Mindbug rules, if the active player cannot play any card from hand
+        # and cannot attack with any creature on their turn, they lose the game.
+        if self.game_state == GameState.GAME_OVER:
+            return
+        # Skip while any player decision is still outstanding — the turn isn't truly fresh.
+        if (
+            self._pending_mindbug_decision is not None
+            or self._pending_defense_decision is not None
+            or self._pending_card_action_choice is not None
+            or self._pending_frenzy_attacker_id is not None
+            or self._pending_attack_continuation is not None
+            or self._pending_defeated_ordering is not None
+            or self._pending_combat_finalization is not None
+        ):
+            return
+        if self._turn_action_taken:
+            return
+        if self._player_can_play_any_hand_card(
+            self.turn
+        ) or self._player_can_attack_with_any_creature(self.turn):
+            return
+        loser = self.current_player
+        self.winner = self.players[1 - self.turn]
+        self.game_state = GameState.GAME_OVER
+        self.log.append(
+            f"{loser.name} cannot play any card and cannot attack. {self.winner.name} wins."
+        )
 
     def can_end_turn_manually(self) -> bool:
         return (
