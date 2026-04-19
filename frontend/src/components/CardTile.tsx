@@ -6,6 +6,8 @@ interface CardTileProps {
   label: string;
   selected?: boolean;
   clickable?: boolean;
+  disabled?: boolean;
+  disabledTitle?: string;
   onClick?: () => void;
   onDoubleClick?: () => void;
   size?: CardTileSize;
@@ -20,6 +22,8 @@ export function CardTile({
   label,
   selected = false,
   clickable = false,
+  disabled = false,
+  disabledTitle,
   onClick,
   onDoubleClick,
   size = "compact",
@@ -31,17 +35,21 @@ export function CardTile({
 }: CardTileProps) {
   const parsed = parseCardLabel(label);
   const sizeClass = size === "large" ? "card-tile-large" : size === "medium" ? "card-tile-medium" : "";
-  const selectableClass = clickable ? "card-tile-selectable" : "";
+  const effectiveClickable = clickable && !disabled;
+  const selectableClass = effectiveClickable ? "card-tile-selectable" : "";
   const selectedClass = selected ? "card-tile-selected" : "";
+  const disabledClass = disabled ? "card-tile-disabled" : "";
   const highlightClass = showBattlefieldHighlight && isHighlightedBattlefieldCard(label) ? "card-tile-battlefield-highlight" : "";
   const activeToughCharge = showToughCharge && hasActiveToughCharge(label);
   const activeAbilityBadges = showAbilityBadges ? getActiveAbilityBadges(label) : [];
 
   return (
     <button
-      className={`card-tile ${sizeClass} ${selectableClass} ${selectedClass} ${highlightClass} ${animationClass}`}
-      onClick={onClick}
+      className={`card-tile ${sizeClass} ${selectableClass} ${selectedClass} ${disabledClass} ${highlightClass} ${animationClass}`}
+      onClick={effectiveClickable ? onClick : undefined}
       onDoubleClick={onDoubleClick}
+      title={disabled ? disabledTitle : undefined}
+      aria-disabled={disabled || undefined}
       type="button"
     >
       {showStrength ? (

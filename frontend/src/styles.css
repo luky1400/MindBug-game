@@ -652,6 +652,24 @@ body {
   box-shadow: 0 0 0 3px var(--accent), 0 0 18px rgba(138, 125, 255, 0.45);
 }
 
+/* Visually mark cards that cannot be picked for the current action
+   (play / attack / defense). Cursor turns into not-allowed and the tile
+   is desaturated and dimmed. */
+.card-tile-disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+.card-tile-disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.card-tile-disabled .card-image {
+  filter: grayscale(0.4);
+}
+
 .card-image {
   width: 100%;
   height: 138px;

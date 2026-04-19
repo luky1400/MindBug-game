@@ -20,6 +20,8 @@ export interface PlayerState {
   battlefield: CardLabel[];
   discard: CardLabel[];
   hand?: CardLabel[];
+  unplayable_hand_indices: number[];
+  unable_to_attack_indices: number[];
 }
 
 export interface PendingMindbugState {

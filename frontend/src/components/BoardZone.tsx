@@ -13,6 +13,8 @@ interface BoardZoneProps {
   onPreview?: (label: string) => void;
   animatedDiscardIndices?: Set<number>;
   animatedBattlefieldStolenIndices?: Set<number>;
+  disabledBattlefieldIndices?: Set<number>;
+  disabledBattlefieldTitle?: string;
 }
 
 export function BoardZone({
@@ -23,7 +25,9 @@ export function BoardZone({
   selectedBattlefieldIndex,
   onSelectBattlefield,
   onPreview,
-  animatedBattlefieldStolenIndices
+  animatedBattlefieldStolenIndices,
+  disabledBattlefieldIndices,
+  disabledBattlefieldTitle
 }: BoardZoneProps) {
   const battlefieldClickable = battlefieldMode !== "readonly";
   const [showDiscardModal, setShowDiscardModal] = useState(false);
@@ -72,22 +76,27 @@ export function BoardZone({
                 {player.battlefield.length === 0 ? (
                   <div className="placeholder">No cards</div>
                 ) : (
-                  player.battlefield.map((label, index) => (
-                    <CardTile
-                      key={`${label}-${index}`}
-                      label={label}
-                      size="large"
-                      selected={selectedBattlefieldIndex === index}
-                      clickable={battlefieldClickable}
-                      showStrength
-                      showToughCharge
-                      showAbilityBadges
-                      showBattlefieldHighlight
-                      onClick={battlefieldClickable ? () => onSelectBattlefield?.(index) : undefined}
-                      onDoubleClick={() => onPreview?.(label)}
-                      animationClass={animatedBattlefieldStolenIndices?.has(index) ? "card-tile-stolen-anim" : ""}
-                    />
-                  ))
+                  player.battlefield.map((label, index) => {
+                    const isDisabled = battlefieldClickable && (disabledBattlefieldIndices?.has(index) ?? false);
+                    return (
+                      <CardTile
+                        key={`${label}-${index}`}
+                        label={label}
+                        size="large"
+                        selected={selectedBattlefieldIndex === index}
+                        clickable={battlefieldClickable}
+                        disabled={isDisabled}
+                        disabledTitle={disabledBattlefieldTitle}
+                        showStrength
+                        showToughCharge
+                        showAbilityBadges
+                        showBattlefieldHighlight
+                        onClick={battlefieldClickable && !isDisabled ? () => onSelectBattlefield?.(index) : undefined}
+                        onDoubleClick={() => onPreview?.(label)}
+                        animationClass={animatedBattlefieldStolenIndices?.has(index) ? "card-tile-stolen-anim" : ""}
+                      />
+                    );
+                  })
                 )}
               </div>
             </div>

@@ -1877,6 +1877,14 @@ class Game:
         self, player_index: int, include_hand: bool = True
     ) -> dict[str, Any]:
         player = self.players[player_index]
+        unplayable_hand_indices: list[int] = []
+        if include_hand and player.cannot_play_cards_with_power_4_or_less_from_hand:
+            for index, card in enumerate(player.hand):
+                if card.strength is not None and card.strength <= 4:
+                    unplayable_hand_indices.append(index)
+
+        unable_to_attack_indices = self._get_unable_to_attack_indices(player_index)
+
         return {
             "player_index": player_index,
             "name": player.name,
@@ -1890,7 +1898,34 @@ class Game:
             "discard_count": len(player.discard_pile),
             "discard": [card.short_label() for card in player.discard_pile],
             "draw_count": len(player.draw_pile.cards),
+            "unplayable_hand_indices": unplayable_hand_indices,
+            "unable_to_attack_indices": unable_to_attack_indices,
         }
+
+    def _get_unable_to_attack_indices(self, player_index: int) -> list[int]:
+        player = self.players[player_index]
+        is_turn_player = player_index == self.turn
+        ineligible: list[int] = []
+        for index, card in enumerate(player.cards_laid_out):
+            if card.cannot_attack:
+                ineligible.append(index)
+                continue
+            if is_turn_player:
+                attacks_used = self._attacks_this_turn.get(id(card), 0)
+                max_attacks = (
+                    2 if CardSpecialType.FRENZY in card.special_types else 1
+                )
+                if attacks_used >= max_attacks:
+                    ineligible.append(index)
+                    continue
+                # During a pending FRENZY second attack, only the FRENZY attacker
+                # may attack again; lock the other creatures to avoid confusion.
+                if (
+                    self._pending_frenzy_attacker_id is not None
+                    and id(card) != self._pending_frenzy_attacker_id
+                ):
+                    ineligible.append(index)
+        return ineligible
 
     def _destroy_creature(
         self,

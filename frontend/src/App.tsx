@@ -373,6 +373,27 @@ export function App() {
     setIsDefeatedOrderingModalHidden(false);
   }, [pendingDefeatedOrderingIdentity]);
 
+  // Clear any stale defender pick on the opponent's board when the selected
+  // attacker can't HUNTER-target (or no attacker is selected). Without this,
+  // a previously-selected defender stays in state but is hidden from the UI,
+  // which could cause confusing "Cannot target attack with a non-HUNTER
+  // attacker" errors. Skip while the viewer is answering defense — there
+  // selectedDefenderIndex points at a blocker on the viewer's own board.
+  const selectedAttackerLabel =
+    selectedAttackerIndex !== null && viewer?.battlefield[selectedAttackerIndex]
+      ? viewer.battlefield[selectedAttackerIndex]
+      : null;
+  const selectedAttackerHasHunter = selectedAttackerLabel
+    ? cardHasTag(selectedAttackerLabel, "HUNTER")
+    : false;
+  useEffect(() => {
+    if (canAnswerDefense) return;
+    if (selectedAttackerHasHunter) return;
+    if (selectedDefenderIndex !== null) {
+      setSelectedDefenderIndex(null);
+    }
+  }, [canAnswerDefense, selectedAttackerHasHunter, selectedDefenderIndex]);
+
   async function createGame() {
     setErrorText("");
     try {
@@ -463,9 +484,6 @@ export function App() {
 
     if (hasPendingFrenzyAttack && attackerIndex !== state.pending_frenzy_attacker_index) {
       return setErrorText("Use the same FRENZY attacker for the second attack, or end turn.");
-    }
-    if (!isHunter && normalizedDefenderIndex !== null) {
-      return setErrorText("Cannot target attack with a non-HUNTER attacker. Remove target and attack again.");
     }
 
     await emitAction(
@@ -615,6 +633,17 @@ export function App() {
     viewer?.battlefield[selectedAttackerIndex] != null &&
     cardHasTag(viewer.battlefield[selectedAttackerIndex], "HUNTER");
 
+  const viewerUnplayableHandSet = new Set(viewer?.unplayable_hand_indices || []);
+  const viewerCannotAttackSet = new Set(viewer?.unable_to_attack_indices || []);
+  const eligibleDefenderIndices = state?.pending_defense?.eligible_defender_indices || [];
+  const viewerIneligibleDefenderSet = canAnswerDefense && viewer
+    ? new Set(
+        viewer.battlefield
+          .map((_, index) => index)
+          .filter((index) => !eligibleDefenderIndices.includes(index))
+      )
+    : new Set<number>();
+
   // ── Lobby screen ──────────────────────────────────────────────────────────
   if (screen === "lobby") {
     return (
@@ -735,7 +764,7 @@ export function App() {
         <>
           <BoardZone
             title={opponent?.name || state!.opponent_player_name || "Opponent"}
-            player={opponent || { player_index: 1, name: state!.opponent_player_name || "Opponent", lives: 0, mindbugs_remaining: 0, hand_count: 0, draw_count: 0, discard_count: 0, battlefield: [], discard: [], hand: [] }}
+            player={opponent || { player_index: 1, name: state!.opponent_player_name || "Opponent", lives: 0, mindbugs_remaining: 0, hand_count: 0, draw_count: 0, discard_count: 0, battlefield: [], discard: [], hand: [], unplayable_hand_indices: [], unable_to_attack_indices: [] }}
             battlefieldMode={canAnswerDefense || hasBlockingChoiceModal ? "readonly" : "defender"}
             selectedBattlefieldIndex={
               !hasBlockingChoiceModal && (canAnswerDefense || selectedAttackerIsHunter)
@@ -808,6 +837,18 @@ export function App() {
             onSelectBattlefield={hasBlockingChoiceModal ? undefined : (index) => toggleSelected(canAnswerDefense ? "defender" : "attacker", index)}
             onPreview={(label) => setPreviewCardLabel(label)}
             animatedBattlefieldStolenIndices={animatedCards.viewerBattlefieldStolen}
+            disabledBattlefieldIndices={
+              canAnswerDefense
+                ? viewerIneligibleDefenderSet
+                : canAct
+                  ? viewerCannotAttackSet
+                  : undefined
+            }
+            disabledBattlefieldTitle={
+              canAnswerDefense
+                ? "This creature cannot block this attacker."
+                : "This creature cannot attack right now."
+            }
           />
 
           <div className="game-bottom-bar">
@@ -819,6 +860,8 @@ export function App() {
                 onSelect={(index) => toggleSelected("hand", index)}
                 onPreview={(label) => setPreviewCardLabel(label)}
                 animatedIndices={animatedCards.viewerHand}
+                unplayableIndices={canAct ? viewerUnplayableHandSet : undefined}
+                unplayableTitle="This card cannot be played right now (opponent has Wolfman Steve in play)."
               />
             </div>
           </div>

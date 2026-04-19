@@ -973,13 +973,13 @@ class Strange_barrel(Card):
                 )
 
 
-# NOTE - I will need to do list for action_type and action_description, and make function: trigger_play_effect, trigger_attack_effect and trigger_defeated_effect
+# NOTE - I will need to do list for action_type and make functions: trigger_play_effect, trigger_attack_effect and trigger_defeated_effect
 # class Suspicious_gift(Card):
 #     name: str = "Suspicious Gift"
 #     strength: int = 1
 #     special_types: list[CardSpecialType] = []
 #     action_types: list[CardActionType] = [CardActionType.PLAY, CardActionType.DEFEATED]
-#     action_description: list[str] = ["An opponent takes control of this card.", "Lose 2 lives."] # TODO - how to know which description to display in UI when player choosing
+#     action_description: str = "An opponent takes control of this card. / Lose 2 lives."
 #     set: CardSet = CardSet.PROMO_CARDS
 
 #     def trigger_play_effect(self, game: Game) -> None:
