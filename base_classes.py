@@ -28,6 +28,7 @@ class Card:
     cannot_block: bool = False
     cannot_attack: bool = False
     min_blocker_strength: Optional[int] = None
+    requires_blocker_with_no_special_types: Optional[bool] = None
     base_strength: int = field(init=False)
     base_special_types: list[CardSpecialType] = field(
         init=False
@@ -56,6 +57,10 @@ class Card:
             self.set = getattr(cls, "set", None)
         if self.min_blocker_strength is None:
             self.min_blocker_strength = getattr(cls, "min_blocker_strength", None)
+        if self.requires_blocker_with_no_special_types is None:
+            self.requires_blocker_with_no_special_types = getattr(
+                cls, "requires_blocker_with_no_special_types", False
+            )
         # Using cls.__dict__ (not getattr) to only match direct definitions on the subclass, not inherited ones.
         if "apply_ongoing_effect_priority" in cls.__dict__:
             self.apply_ongoing_effect_priority = cls.__dict__[
@@ -85,6 +90,7 @@ class Card:
             set=self.set,
             cannot_block=self.cannot_block,
             min_blocker_strength=self.min_blocker_strength,
+            requires_blocker_with_no_special_types=self.requires_blocker_with_no_special_types,
         )
 
     def short_label(self) -> str:
@@ -1981,6 +1987,13 @@ class Game:
             and defender.strength < attacker.min_blocker_strength
         ):
             raise ValueError(f"{defender.name} is too weak to block {attacker.name}.")
+        if (
+            attacker.requires_blocker_with_no_special_types
+            and len(defender.special_types) > 0
+        ):
+            raise ValueError(
+                f"{defender.name} cannot block {attacker.name} because only creatures with no keywords can block it."
+            )
 
     def _finalize_played_card(
         self,

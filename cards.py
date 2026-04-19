@@ -91,6 +91,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
             (Steamforger, 1),
             (The_pack, 1),
             (Unigon, 1),
+            (Watts_dog, 1),
             (Wheatl_e, 1),
         ]
     )
@@ -1155,13 +1156,14 @@ class Urchin_hurler(Card):
                 card.strength += 2
 
 
-# TODO - implement - add attribute cannot_be_blocked_by_creatures_with_keywords (special_types) to Card class
-# class Watts_dog(Card):
-#     name: str = "Watts Dog"
-#     strength: int = 5
-#     special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
-#     description: str = "Can only be blocked by creatures with no keywords."
-#     set: CardSet = CardSet.PROMO_CARDS
+class Watts_dog(Card):
+    name: str = "Watts Dog"
+    strength: int = 5
+    special_types: list[CardSpecialType] = [CardSpecialType.FRENZY]
+    description: str = "Can only be blocked by creatures with no keywords."
+    # NOTE - exhausted creatures cannot defend as well
+    requires_blocker_with_no_special_types: bool = True
+    set: CardSet = CardSet.PROMO_CARDS
 
 
 class Wheatl_e(Card):

@@ -1,5 +1,9 @@
+import pytest
+
 from base_classes import Game
 from cards import (
+    Bee_bear,
+    Brain_fly,
     Bugserker,
     Chameleon_sniper,
     Deathweaver,
@@ -10,9 +14,11 @@ from cards import (
     Knightmare,
     Luchataur,
     Plated_scorpion,
+    Shark_dog,
     Shield_bugs,
     Tiger_squirrel,
     Urchin_hurler,
+    Watts_dog,
     killer_bee,
 )
 
@@ -153,6 +159,56 @@ def test_knightmare_prevents_its_owner_from_losing_life_from_direct_attack() -> 
     game.attack(attacker_index=0)
 
     assert protected_player.number_of_lives == 3
+
+
+def test_watts_dog_can_only_be_blocked_by_creatures_with_no_special_types() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    watts_dog = Watts_dog()
+    plain_blocker = Brain_fly()  # no special types
+    keyword_blocker_1 = Ferret_bomber()  # SNEAKY
+    keyword_blocker_2 = Shark_dog()  # HUNTER
+
+    player.cards_laid_out = [watts_dog]
+    opponent.cards_laid_out = [keyword_blocker_1, plain_blocker, keyword_blocker_2]
+
+    eligible = game.get_eligible_defender_indices(attacker_index=0)
+
+    assert eligible == [1]
+
+
+def test_watts_dog_attack_rejects_blocker_with_special_types() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    player.cards_laid_out = [Watts_dog()]
+    opponent.cards_laid_out = [Ferret_bomber()]  # SNEAKY
+
+    game.attack(attacker_index=0)
+
+    with pytest.raises(ValueError):
+        game.defend(defender_index=0)
+
+
+def test_watts_dog_attack_accepts_blocker_with_no_special_types() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    watts_dog = Watts_dog()  # strength 5
+    plain_blocker = Bee_bear()  # strength 8, no special types
+
+    player.cards_laid_out = [watts_dog]
+    opponent.cards_laid_out = [plain_blocker]
+
+    game.attack(attacker_index=0)
+    game.defend(defender_index=0)
+
+    assert watts_dog in player.discard_pile
+    assert plain_blocker in opponent.cards_laid_out
 
 
 def test_knightmare_prevents_its_owner_from_losing_life_from_card_effects() -> None:
