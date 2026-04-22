@@ -28,7 +28,7 @@ export function PendingMindbugModal({
           <button className="btn btn-outline-secondary" onClick={onHide} type="button">
             Hide for now
           </button>
-          <button className="btn btn-outline-light" onClick={onDecline} type="button">
+          <button className="btn btn-decline-soft" onClick={onDecline} type="button">
             Decline
           </button>
           <button className="btn btn-warning" onClick={onUseMindbug} type="button">

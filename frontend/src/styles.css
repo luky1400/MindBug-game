@@ -47,8 +47,8 @@ body {
 }
 
 .btn-hunt {
-  background: #fd7e14;
-  border-color: #fd7e14;
+  background: #f48208;
+  border-color: #f48208;
   color: #212529;
 }
 
@@ -56,6 +56,18 @@ body {
   background: #e8590c;
   border-color: #e8590c;
   color: #212529;
+}
+
+.btn-decline-soft {
+  background: #cb1414;
+  border-color: #cb1414;
+  color: #f8f9fa;
+}
+
+.btn-decline-soft:hover {
+  background: #a14848;
+  border-color: #a14848;
+  color: #f8f9fa;
 }
 
 .game-status-bar {
