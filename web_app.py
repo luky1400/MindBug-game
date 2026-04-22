@@ -324,6 +324,18 @@ def index() -> FileResponse:
     return FileResponse(web_root / "index.html")
 
 
+@fastapi_app.get("/fav_icon.png")
+def favicon() -> FileResponse:
+    # Vite dev server serves /public at the URL root, so /fav_icon.png works
+    # locally. In production builds the file is copied to frontend/dist root,
+    # but FastAPI only mounts /assets — without this route the icon 404s
+    # behind ngrok / any non-Vite host.
+    icon_path = frontend_dist_root / "fav_icon.png"
+    if not icon_path.exists():
+        icon_path = Path(__file__).parent / "images" / "game_images" / "fav_icon.png"
+    return FileResponse(icon_path)
+
+
 @fastapi_app.post("/game/new")
 def new_game(payload: CreateGameRequest) -> dict[str, Any]:
     session, player = store.create_game(
