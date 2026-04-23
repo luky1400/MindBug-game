@@ -9,13 +9,13 @@
   Player 2 declines to use Mindbug.
   Ongoing effects recalculated.
   Ongoing effects recalculated.
-- Implement: Jazz_dog, Ratomanger, Slugapult
+- Implement: Jazz_dog, Ratomanger, Slugapult (+ Alien_brain)
 
 ## TODO - frontend
 
 - Special effects:
   - lost of life
-  - souboj
+  - souboj (a visualization effect that card has attacked player and player lost life, or that it attacked card that has been selected as blocker)
   - when card is defeated
   - when card is discarded
   - Aktivovala se akce

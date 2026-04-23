@@ -849,6 +849,7 @@ class Short_neck_giraffodile(Card):
         game.resolve_short_neck_giraffodile_action(self)
 
 
+# PROBLEM: if you defeaf allied creature with DEFEAETED effect, what will trigger first - defeated effect or you choose which enemy creature to defeat or you must choose which one will be first?
 # class Slugapult(Card):
 #     name: str = "Slugapult"
 #     strength: int = 5
