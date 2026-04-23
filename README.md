@@ -1,6 +1,6 @@
 # Mindbug Prototype
 
-This project replicates of a [Mindbug](https://boardgamegeek.com/boardgame/345584/mindbug-first-contact) card game, following its rules - [Czech rules](https://www.rexhry.cz/storage/instructions/mb.rulebook.v3.cze_.web_.pdf), [English rules](https://mindbug.me/wp-content/uploads/2023/08/mindbug-rulebook-ENGLISH-small.pdf)
+This project is a digital replica of the [Mindbug](https://boardgamegeek.com/boardgame/345584/mindbug-first-contact) card game.
 
 ![image](images/game_images/fav_icon.png)
 

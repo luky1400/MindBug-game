@@ -13,7 +13,6 @@
 
 ## TODO - frontend
 
-- Update pictures in README
 - Special effects:
   - lost of life
   - souboj
