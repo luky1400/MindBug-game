@@ -33,7 +33,6 @@ Special effects - think of imporvements
 
 ## Bugs - frontend
 
-- When card is greyed out, I cannot see badges - FRENZY, etc., neither actual strength render
 - vice zvyraznit utocici kartu?
 
 ## TODO - game rules

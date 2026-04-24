@@ -1181,8 +1181,16 @@ body {
    is desaturated and dimmed. */
 .card-tile-disabled {
   cursor: not-allowed;
-  opacity: 0.45;
-  filter: grayscale(0.6);
+  border-color: rgba(127, 144, 178, 0.34);
+}
+
+.card-tile-disabled::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(9, 15, 28, 0.38);
+  pointer-events: none;
 }
 
 .card-tile-disabled:hover {
@@ -1191,7 +1199,21 @@ body {
 }
 
 .card-tile-disabled .card-image {
-  filter: grayscale(0.4);
+  filter: grayscale(0.72) brightness(0.58);
+}
+
+.card-tile-disabled .strength-tag,
+.card-tile-disabled .card-status-badges {
+  z-index: 2;
+}
+
+.card-tile-disabled .strength-tag {
+  background: rgba(7, 18, 36, 0.96);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.55);
+}
+
+.card-tile-disabled .card-status-badge {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.55);
 }
 
 .card-image {
