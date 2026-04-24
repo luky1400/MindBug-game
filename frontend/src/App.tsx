@@ -17,6 +17,12 @@ type StoredSession = {
   playerId: string;
 };
 
+type DiscardGhost = {
+  label: string;
+  source: "battlefield" | "hand" | "unknown";
+  defeated: boolean;
+};
+
 const SESSION_STORAGE_KEY = "mindbug-multiplayer-session";
 
 export function App() {
@@ -52,6 +58,8 @@ export function App() {
     opponentDiscard: Set<number>;
     viewerDiscardDefeated: boolean;
     opponentDiscardDefeated: boolean;
+    viewerDiscardGhosts: DiscardGhost[];
+    opponentDiscardGhosts: DiscardGhost[];
     viewerBattlefieldStolen: Set<number>;
     opponentBattlefieldStolen: Set<number>;
     viewerBattlefieldPlayed: Set<number>;
@@ -64,9 +72,11 @@ export function App() {
     opponentCombatEffect: "direct-hit" | "block-hit" | null;
   };
   const EMPTY_SET = new Set<number>();
+  const EMPTY_GHOSTS: DiscardGhost[] = [];
   const emptyAnimatedRef = useRef<AnimatedCards>({
     viewerHand: EMPTY_SET, viewerDiscard: EMPTY_SET, opponentDiscard: EMPTY_SET,
     viewerDiscardDefeated: false, opponentDiscardDefeated: false,
+    viewerDiscardGhosts: EMPTY_GHOSTS, opponentDiscardGhosts: EMPTY_GHOSTS,
     viewerBattlefieldStolen: EMPTY_SET, opponentBattlefieldStolen: EMPTY_SET,
     viewerBattlefieldPlayed: EMPTY_SET, opponentBattlefieldPlayed: EMPTY_SET,
     viewerBattlefieldToughExhausted: EMPTY_SET, opponentBattlefieldToughExhausted: EMPTY_SET,
@@ -92,6 +102,54 @@ export function App() {
     }
     return result;
   }, []);
+
+  const detectRemovedCounts = useCallback((prevArr: string[], nextArr: string[]): Map<string, number> => {
+    const nextCounts = new Map<string, number>();
+    for (const label of nextArr) {
+      nextCounts.set(label, (nextCounts.get(label) || 0) + 1);
+    }
+
+    const removedCounts = new Map<string, number>();
+    for (const label of prevArr) {
+      const remaining = nextCounts.get(label) || 0;
+      if (remaining > 0) {
+        nextCounts.set(label, remaining - 1);
+      } else {
+        removedCounts.set(label, (removedCounts.get(label) || 0) + 1);
+      }
+    }
+
+    return removedCounts;
+  }, []);
+
+  const buildDiscardGhosts = useCallback((
+    prevBattlefield: string[],
+    nextBattlefield: string[],
+    prevHand: string[],
+    nextHand: string[],
+    nextDiscard: string[],
+    newDiscardIndices: Set<number>
+  ): DiscardGhost[] => {
+    const removedFromBattlefield = detectRemovedCounts(prevBattlefield, nextBattlefield);
+    const removedFromHand = detectRemovedCounts(prevHand, nextHand);
+
+    return [...newDiscardIndices].map((discardIndex) => {
+      const label = nextDiscard[discardIndex];
+      const battlefieldCount = removedFromBattlefield.get(label) || 0;
+      if (battlefieldCount > 0) {
+        removedFromBattlefield.set(label, battlefieldCount - 1);
+        return { label, source: "battlefield", defeated: true };
+      }
+
+      const handCount = removedFromHand.get(label) || 0;
+      if (handCount > 0) {
+        removedFromHand.set(label, handCount - 1);
+        return { label, source: "hand", defeated: false };
+      }
+
+      return { label, source: "unknown", defeated: false };
+    });
+  }, [detectRemovedCounts]);
 
   const hasDiscardedBattlefieldCard = useCallback((
     prevBattlefield: string[],
@@ -351,6 +409,22 @@ export function App() {
         nextOpponentDiscard,
         newOpponentDiscard
       );
+      const viewerDiscardGhosts = buildDiscardGhosts(
+        prevViewerBattlefield,
+        nextViewerBattlefield,
+        prevHand,
+        nextHand,
+        nextViewerDiscard,
+        newViewerDiscard
+      );
+      const opponentDiscardGhosts = buildDiscardGhosts(
+        prevOpponentBattlefield,
+        nextOpponentBattlefield,
+        [],
+        [],
+        nextOpponentDiscard,
+        newOpponentDiscard
+      );
 
       // Detect Mindbug steal: responding player's battlefield gained a card after mindbug ended
       let viewerBattlefieldStolen = EMPTY_SET;
@@ -388,6 +462,7 @@ export function App() {
         viewerBattlefieldStolen.size > 0 || opponentBattlefieldStolen.size > 0 ||
         viewerBattlefieldPlayed.size > 0 || opponentBattlefieldPlayed.size > 0 ||
         viewerBattlefieldToughExhausted.size > 0 || opponentBattlefieldToughExhausted.size > 0 ||
+        viewerDiscardGhosts.length > 0 || opponentDiscardGhosts.length > 0 ||
         viewerLostLife || opponentLostLife || Boolean(viewerCombatEffect) || Boolean(opponentCombatEffect);
 
       if (hasAny) {
@@ -398,6 +473,8 @@ export function App() {
           opponentDiscard: newOpponentDiscard,
           viewerDiscardDefeated: viewerBattlefieldDefeated,
           opponentDiscardDefeated: opponentBattlefieldDefeated,
+          viewerDiscardGhosts,
+          opponentDiscardGhosts,
           viewerBattlefieldStolen,
           opponentBattlefieldStolen,
           viewerBattlefieldPlayed,
@@ -895,6 +972,7 @@ export function App() {
             onPreview={(label) => setPreviewCardLabel(label)}
             animatedDiscardIndices={animatedCards.opponentDiscard}
             animatedDiscardDefeated={animatedCards.opponentDiscardDefeated}
+            discardGhosts={animatedCards.opponentDiscardGhosts}
             animatedBattlefieldStolenIndices={animatedCards.opponentBattlefieldStolen}
             animatedBattlefieldPlayedIndices={animatedCards.opponentBattlefieldPlayed}
             animatedBattlefieldToughExhaustedIndices={animatedCards.opponentBattlefieldToughExhausted}
@@ -979,6 +1057,7 @@ export function App() {
             onPreview={(label) => setPreviewCardLabel(label)}
             animatedDiscardIndices={animatedCards.viewerDiscard}
             animatedDiscardDefeated={animatedCards.viewerDiscardDefeated}
+            discardGhosts={animatedCards.viewerDiscardGhosts}
             animatedBattlefieldStolenIndices={animatedCards.viewerBattlefieldStolen}
             animatedBattlefieldPlayedIndices={animatedCards.viewerBattlefieldPlayed}
             animatedBattlefieldToughExhaustedIndices={animatedCards.viewerBattlefieldToughExhausted}

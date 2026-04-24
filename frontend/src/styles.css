@@ -714,6 +714,86 @@ body {
   box-shadow: 0 0 24px rgba(255, 75, 75, 0.76);
 }
 
+.discard-ghost-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.discard-ghost {
+  position: absolute;
+  left: 52%;
+  top: 48%;
+  opacity: 0;
+  transform-origin: center center;
+  animation: card-destroyed-disappear 1.65s ease-out both;
+}
+
+.discard-ghost:nth-child(2) {
+  left: 58%;
+  animation-delay: 0.08s;
+}
+
+.discard-ghost:nth-child(3) {
+  left: 46%;
+  animation-delay: 0.16s;
+}
+
+.discard-ghost-hand {
+  top: 72%;
+}
+
+.discard-ghost-unknown {
+  top: 54%;
+}
+
+.discard-ghost .card-tile {
+  width: min(130px, 19vw);
+  border-color: rgba(255, 90, 90, 0.8);
+  box-shadow: 0 0 28px rgba(255, 67, 67, 0.45), 0 12px 34px rgba(0, 0, 0, 0.45);
+  background: #160b0d;
+}
+
+.discard-ghost .card-image {
+  height: min(170px, 25vw);
+  object-fit: cover;
+}
+
+.discard-ghost-discarded .card-tile {
+  border-color: rgba(113, 163, 255, 0.75);
+  box-shadow: 0 0 26px rgba(113, 163, 255, 0.36), 0 12px 34px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes card-destroyed-disappear {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0);
+    filter: brightness(1.25) saturate(1.2);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(-3deg);
+    filter: brightness(1.35) saturate(1.15);
+  }
+  38% {
+    opacity: 1;
+    transform: translate(-50%, -52%) rotate(4deg);
+    filter: grayscale(0.35) brightness(0.75) saturate(0.7);
+  }
+  72% {
+    opacity: 0.72;
+    transform: translate(-50%, -54%) rotate(-6deg);
+    filter: grayscale(0.85) brightness(0.42) saturate(0.35);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -56%) rotate(-12deg);
+    filter: grayscale(1) brightness(0.16) saturate(0.2) blur(1.5px);
+  }
+}
+
 @keyframes combat-board-flash {
   0% {
     opacity: 0;

@@ -4,6 +4,11 @@ import { CardTile } from "./CardTile";
 import { DiscardPileModal } from "./DiscardPileModal";
 
 type CombatEffect = "direct-hit" | "block-hit";
+type DiscardGhost = {
+  label: string;
+  source: "battlefield" | "hand" | "unknown";
+  defeated: boolean;
+};
 
 interface BoardZoneProps {
   title: string;
@@ -15,6 +20,7 @@ interface BoardZoneProps {
   onPreview?: (label: string) => void;
   animatedDiscardIndices?: Set<number>;
   animatedDiscardDefeated?: boolean;
+  discardGhosts?: DiscardGhost[];
   animatedBattlefieldStolenIndices?: Set<number>;
   animatedBattlefieldPlayedIndices?: Set<number>;
   animatedBattlefieldToughExhaustedIndices?: Set<number>;
@@ -35,6 +41,7 @@ export function BoardZone({
   onPreview,
   animatedDiscardIndices,
   animatedDiscardDefeated = false,
+  discardGhosts = [],
   animatedBattlefieldStolenIndices,
   animatedBattlefieldPlayedIndices,
   animatedBattlefieldToughExhaustedIndices,
@@ -133,6 +140,18 @@ export function BoardZone({
           {combatEffect ? (
             <div className={`combat-effect combat-effect-${combatEffect}`} aria-live="polite">
               <span>{combatEffect === "direct-hit" ? "Direct hit!" : "Clash!"}</span>
+            </div>
+          ) : null}
+          {discardGhosts.length > 0 ? (
+            <div className="discard-ghost-layer" aria-hidden="true">
+              {discardGhosts.map((ghost, index) => (
+                <div
+                  key={`${ghost.label}-${ghost.source}-${index}`}
+                  className={`discard-ghost discard-ghost-${ghost.source} ${ghost.defeated ? "discard-ghost-defeated" : "discard-ghost-discarded"}`}
+                >
+                  <CardTile label={ghost.label} size="medium" />
+                </div>
+              ))}
             </div>
           ) : null}
         </div>

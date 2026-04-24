@@ -15,7 +15,11 @@
 
 - Special effects:
 
-I want vizualization when card is moved to discard pile - card should fade a way - either from battlefield or hand - effect should like the card was destroyed and goes to cemetery
+I want also effect for  
+- mindbug was depleated  
+- when life is added.   
+- when cards are added into draw pile  
+- card is moved/resurected from discard pile
 
 I want the same effect as when card is played as when it is stolen by Mindbug
 
