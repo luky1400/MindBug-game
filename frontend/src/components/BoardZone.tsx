@@ -59,10 +59,11 @@ export function BoardZone({
       ? "discard-pile-btn-defeated-anim"
       : "discard-pile-btn-discarded-anim"
     : "";
+  const hasEffectOverlay = Boolean(combatEffect || discardGhosts.length > 0);
 
   return (
     <>
-      <section className={`zone card border-0 ${active ? "zone-active" : ""}`}>
+      <section className={`zone card border-0 ${active ? "zone-active" : ""} ${hasEffectOverlay ? "zone-effect-overlay" : ""}`}>
         <div className="card-body">
           <h2 className="zone-title">{title}</h2>
           <div className="board-zone-layout">

@@ -126,10 +126,22 @@ body {
      a battlefield with several wrapped rows of cards) is taller than the
      zone's allotted height. */
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
 }
 
 .zone > .card-body {
   padding: 4px 12px; /* TODO - adjust battle field cards move up/down */
+}
+
+.zone-effect-overlay {
+  overflow-y: hidden;
+}
+
+.zone-effect-overlay > .card-body {
+  position: relative;
+  min-height: 100%;
+  overflow: clip;
 }
 
 .zone-active {
