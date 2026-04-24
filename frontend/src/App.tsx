@@ -66,6 +66,14 @@ export function App() {
     opponentBattlefieldPlayed: Set<number>;
     viewerBattlefieldToughExhausted: Set<number>;
     opponentBattlefieldToughExhausted: Set<number>;
+    viewerLifeDelta: number;
+    opponentLifeDelta: number;
+    viewerMindbugDelta: number;
+    opponentMindbugDelta: number;
+    viewerDrawPileDelta: number;
+    opponentDrawPileDelta: number;
+    viewerResurrectedCount: number;
+    opponentResurrectedCount: number;
     viewerLifeLoss: boolean;
     opponentLifeLoss: boolean;
     viewerCombatEffect: "direct-hit" | "block-hit" | null;
@@ -80,6 +88,10 @@ export function App() {
     viewerBattlefieldStolen: EMPTY_SET, opponentBattlefieldStolen: EMPTY_SET,
     viewerBattlefieldPlayed: EMPTY_SET, opponentBattlefieldPlayed: EMPTY_SET,
     viewerBattlefieldToughExhausted: EMPTY_SET, opponentBattlefieldToughExhausted: EMPTY_SET,
+    viewerLifeDelta: 0, opponentLifeDelta: 0,
+    viewerMindbugDelta: 0, opponentMindbugDelta: 0,
+    viewerDrawPileDelta: 0, opponentDrawPileDelta: 0,
+    viewerResurrectedCount: 0, opponentResurrectedCount: 0,
     viewerLifeLoss: false, opponentLifeLoss: false,
     viewerCombatEffect: null, opponentCombatEffect: null,
   });
@@ -149,6 +161,32 @@ export function App() {
 
       return { label, source: "unknown", defeated: false };
     });
+  }, [detectRemovedCounts]);
+
+  const countResurrectedCards = useCallback((
+    discardTransitions: Array<{ prev: string[]; next: string[] }>,
+    nextBattlefield: string[],
+    newBattlefieldIndices: Set<number>
+  ): number => {
+    const removedFromDiscard = new Map<string, number>();
+    for (const transition of discardTransitions) {
+      for (const [label, count] of detectRemovedCounts(transition.prev, transition.next)) {
+        removedFromDiscard.set(label, (removedFromDiscard.get(label) || 0) + count);
+      }
+    }
+
+    let count = 0;
+
+    for (const battlefieldIndex of newBattlefieldIndices) {
+      const label = nextBattlefield[battlefieldIndex];
+      const remaining = removedFromDiscard.get(label) || 0;
+      if (remaining > 0) {
+        removedFromDiscard.set(label, remaining - 1);
+        count += 1;
+      }
+    }
+
+    return count;
   }, [detectRemovedCounts]);
 
   const hasDiscardedBattlefieldCard = useCallback((
@@ -391,12 +429,20 @@ export function App() {
       const newOpponentBattlefield = detectNewCards(prevOpponentBattlefield, nextOpponentBattlefield);
       const viewerBattlefieldToughExhausted = detectToughExhaustedCards(prevViewerBattlefield, nextViewerBattlefield);
       const opponentBattlefieldToughExhausted = detectToughExhaustedCards(prevOpponentBattlefield, nextOpponentBattlefield);
-      const viewerLostLife = nextState.viewer.lives < prev.viewer.lives;
-      const opponentLostLife = Boolean(
-        prev.opponent &&
-        nextState.opponent &&
-        nextState.opponent.lives < prev.opponent.lives
-      );
+      const viewerLifeDelta = nextState.viewer.lives - prev.viewer.lives;
+      const opponentLifeDelta = prev.opponent && nextState.opponent
+        ? nextState.opponent.lives - prev.opponent.lives
+        : 0;
+      const viewerMindbugDelta = nextState.viewer.mindbugs_remaining - prev.viewer.mindbugs_remaining;
+      const opponentMindbugDelta = prev.opponent && nextState.opponent
+        ? nextState.opponent.mindbugs_remaining - prev.opponent.mindbugs_remaining
+        : 0;
+      const viewerDrawPileDelta = nextState.viewer.draw_count - prev.viewer.draw_count;
+      const opponentDrawPileDelta = prev.opponent && nextState.opponent
+        ? nextState.opponent.draw_count - prev.opponent.draw_count
+        : 0;
+      const viewerLostLife = viewerLifeDelta < 0;
+      const opponentLostLife = opponentLifeDelta < 0;
       const viewerBattlefieldDefeated = hasDiscardedBattlefieldCard(
         prevViewerBattlefield,
         nextViewerBattlefield,
@@ -424,6 +470,22 @@ export function App() {
         [],
         nextOpponentDiscard,
         newOpponentDiscard
+      );
+      const viewerResurrectedCount = countResurrectedCards(
+        [
+          { prev: prevViewerDiscard, next: nextViewerDiscard },
+          { prev: prevOpponentDiscard, next: nextOpponentDiscard },
+        ],
+        nextViewerBattlefield,
+        newViewerBattlefield
+      );
+      const opponentResurrectedCount = countResurrectedCards(
+        [
+          { prev: prevViewerDiscard, next: nextViewerDiscard },
+          { prev: prevOpponentDiscard, next: nextOpponentDiscard },
+        ],
+        nextOpponentBattlefield,
+        newOpponentBattlefield
       );
 
       // Detect Mindbug steal: responding player's battlefield gained a card after mindbug ended
@@ -463,6 +525,10 @@ export function App() {
         viewerBattlefieldPlayed.size > 0 || opponentBattlefieldPlayed.size > 0 ||
         viewerBattlefieldToughExhausted.size > 0 || opponentBattlefieldToughExhausted.size > 0 ||
         viewerDiscardGhosts.length > 0 || opponentDiscardGhosts.length > 0 ||
+        viewerLifeDelta !== 0 || opponentLifeDelta !== 0 ||
+        viewerMindbugDelta < 0 || opponentMindbugDelta < 0 ||
+        viewerDrawPileDelta > 0 || opponentDrawPileDelta > 0 ||
+        viewerResurrectedCount > 0 || opponentResurrectedCount > 0 ||
         viewerLostLife || opponentLostLife || Boolean(viewerCombatEffect) || Boolean(opponentCombatEffect);
 
       if (hasAny) {
@@ -481,6 +547,14 @@ export function App() {
           opponentBattlefieldPlayed,
           viewerBattlefieldToughExhausted,
           opponentBattlefieldToughExhausted,
+          viewerLifeDelta,
+          opponentLifeDelta,
+          viewerMindbugDelta,
+          opponentMindbugDelta,
+          viewerDrawPileDelta,
+          opponentDrawPileDelta,
+          viewerResurrectedCount,
+          opponentResurrectedCount,
           viewerLifeLoss: viewerLostLife,
           opponentLifeLoss: opponentLostLife,
           viewerCombatEffect,
@@ -976,7 +1050,10 @@ export function App() {
             animatedBattlefieldStolenIndices={animatedCards.opponentBattlefieldStolen}
             animatedBattlefieldPlayedIndices={animatedCards.opponentBattlefieldPlayed}
             animatedBattlefieldToughExhaustedIndices={animatedCards.opponentBattlefieldToughExhausted}
-            lifeLossAnimated={animatedCards.opponentLifeLoss}
+            lifeDelta={animatedCards.opponentLifeDelta}
+            mindbugDelta={animatedCards.opponentMindbugDelta}
+            drawPileDelta={animatedCards.opponentDrawPileDelta}
+            resurrectedCount={animatedCards.opponentResurrectedCount}
             combatEffect={animatedCards.opponentCombatEffect}
             pendingDefenseAttackerIndex={
               state?.pending_defense?.response_required_from_viewer
@@ -1061,7 +1138,10 @@ export function App() {
             animatedBattlefieldStolenIndices={animatedCards.viewerBattlefieldStolen}
             animatedBattlefieldPlayedIndices={animatedCards.viewerBattlefieldPlayed}
             animatedBattlefieldToughExhaustedIndices={animatedCards.viewerBattlefieldToughExhausted}
-            lifeLossAnimated={animatedCards.viewerLifeLoss}
+            lifeDelta={animatedCards.viewerLifeDelta}
+            mindbugDelta={animatedCards.viewerMindbugDelta}
+            drawPileDelta={animatedCards.viewerDrawPileDelta}
+            resurrectedCount={animatedCards.viewerResurrectedCount}
             combatEffect={animatedCards.viewerCombatEffect}
             disabledBattlefieldIndices={
               canAnswerDefense

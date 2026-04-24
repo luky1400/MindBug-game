@@ -15,19 +15,14 @@
 
 - Special effects:
 
-I want also effect for  
-- mindbug was depleated  
-- when life is added.   
-- when cards are added into draw pile  
-- card is moved/resurected from discard pile
-
-I want the same effect as when card is played as when it is stolen by Mindbug
+I want the same effect as when card is played as when it is stolen by Mindbug - green glow
 
 I dont see lose of life visualization when player choice window to play hyenix from discard pile pos up
 
-- Aktivovala se akce
-- Zesnovačka zrušila PLAY akci, ..
-- (Drawing cards - prekliknuti cisla na hand icon)
+dont show effects of add life/cards at the start of the game
+
+(Zesnovačka zrušila PLAY akci, ..)
+
 - make crads nicer so it is readable well - texty se tam asi nejak dotahnou oddelene a strenth a nazev take
 - Adjust UI layout to screen size
 - Add scrolling to logs?

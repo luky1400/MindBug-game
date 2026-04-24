@@ -312,21 +312,39 @@ body {
   animation: life-loss-heart-hit 1.5s ease-out both;
 }
 
-.life-heart-loss-anim::after {
-  content: "-1";
+.life-heart-gain-anim {
+  animation: life-gain-heart-pulse 1.5s ease-out both;
+}
+
+.stat-icon-delta-anim {
+  animation: stat-icon-delta-pulse 1.5s ease-out both;
+}
+
+.stat-delta {
   position: absolute;
   top: -8px;
   right: -10px;
-  z-index: 2;
-  color: #ffd8d8;
-  background: rgba(122, 18, 31, 0.92);
-  border: 1px solid rgba(255, 151, 151, 0.75);
+  z-index: 3;
   border-radius: 999px;
   padding: 1px 6px;
   font-size: 0.72rem;
   font-weight: 900;
   box-shadow: 0 0 18px rgba(255, 78, 96, 0.7);
-  animation: life-loss-number-rise 1.5s ease-out both;
+  animation: stat-delta-rise 1.5s ease-out both;
+  pointer-events: none;
+}
+
+.stat-delta-negative {
+  color: #ffd8d8;
+  background: rgba(122, 18, 31, 0.92);
+  border: 1px solid rgba(255, 151, 151, 0.75);
+}
+
+.stat-delta-positive {
+  color: #e8fff0;
+  background: rgba(22, 102, 55, 0.94);
+  border: 1px solid rgba(112, 211, 154, 0.78);
+  box-shadow: 0 0 18px rgba(112, 211, 154, 0.62);
 }
 
 @keyframes life-loss-heart-hit {
@@ -348,7 +366,39 @@ body {
   }
 }
 
-@keyframes life-loss-number-rise {
+@keyframes life-gain-heart-pulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(255, 95, 120, 0.32));
+  }
+  20% {
+    transform: scale(1.2) rotate(4deg);
+    color: #70d39a;
+    filter: drop-shadow(0 0 18px rgba(112, 211, 154, 0.75));
+  }
+  45% {
+    transform: scale(0.96) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    filter: drop-shadow(0 0 10px rgba(255, 95, 120, 0.32));
+  }
+}
+
+@keyframes stat-icon-delta-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.18) rotate(-5deg);
+    filter: drop-shadow(0 0 18px rgba(255, 214, 107, 0.55));
+  }
+  45% {
+    transform: scale(0.96) rotate(3deg);
+  }
+}
+
+@keyframes stat-delta-rise {
   0% {
     opacity: 0;
     transform: translateY(8px) scale(0.8);
@@ -778,6 +828,49 @@ body {
   box-shadow: 0 0 26px rgba(113, 163, 255, 0.36), 0 12px 34px rgba(0, 0, 0, 0.45);
 }
 
+.resurrection-effect {
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(112, 211, 154, 0.22), transparent 34%),
+    radial-gradient(circle at 50% 70%, rgba(113, 163, 255, 0.16), transparent 28%);
+  animation: resurrection-board-glow 1.55s ease-out both;
+}
+
+.resurrection-effect::before {
+  content: "";
+  position: absolute;
+  width: min(360px, 58%);
+  height: min(360px, 58%);
+  border-radius: 50%;
+  border: 2px solid rgba(112, 211, 154, 0.52);
+  box-shadow: 0 0 38px rgba(112, 211, 154, 0.42), inset 0 0 26px rgba(112, 211, 154, 0.24);
+  animation: resurrection-ring-rise 1.55s ease-out both;
+}
+
+.resurrection-effect span {
+  position: relative;
+  z-index: 1;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(9, 48, 30, 0.9);
+  color: #d9ffe5;
+  border: 1px solid rgba(112, 211, 154, 0.76);
+  box-shadow: 0 0 30px rgba(112, 211, 154, 0.42);
+  font-size: clamp(1rem, 2vw, 1.65rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+  animation: resurrection-label-pop 1.55s ease-out both;
+}
+
 @keyframes card-destroyed-disappear {
   0% {
     opacity: 0;
@@ -803,6 +896,55 @@ body {
     opacity: 0;
     transform: translate(-50%, -56%) rotate(-12deg);
     filter: grayscale(1) brightness(0.16) saturate(0.2) blur(1.5px);
+  }
+}
+
+@keyframes resurrection-board-glow {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes resurrection-ring-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(36px) scale(0.72);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px) scale(1.12);
+  }
+}
+
+@keyframes resurrection-label-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.82);
+  }
+  28% {
+    opacity: 1;
+    transform: translateY(0) scale(1.05);
+  }
+  78% {
+    opacity: 1;
+    transform: translateY(-4px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scale(1);
   }
 }
 

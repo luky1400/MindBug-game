@@ -699,6 +699,11 @@ class Majestic_manticore(Card):
     set: CardSet = CardSet.NEW_SERVANTS
 
     def trigger_attack_effect(self, game: Game) -> None:
+        if len(game.opponent.cards_laid_out) == 0:
+            game.log.append(
+                f"{game.current_player.name}'s {self.name} has no enemy creatures to defeat."
+            )
+            return
         lowest_power = min(card.strength for card in game.opponent.cards_laid_out)
         # Iterate over a copy because _destroy_creature mutates cards_laid_out.
         for card in game.opponent.cards_laid_out.copy():

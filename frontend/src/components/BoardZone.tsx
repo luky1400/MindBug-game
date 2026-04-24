@@ -24,7 +24,10 @@ interface BoardZoneProps {
   animatedBattlefieldStolenIndices?: Set<number>;
   animatedBattlefieldPlayedIndices?: Set<number>;
   animatedBattlefieldToughExhaustedIndices?: Set<number>;
-  lifeLossAnimated?: boolean;
+  lifeDelta?: number;
+  mindbugDelta?: number;
+  drawPileDelta?: number;
+  resurrectedCount?: number;
   combatEffect?: CombatEffect | null;
   disabledBattlefieldIndices?: Set<number>;
   disabledBattlefieldTitle?: string;
@@ -45,7 +48,10 @@ export function BoardZone({
   animatedBattlefieldStolenIndices,
   animatedBattlefieldPlayedIndices,
   animatedBattlefieldToughExhaustedIndices,
-  lifeLossAnimated = false,
+  lifeDelta = 0,
+  mindbugDelta = 0,
+  drawPileDelta = 0,
+  resurrectedCount = 0,
   combatEffect = null,
   disabledBattlefieldIndices,
   disabledBattlefieldTitle,
@@ -59,7 +65,8 @@ export function BoardZone({
       ? "discard-pile-btn-defeated-anim"
       : "discard-pile-btn-discarded-anim"
     : "";
-  const hasEffectOverlay = Boolean(combatEffect || discardGhosts.length > 0);
+  const hasEffectOverlay = Boolean(combatEffect || discardGhosts.length > 0 || resurrectedCount > 0);
+  const formatDelta = (delta: number) => `${delta > 0 ? "+" : ""}${delta}`;
 
   return (
     <>
@@ -69,13 +76,21 @@ export function BoardZone({
           <div className="board-zone-layout">
             <div className="board-zone-sidebar">
               <div className="stat-item stat-lives">
-                <div className={`life-heart ${lifeLossAnimated ? "life-heart-loss-anim" : ""}`} aria-label={`${player.lives} lives`}>
+                <div className={`life-heart ${lifeDelta !== 0 ? lifeDelta > 0 ? "life-heart-gain-anim" : "life-heart-loss-anim" : ""}`} aria-label={`${player.lives} lives`}>
                   <span className="life-heart-number">{player.lives}</span>
+                  {lifeDelta !== 0 ? (
+                    <span className={`stat-delta ${lifeDelta > 0 ? "stat-delta-positive" : "stat-delta-negative"}`}>
+                      {formatDelta(lifeDelta)}
+                    </span>
+                  ) : null}
                 </div>
               </div>
               <div className="stat-item stat-icon-only">
-                <div className="mindbug-icon" aria-label={`${player.mindbugs_remaining} mindbugs remaining`}>
+                <div className={`mindbug-icon ${mindbugDelta < 0 ? "stat-icon-delta-anim" : ""}`} aria-label={`${player.mindbugs_remaining} mindbugs remaining`}>
                   <span className="icon-stat-number">{player.mindbugs_remaining}</span>
+                  {mindbugDelta < 0 ? (
+                    <span className="stat-delta stat-delta-negative">{formatDelta(mindbugDelta)}</span>
+                  ) : null}
                 </div>
               </div>
               <div className="stat-item stat-icon-only">
@@ -84,8 +99,11 @@ export function BoardZone({
                 </div>
               </div>
               <div className="stat-item stat-icon-only">
-                <div className="draw-pile-icon" aria-label={`${player.draw_count} cards in draw pile`}>
+                <div className={`draw-pile-icon ${drawPileDelta > 0 ? "stat-icon-delta-anim" : ""}`} aria-label={`${player.draw_count} cards in draw pile`}>
                   <span className="icon-stat-number">{player.draw_count}</span>
+                  {drawPileDelta > 0 ? (
+                    <span className="stat-delta stat-delta-positive">{formatDelta(drawPileDelta)}</span>
+                  ) : null}
                 </div>
               </div>
               <button
@@ -153,6 +171,11 @@ export function BoardZone({
                   <CardTile label={ghost.label} size="medium" />
                 </div>
               ))}
+            </div>
+          ) : null}
+          {resurrectedCount > 0 ? (
+            <div className="resurrection-effect" aria-live="polite">
+              <span>Resurrected +{resurrectedCount}</span>
             </div>
           ) : null}
         </div>
