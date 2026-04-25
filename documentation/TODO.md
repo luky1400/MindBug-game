@@ -15,8 +15,6 @@
 
 (I want the same effect as when card is played as when it is stolen by Mindbug - green glow?)
 
-(I dont see lose of life visualization when player choice window to play hyenix from discard pile pos up - wait for it?)
-
 (Zesnovačka zrušila PLAY akci, ..)
 
 - make cards nicer so it is readable well - texty se tam asi nejak dotahnou oddelene a strenth a nazev take
@@ -31,7 +29,7 @@
 
 ## Bugs - frontend
 
-- vice zvyraznit utocici kartu?
+- 
 
 ## TODO - game rules
 
