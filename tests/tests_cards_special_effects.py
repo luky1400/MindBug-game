@@ -6,6 +6,7 @@ from cards import (
     Brain_fly,
     Bugserker,
     Chameleon_sniper,
+    Compost_dragon,
     Deathweaver,
     Ferret_bomber,
     Ferret_pacifier,
@@ -14,6 +15,7 @@ from cards import (
     Kangasaurus_rex,
     Knightmare,
     Luchataur,
+    Majestic_manticore,
     Plated_scorpion,
     Shark_dog,
     Shield_bugs,
@@ -255,6 +257,54 @@ def test_jazz_dog_does_not_take_control_of_defeated_blocker() -> None:
 
     assert defeated_blocker not in player.cards_laid_out
     assert defeated_blocker in opponent.discard_pile
+
+
+def test_jazz_dog_takes_control_of_surviving_hunter_target_at_end_of_turn() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    jazz_dog = Jazz_dog()
+    hunter = Compost_dragon()
+    hunted_creature = Luchataur()
+    player.cards_laid_out = [jazz_dog, hunter]
+    opponent.cards_laid_out = [hunted_creature]
+    opponent.hand = [Tiger_squirrel()]
+
+    game.attack(attacker_index=1, defender_index=0)
+
+    assert hunted_creature.blocked_this_turn is True
+    assert hunted_creature in opponent.cards_laid_out
+
+    game.end_turn()
+
+    assert hunted_creature in player.cards_laid_out
+    assert hunted_creature not in opponent.cards_laid_out
+
+
+def test_jazz_dog_takes_control_of_surviving_hunter_target_after_attack_choice() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    jazz_dog = Jazz_dog()
+    hunter_with_attack_action = Shark_dog()
+    hunted_creature = Luchataur()
+    other_strong_creature = Majestic_manticore()
+    player.cards_laid_out = [jazz_dog, hunter_with_attack_action]
+    opponent.cards_laid_out = [hunted_creature, other_strong_creature]
+    opponent.hand = [Tiger_squirrel()]
+
+    game.attack(attacker_index=1, defender_index=0)
+    game.resolve_pending_card_action([1])
+
+    assert hunted_creature.blocked_this_turn is True
+    assert hunted_creature in opponent.cards_laid_out
+
+    game.end_turn()
+
+    assert hunted_creature in player.cards_laid_out
+    assert hunted_creature not in opponent.cards_laid_out
 
 
 def test_knightmare_prevents_its_owner_from_losing_life_from_card_effects() -> None:

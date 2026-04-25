@@ -1313,6 +1313,7 @@ class Game:
                 return
 
         if hunter_defender is not None:
+            hunter_defender.blocked_this_turn = True
             self._resolve_combat(
                 attacker_owner, defender_owner, attacker, hunter_defender
             )
@@ -1372,6 +1373,7 @@ class Game:
 
         # HUNTER target survived — proceed with combat
         if cont.defender is not None:
+            cont.defender.blocked_this_turn = True
             self._resolve_combat(
                 attacker_owner, defender_owner, attacker, cont.defender
             )
@@ -2019,6 +2021,7 @@ class Game:
             self._recalculate_ongoing_effects()  # this is here to cover that The_pack gets SNEAKY when exhaused
             self._check_game_over()
             return False
+        creature.blocked_this_turn = False
         owner.cards_laid_out.remove(creature)
         owner.move_to_discard(creature)
         self.log.append(f"{owner.name}'s {creature.name} is defeated.")
