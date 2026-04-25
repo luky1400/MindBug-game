@@ -9,7 +9,7 @@
   Player 2 declines to use Mindbug.
   Ongoing effects recalculated.
   Ongoing effects recalculated.
-- Implement: Jazz_dog, Ratomanger, Slugapult (+ Alien_brain)
+- Implement: Ratomanger, Slugapult (+ Alien_brain)
 
 ## TODO - frontend
 

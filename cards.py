@@ -83,6 +83,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
             (Boar_zooka, 1),
             # (Evilcat, 1), # NOTE - this is 3rd evolution
             (Future_eric, 1),
+            (Jazz_dog, 1),
             (Knightmare, 1),
             (Macaw_dagon, 1),
             (Mindbug_bug, 1),
@@ -556,22 +557,24 @@ class Chameleon_sniper(Card):
 #         pass
 
 
-# Hard - add attribute blocked_this_turn=False to Card class that will reset when player ends their turn.
-# class Jazz_dog(Card):
-#     name: str = "Jazz Dog"
-#     strength: int = 5
-#     special_types: list[CardSpecialType] = []
-#     description: str = "At the end of your turn, if an enemy creature blocked this turn and is still in play, take control of it ."
-#     apply_ongoing_effect_priority: OngoingEffectPriority = OngoingEffectPriority.EARLY
-#     set: CardSet = CardSet.PROMO_CARDS
+class Jazz_dog(Card):
+    name: str = "Jazz Dog"
+    strength: int = 5
+    special_types: list[CardSpecialType] = []
+    description: str = "At the end of your turn, if an enemy creature blocked this turn and is still in play, take control of it."
+    apply_ongoing_effect_priority: OngoingEffectPriority = OngoingEffectPriority.EARLY
+    set: CardSet = CardSet.PROMO_CARDS
 
-#     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
-#         for card in opponent.cards_laid_out:
-#             if card.blocked_this_turn and card.is_in_play:
-#                 game._destroy_creature(opponent, card)
-#                 game.log.append(
-#                     f"{game.current_player.name} takes control of {card.name} from {game.opponent.name}."
-#                 )
+    def trigger_end_turn_effect(self, game: Game) -> None:
+        owner = game.current_player
+        opponent = game.opponent
+        for card in opponent.cards_laid_out.copy():
+            if card.blocked_this_turn:
+                opponent.cards_laid_out.remove(card)
+                owner.cards_laid_out.append(card)
+                game.log.append(
+                    f"{owner.name}'s {self.name} takes control of {card.name} from {opponent.name}."
+                )
 
 
 # Hard - when opponent's attacker already has ATTACK effect, opponent must choose which effect will trigger first

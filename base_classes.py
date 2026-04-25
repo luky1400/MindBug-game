@@ -27,6 +27,7 @@ class Card:
     set: Optional[CardSet] = None  # TODO - remove Optional?
     cannot_block: bool = False
     cannot_attack: bool = False
+    blocked_this_turn: bool = False
     min_blocker_strength: Optional[int] = None
     requires_blocker_with_no_special_types: Optional[bool] = None
     base_strength: int = field(init=False)
@@ -119,6 +120,9 @@ class Card:
         return
 
     def trigger_defeated_effect(self, game: Game) -> None:
+        return
+
+    def trigger_end_turn_effect(self, game: "Game") -> None:
         return
 
     def apply_ongoing_effect(
@@ -1799,6 +1803,7 @@ class Game:
 
         defender = defender_owner.cards_laid_out[defender_index]
         self._ensure_legal_blocker(attacker, defender)
+        defender.blocked_this_turn = True
         self._resolve_combat(attacker_owner, defender_owner, attacker, defender)
 
     def _is_eligible_defender(
@@ -1839,9 +1844,12 @@ class Game:
     def end_turn(self) -> None:
         self._ensure_active()
         self._ensure_no_pending_resolution()
+        for card in self.current_player.cards_laid_out.copy():
+            card.trigger_end_turn_effect(self)
         for player in self.players:
             for card in player.cards_laid_out:
                 card.temporary_cannot_block_until_turn_end = False
+                card.blocked_this_turn = False
         self.turn = 1 - self.turn
         self._attacks_this_turn = {}
         self._turn_action_taken = False

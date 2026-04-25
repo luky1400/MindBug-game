@@ -10,6 +10,7 @@ from cards import (
     Ferret_bomber,
     Ferret_pacifier,
     Froblin_instigator,
+    Jazz_dog,
     Kangasaurus_rex,
     Knightmare,
     Luchataur,
@@ -211,6 +212,49 @@ def test_watts_dog_attack_accepts_blocker_with_no_special_types() -> None:
 
     assert watts_dog in player.discard_pile
     assert plain_blocker in opponent.cards_laid_out
+
+
+def test_jazz_dog_takes_control_of_surviving_blocker_at_end_of_turn() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    jazz_dog = Jazz_dog()
+    attacker = Brain_fly()
+    blocker = Luchataur()
+    player.cards_laid_out = [jazz_dog, attacker]
+    opponent.cards_laid_out = [blocker]
+
+    game.attack(attacker_index=1)
+    game.defend(defender_index=0)
+
+    assert blocker.blocked_this_turn is True
+    assert blocker in opponent.cards_laid_out
+
+    game.end_turn()
+
+    assert blocker in player.cards_laid_out
+    assert blocker not in opponent.cards_laid_out
+    assert blocker.blocked_this_turn is False
+
+
+def test_jazz_dog_does_not_take_control_of_defeated_blocker() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    attacker = Luchataur()
+    defeated_blocker = Brain_fly()
+    player.cards_laid_out = [Jazz_dog(), attacker]
+    opponent.cards_laid_out = [defeated_blocker]
+    opponent.hand = [Tiger_squirrel()]
+
+    game.attack(attacker_index=1)
+    game.defend(defender_index=0)
+    game.end_turn()
+
+    assert defeated_blocker not in player.cards_laid_out
+    assert defeated_blocker in opponent.discard_pile
 
 
 def test_knightmare_prevents_its_owner_from_losing_life_from_card_effects() -> None:
