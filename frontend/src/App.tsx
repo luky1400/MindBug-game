@@ -134,6 +134,33 @@ export function App() {
     return removedCounts;
   }, []);
 
+  const detectRemovedCountsByKey = useCallback((
+    prevArr: string[],
+    nextArr: string[],
+    keyForLabel: (label: string) => string
+  ): Map<string, number> => {
+    const nextCounts = new Map<string, number>();
+    for (const label of nextArr) {
+      const key = keyForLabel(label);
+      nextCounts.set(key, (nextCounts.get(key) || 0) + 1);
+    }
+
+    const removedCounts = new Map<string, number>();
+    for (const label of prevArr) {
+      const key = keyForLabel(label);
+      const remaining = nextCounts.get(key) || 0;
+      if (remaining > 0) {
+        nextCounts.set(key, remaining - 1);
+      } else {
+        removedCounts.set(key, (removedCounts.get(key) || 0) + 1);
+      }
+    }
+
+    return removedCounts;
+  }, []);
+
+  const cardIdentityKey = useCallback((label: string) => parseCardLabel(label).name, []);
+
   const buildDiscardGhosts = useCallback((
     prevBattlefield: string[],
     nextBattlefield: string[],
@@ -142,14 +169,15 @@ export function App() {
     nextDiscard: string[],
     newDiscardIndices: Set<number>
   ): DiscardGhost[] => {
-    const removedFromBattlefield = detectRemovedCounts(prevBattlefield, nextBattlefield);
+    const removedFromBattlefield = detectRemovedCountsByKey(prevBattlefield, nextBattlefield, cardIdentityKey);
     const removedFromHand = detectRemovedCounts(prevHand, nextHand);
 
     return [...newDiscardIndices].map((discardIndex) => {
       const label = nextDiscard[discardIndex];
-      const battlefieldCount = removedFromBattlefield.get(label) || 0;
+      const battlefieldKey = cardIdentityKey(label);
+      const battlefieldCount = removedFromBattlefield.get(battlefieldKey) || 0;
       if (battlefieldCount > 0) {
-        removedFromBattlefield.set(label, battlefieldCount - 1);
+        removedFromBattlefield.set(battlefieldKey, battlefieldCount - 1);
         return { label, source: "battlefield", defeated: true };
       }
 
@@ -161,7 +189,7 @@ export function App() {
 
       return { label, source: "unknown", defeated: false };
     });
-  }, [detectRemovedCounts]);
+  }, [cardIdentityKey, detectRemovedCounts, detectRemovedCountsByKey]);
 
   const countResurrectedCards = useCallback((
     discardTransitions: Array<{ prev: string[]; next: string[] }>,
@@ -197,26 +225,28 @@ export function App() {
   ): boolean => {
     const nextBattlefieldCounts = new Map<string, number>();
     for (const label of nextBattlefield) {
-      nextBattlefieldCounts.set(label, (nextBattlefieldCounts.get(label) || 0) + 1);
+      const key = cardIdentityKey(label);
+      nextBattlefieldCounts.set(key, (nextBattlefieldCounts.get(key) || 0) + 1);
     }
 
     const removedFromBattlefield = new Map<string, number>();
     for (const label of prevBattlefield) {
-      const remaining = nextBattlefieldCounts.get(label) || 0;
+      const key = cardIdentityKey(label);
+      const remaining = nextBattlefieldCounts.get(key) || 0;
       if (remaining > 0) {
-        nextBattlefieldCounts.set(label, remaining - 1);
+        nextBattlefieldCounts.set(key, remaining - 1);
       } else {
-        removedFromBattlefield.set(label, (removedFromBattlefield.get(label) || 0) + 1);
+        removedFromBattlefield.set(key, (removedFromBattlefield.get(key) || 0) + 1);
       }
     }
 
     for (const discardIndex of newDiscardIndices) {
-      const label = nextDiscard[discardIndex];
-      if ((removedFromBattlefield.get(label) || 0) > 0) return true;
+      const key = cardIdentityKey(nextDiscard[discardIndex]);
+      if ((removedFromBattlefield.get(key) || 0) > 0) return true;
     }
 
     return false;
-  }, []);
+  }, [cardIdentityKey]);
 
   const detectToughExhaustedCards = useCallback((prevBattlefield: string[], nextBattlefield: string[]): Set<number> => {
     const result = new Set<number>();
