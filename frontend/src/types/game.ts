@@ -51,6 +51,7 @@ export interface PendingCardActionState {
   eligible_indices: number[];
   min_choices: number;
   max_choices: number;
+  auto_end_after_attack: boolean;
   option_labels: string[] | null;
   staged_card_label: CardLabel | null;
 }

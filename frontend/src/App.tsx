@@ -24,6 +24,7 @@ type DiscardGhost = {
 };
 
 const SESSION_STORAGE_KEY = "mindbug-multiplayer-session";
+const EFFECT_MODAL_DELAY_MS = 900;
 
 export function App() {
   const socketRef = useRef<Socket | null>(null);
@@ -44,6 +45,9 @@ export function App() {
   const [isMindbugModalHidden, setIsMindbugModalHidden] = useState(false);
   const [isChoiceModalHidden, setIsChoiceModalHidden] = useState(false);
   const [isDefeatedOrderingModalHidden, setIsDefeatedOrderingModalHidden] = useState(false);
+  const [isChoiceModalDelayReady, setIsChoiceModalDelayReady] = useState(false);
+  const [isDefeatedOrderingModalDelayReady, setIsDefeatedOrderingModalDelayReady] = useState(false);
+  const [isGameOverDelayReady, setIsGameOverDelayReady] = useState(false);
   const [statusText, setStatusText] = useState("");
   const [errorText, setErrorText] = useState("");
   const [previewCardLabel, setPreviewCardLabel] = useState<string | null>(null);
@@ -271,14 +275,15 @@ export function App() {
   const inSession = Boolean(gameId && state);
   const isWaitingForOpponent = state?.room_status === "WAITING_FOR_PLAYER";
   const gameOver = state?.game_state === "GAME_OVER";
-  const screen = !inSession ? "lobby" : gameOver ? "gameover" : "game";
+  const showGameOverScreen = gameOver && isGameOverDelayReady;
+  const screen = !inSession ? "lobby" : showGameOverScreen ? "gameover" : "game";
   const canAnswerMindbug = Boolean(state?.pending_mindbug?.response_required_from_viewer);
   const canAnswerDefense = Boolean(state?.pending_defense?.response_required_from_viewer);
   const canAnswerCardAction = Boolean(state?.pending_card_action?.response_required_from_viewer);
   const canAnswerDefeatedOrdering = Boolean(state?.pending_defeated_ordering?.response_required_from_viewer);
   const hasBlockingMindbugModal = canAnswerMindbug && !isMindbugModalHidden;
-  const hasBlockingChoiceModal = canAnswerCardAction && !isChoiceModalHidden;
-  const hasBlockingDefeatedOrderingModal = canAnswerDefeatedOrdering && !isDefeatedOrderingModalHidden;
+  const hasBlockingChoiceModal = canAnswerCardAction && isChoiceModalDelayReady && !isChoiceModalHidden;
+  const hasBlockingDefeatedOrderingModal = canAnswerDefeatedOrdering && isDefeatedOrderingModalDelayReady && !isDefeatedOrderingModalHidden;
   const canAct = Boolean(
     state &&
     viewer &&
@@ -626,6 +631,9 @@ export function App() {
       animTimerRef.current = null;
     }
     setAnimatedCards(emptyAnimatedRef.current);
+    setIsChoiceModalDelayReady(false);
+    setIsDefeatedOrderingModalDelayReady(false);
+    setIsGameOverDelayReady(false);
     applyState(nextState);
     persistSession({ gameId: nextGameId, playerId: nextPlayerId });
     connectSocket(nextGameId, nextPlayerId);
@@ -660,7 +668,14 @@ export function App() {
 
   useEffect(() => {
     setIsChoiceModalHidden(false);
-  }, [pendingCardActionIdentity]);
+    setIsChoiceModalDelayReady(false);
+    if (!canAnswerCardAction) return;
+
+    const timer = setTimeout(() => {
+      setIsChoiceModalDelayReady(true);
+    }, EFFECT_MODAL_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [canAnswerCardAction, pendingCardActionIdentity]);
 
   useEffect(() => {
     setIsMindbugModalHidden(false);
@@ -669,7 +684,24 @@ export function App() {
   useEffect(() => {
     setDefeatedOrderingIndices([]);
     setIsDefeatedOrderingModalHidden(false);
-  }, [pendingDefeatedOrderingIdentity]);
+    setIsDefeatedOrderingModalDelayReady(false);
+    if (!canAnswerDefeatedOrdering) return;
+
+    const timer = setTimeout(() => {
+      setIsDefeatedOrderingModalDelayReady(true);
+    }, EFFECT_MODAL_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [canAnswerDefeatedOrdering, pendingDefeatedOrderingIdentity]);
+
+  useEffect(() => {
+    setIsGameOverDelayReady(false);
+    if (!gameOver) return;
+
+    const timer = setTimeout(() => {
+      setIsGameOverDelayReady(true);
+    }, EFFECT_MODAL_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [gameOver, state?.winner]);
 
   // Clear any stale defender pick on the opponent's board when the selected
   // attacker can't HUNTER-target (or no attacker is selected). Without this,
@@ -896,6 +928,9 @@ export function App() {
       animTimerRef.current = null;
     }
     setAnimatedCards(emptyAnimatedRef.current);
+    setIsChoiceModalDelayReady(false);
+    setIsDefeatedOrderingModalDelayReady(false);
+    setIsGameOverDelayReady(false);
     clearSelections();
     setStatusText("");
     setErrorText("");
@@ -929,6 +964,16 @@ export function App() {
     });
   }
 
+  function findBattlefieldCardIndex(cards: string[] | undefined, label: string | null): number | null {
+    if (!cards || !label) return null;
+    const exactIndex = cards.findIndex((cardLabel) => cardLabel === label);
+    if (exactIndex >= 0) return exactIndex;
+
+    const sourceName = parseCardLabel(label).name;
+    const nameIndex = cards.findIndex((cardLabel) => parseCardLabel(cardLabel).name === sourceName);
+    return nameIndex >= 0 ? nameIndex : null;
+  }
+
   const pendingCardActionPool = getPendingCardActionPool(state);
 
   const selectedAttackerIsHunter =
@@ -948,6 +993,17 @@ export function App() {
     viewer.battlefield.some((_, index) => !viewerCannotAttackSet.has(index));
   const showPlayButton = canAct && !hasPendingFrenzyAttack && hasAnyPlayableHandCard;
   const showAttackButton = canAct && hasAnyEligibleAttacker;
+  const pendingAttackActionSourceLabel = state?.pending_card_action?.auto_end_after_attack
+    ? state.pending_card_action.source_card_label
+    : null;
+  const viewerPendingAttackActionSourceIndex = findBattlefieldCardIndex(
+    viewer?.battlefield,
+    pendingAttackActionSourceLabel
+  );
+  const opponentPendingAttackActionSourceIndex = findBattlefieldCardIndex(
+    opponent?.battlefield,
+    pendingAttackActionSourceLabel
+  );
   const eligibleDefenderIndices = state?.pending_defense?.eligible_defender_indices || [];
   const viewerIneligibleDefenderSet = canAnswerDefense && viewer
     ? new Set(
@@ -1100,7 +1156,7 @@ export function App() {
             pendingDefenseAttackerIndex={
               state?.pending_defense?.response_required_from_viewer
                 ? state.pending_defense.attacker_index
-                : null
+                : opponentPendingAttackActionSourceIndex
             }
           />
 
@@ -1152,7 +1208,7 @@ export function App() {
                     </button>
                   ) : (
                     <button className="btn btn-sm btn-danger" onClick={() => void attackSelected()} type="button">
-                      Attack
+                      {hasPendingFrenzyAttack ? "Attack again" : "Attack"}
                     </button>
                   )
                 ) : null}
@@ -1200,7 +1256,7 @@ export function App() {
             pendingDefenseAttackerIndex={
               state?.pending_defense && !state.pending_defense.response_required_from_viewer
                 ? state.pending_defense.attacker_index
-                : null
+                : viewerPendingAttackActionSourceIndex
             }
           />
 
@@ -1238,7 +1294,7 @@ export function App() {
           </button>
         </div>
       ) : null}
-      {canAnswerCardAction && isChoiceModalHidden ? (
+      {canAnswerCardAction && isChoiceModalDelayReady && isChoiceModalHidden ? (
         <div className="choice-modal-toggle">
           <button className="btn btn-outline-light btn-sm" onClick={reopenChoiceModal} type="button">
             Show choice
@@ -1263,7 +1319,7 @@ export function App() {
           onHide={hideChoiceModal}
         />
       ) : null}
-      {canAnswerDefeatedOrdering && isDefeatedOrderingModalHidden ? (
+      {canAnswerDefeatedOrdering && isDefeatedOrderingModalDelayReady && isDefeatedOrderingModalHidden ? (
         <div className="choice-modal-toggle">
           <div className="choice-modal-toggle-text">
             Choose DEFEATED action order

@@ -2405,6 +2405,7 @@ class Game:
             "eligible_indices": list(pending.eligible_indices),
             "min_choices": pending.min_choices,
             "max_choices": pending.max_choices,
+            "auto_end_after_attack": pending.auto_end_after_attack,
             "option_labels": (
                 list(pending.option_labels) if pending.option_labels else None
             ),
