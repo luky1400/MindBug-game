@@ -15,9 +15,10 @@
   Ongoing effects recalculated.
   Ongoing effects recalculated.
   Turn passes to Player 1.
-- Implement: Ratomanger, Slugapult (+ Alien_brain)
+- Implement: Slugapult (+ Alien_brain)
 - delete action_types attribute from Card and use rather card.trigger_play_effect(self), ..
-- add bar plot Whaetl_e trigger - number of cards for each strength (1-10) that opponent can possible have in hand
+- deploy game to internet
+- (add bar plot Whaetl_e trigger - number of cards for each strength (1-10) that opponent can possible have in hand)
 
 ## TODO - frontend
 

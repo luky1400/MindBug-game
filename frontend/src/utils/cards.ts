@@ -38,6 +38,7 @@ const baseStrengthByName: Record<string, number> = {
   "Mysterious Mermaid": 7,
   "Plated Scorpion": 2,
   "Ram Hopper": 7,
+  "Ratomanger": 2,
   "Rhino Turtle": 8,
   "Shark Dog": 4,
   "Sharky Crab Dog Mummypus": 5,

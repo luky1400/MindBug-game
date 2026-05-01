@@ -15,6 +15,7 @@ from cards import (
     Kangasaurus_rex,
     Mysterious_mermaid,
     Plated_scorpion,
+    Ratomanger,
     Luchataur,
     Tiger_squirrel,
     Giraffodile,
@@ -425,6 +426,71 @@ def test_play_grave_robber_plays_card_from_opponent_discard_and_triggers_its_pla
     assert stolen_card in player.cards_laid_out
     assert stolen_card not in opponent.discard_pile
     assert other_discard_card in opponent.discard_pile
+
+
+def test_play_ratomanger_plays_low_power_cards_from_discard_without_play_effects() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    healer = Axolotl_healer()
+    bomber = Ferret_bomber()
+    strong_card = Luchataur()
+    player.number_of_lives = 3
+    player.discard_pile = [healer, bomber, strong_card]
+    player.hand = [Ratomanger()]
+    opponent.hand = [Chameleon_sniper(), Tiger_squirrel()]
+
+    game.play_card(hand_index=0)
+
+    assert game._pending_card_action_choice is not None
+    assert game._pending_card_action_choice.action_key == "ratomanger"
+    assert game._pending_card_action_choice.eligible_indices == [0, 1]
+    assert game._pending_card_action_choice.min_choices == 0
+    assert game._pending_card_action_choice.max_choices == 2
+
+    game.resolve_pending_card_action([0, 1])
+
+    assert healer in player.cards_laid_out
+    assert bomber in player.cards_laid_out
+    assert strong_card in player.discard_pile
+    assert healer not in player.discard_pile
+    assert bomber not in player.discard_pile
+    assert player.number_of_lives == 3
+    assert len(opponent.hand) == 2
+
+
+def test_play_ratomanger_can_decline_to_play_eligible_discard_cards() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    discard_card = Chameleon_sniper()
+    player.discard_pile = [discard_card]
+    player.hand = [Ratomanger()]
+    opponent.hand = [Tiger_squirrel()]
+
+    game.play_card(hand_index=0)
+    game.resolve_pending_card_action([])
+
+    assert discard_card in player.discard_pile
+    assert discard_card not in player.cards_laid_out
+
+
+def test_play_ratomanger_skips_choice_when_no_low_power_discard_cards() -> None:
+    game = _new_game()
+    player = game.current_player
+    opponent = game.opponent
+
+    strong_card = Luchataur()
+    player.discard_pile = [strong_card]
+    player.hand = [Ratomanger()]
+    opponent.hand = [Tiger_squirrel()]
+
+    game.play_card(hand_index=0)
+
+    assert game._pending_card_action_choice is None
+    assert strong_card in player.discard_pile
 
 
 def test_play_future_eric_refills_hand_from_cards_it_added_to_draw_pile() -> None:

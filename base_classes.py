@@ -663,6 +663,8 @@ class Game:
             return f"Waiting for {responder_name} to choose a creature with power 6 or more to defeat with Shark Dog."
         if pending.action_key == "sluggernaut":
             return f"Waiting for {responder_name} to choose Sluggernaut's new form."
+        if pending.action_key == "ratomanger":
+            return f"Waiting for {responder_name} to choose cards with power 4 or less to play from their discard pile."
         if pending.action_key == "tiger_squirrel":
             return f"Waiting for {responder_name} to choose a creature with power 7 or more to defeat with Tiger Squirrel."
         if pending.action_key == "turf_the_surfer":
@@ -720,6 +722,8 @@ class Game:
             self._apply_shark_dog_choice(pending, selected_indices)
         elif pending.action_key == "sluggernaut":
             self._apply_sluggernaut_choice(pending, selected_indices)
+        elif pending.action_key == "ratomanger":
+            self._apply_ratomanger_choice(pending, selected_indices)
         elif pending.action_key == "tiger_squirrel":
             self._apply_tiger_squirrel_choice(pending, selected_indices)
         elif pending.action_key == "turf_the_surfer":
@@ -1032,6 +1036,26 @@ class Game:
             self.log.append(
                 f"{owner.name}'s {card.name} becomes {CardSpecialType.FRENZY.value} with strength 8."
             )
+
+    def _apply_ratomanger_choice(
+        self, pending: PendingCardActionChoice, selected_indices: list[int]
+    ) -> None:
+        owner = self.players[pending.responding_player_index]
+        if not selected_indices:
+            self.log.append(
+                f"{owner.name}'s Ratomanger does not play any cards from their discard pile."
+            )
+            return
+
+        played_cards = [owner.discard_pile[index] for index in sorted(selected_indices)]
+        for card in played_cards:
+            owner.discard_pile.remove(card)
+            owner.cards_laid_out.append(card)
+
+        names = ", ".join(card.name for card in played_cards)
+        self.log.append(
+            f"{owner.name}'s Ratomanger plays {names} from their discard pile without activating PLAY effects."
+        )
 
     def _apply_tiger_squirrel_choice(
         self, pending: PendingCardActionChoice, selected_indices: list[int]
@@ -1578,6 +1602,29 @@ class Game:
             eligible_indices=eligible_indices,
             min_choices=min(2, len(eligible_indices)),
             max_choices=min(2, len(eligible_indices)),
+            auto_end_after_play=True,
+        )
+
+    def resolve_ratomanger_action(self, source_card: Card) -> None:
+        eligible_indices = [
+            index
+            for index, card in enumerate(self.current_player.discard_pile)
+            if card.strength <= 4
+        ]
+        if not eligible_indices:
+            self.log.append(
+                f"{self.current_player.name}'s Ratomanger has no cards with power 4 or less to play from the discard pile."
+            )
+            return
+        self._set_pending_card_action_choice(
+            action_key="ratomanger",
+            source_card=source_card,
+            responding_player_index=self.turn,
+            selection_owner_index=self.turn,
+            selection_zone="discard",
+            eligible_indices=eligible_indices,
+            min_choices=0,
+            max_choices=len(eligible_indices),
             auto_end_after_play=True,
         )
 

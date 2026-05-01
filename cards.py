@@ -88,6 +88,7 @@ def get_card_pool(sets: list[CardSet] | None = None) -> list[Card]:
             (Macaw_dagon, 1),
             (Mindbug_bug, 1),
             (Ram_hopper, 1),
+            (Ratomanger, 1),
             (Sluggernaut, 1),
             (Suspicious_gift, 1),
             (Steamforger, 1),
@@ -770,19 +771,16 @@ class Ram_hopper(Card):
                 card.special_types.append(CardSpecialType.FRENZY)
 
 
-# class Ratomanger(Card):
-#     name: str = "Ratomanger"
-#     strength: int = 2
-#     special_types: list[CardSpecialType] = []
-#     action_types: list[CardActionType] = [CardActionType.PLAY]
-#     action_description: str = "Play any number of cards with power 4 or less from your discard pile without activating their Play effects."
-#     set: CardSet = CardSet.PROMO_CARDS
+class Ratomanger(Card):
+    name: str = "Ratomanger"
+    strength: int = 2
+    special_types: list[CardSpecialType] = []
+    action_types: list[CardActionType] = [CardActionType.PLAY]
+    action_description: str = "Play any number of cards with power 4 or less from your discard pile without activating their Play effects."
+    set: CardSet = CardSet.PROMO_CARDS
 
-#     def trigger_play_effect(self, game: Game) -> None:
-#         # TODO - Player choice - selects from feasible cards in owner's discard pile (0 up to number of cards with power 4 in owner's discard pile)
-#         # NOTE - if no feasible cards, no window will show up
-#         # NOTE - no play function used - just appending cards to cards_laid_out
-#         game.resolve_ratomanger_action(self)
+    def trigger_play_effect(self, game: Game) -> None:
+        game.resolve_ratomanger_action(self)
 
 
 class Rhino_turtle(Card):
