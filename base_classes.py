@@ -37,7 +37,7 @@ class Card:
     base_cannot_block: bool = field(init=False)
     base_cannot_attack: bool = field(init=False)
     temporary_cannot_block_until_turn_end: bool = False
-    apply_ongoing_effect_priority: OngoingEffectPriority = OngoingEffectPriority.NORMAL
+    apply_ongoing_effect_priority: OngoingEffectPriority = OngoingEffectPriority.EARLY
 
     def __post_init__(self) -> None:
         cls = type(self)

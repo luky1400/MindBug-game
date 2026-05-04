@@ -31,6 +31,7 @@
 
 ## Bugs - backend
 
+- player can play Froblin when opponent has Steve laid out
 - Sometimes, Harpy_mother steals cards with strength above 5 except to 5!! when defeated when it attacked - very strange
 - (When each player has Hyenix in discard pile and both lose life simultaneously. Player who is on turn must decide which player resolves Hyenix choice first. - this situation probably cannot happen)
 

@@ -935,6 +935,7 @@ class Snail_thrower(Card):
     description: str = (
         f"Other allied creatures with power 4 or less have {CardSpecialType.HUNTER.value} and {CardSpecialType.POISONOUS.value}."
     )
+    apply_ongoing_effect_priority: OngoingEffectPriority = OngoingEffectPriority.NORMAL
     set: CardSet = CardSet.FIRST_CONTACT
 
     def apply_ongoing_effect(self, game: Game, owner, opponent) -> None:
