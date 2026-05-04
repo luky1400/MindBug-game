@@ -130,6 +130,14 @@ class Card:
     ) -> None:
         return
 
+    def reset_transient_state(self) -> None:
+        self.strength = self.base_strength
+        self.special_types = list(self.base_special_types)
+        self.cannot_block = self.base_cannot_block
+        self.cannot_attack = self.base_cannot_attack
+        self.temporary_cannot_block_until_turn_end = False
+        self.blocked_this_turn = False
+
     def get_owner(self, game: "Game") -> "Player":
         # NOTE - two different copies of the same card would incorrectly match with "in" operator. Using "is" checks object identity, guaranteeing the exact instance is found.
         # NOTE - card is in the owner's discard pile by the time CardActionType.DEFEATED runs
@@ -212,6 +220,7 @@ class Player:
         return previous_life - self.number_of_lives
 
     def move_to_discard(self, card: Card) -> None:
+        card.reset_transient_state()
         if CardSpecialType.TOUGH in card.special_types:
             card.tough_charges = 1
         self.discard_pile.append(card)
@@ -538,8 +547,8 @@ class Game:
         prospective_card = actor.hand[hand_index]
         if (
             actor.cannot_play_cards_with_power_4_or_less_from_hand
-            and prospective_card.strength is not None
-            and prospective_card.strength <= 4
+            and prospective_card.base_strength is not None
+            and prospective_card.base_strength <= 4
         ):
             raise ValueError(
                 f"{prospective_card.name} cannot be played from hand because the opponent has Wolfman Steve in play."
@@ -1916,7 +1925,7 @@ class Game:
         if not player.cannot_play_cards_with_power_4_or_less_from_hand:
             return True
         return any(
-            card.strength is None or card.strength > 4 for card in player.hand
+            card.base_strength is None or card.base_strength > 4 for card in player.hand
         )
 
     def _player_can_attack_with_any_creature(self, player_index: int) -> bool:
@@ -2001,7 +2010,7 @@ class Game:
         unplayable_hand_indices: list[int] = []
         if include_hand and player.cannot_play_cards_with_power_4_or_less_from_hand:
             for index, card in enumerate(player.hand):
-                if card.strength is not None and card.strength <= 4:
+                if card.base_strength is not None and card.base_strength <= 4:
                     unplayable_hand_indices.append(index)
 
         unable_to_attack_indices = self._get_unable_to_attack_indices(player_index)
@@ -2052,10 +2061,10 @@ class Game:
         self,
         owner: Player,
         creature: Card,
-        ignore_tough: bool = False,
+        ignore_tough: bool = False, # NOTE - not used yet
         defer_defeated_action: bool = False,
     ) -> bool:
-        # TODO -  refactor - returned boolean is used
+        # TODO - refactor - returned boolean is used
         if (
             CardSpecialType.TOUGH in creature.special_types
             and creature.tough_charges > 0

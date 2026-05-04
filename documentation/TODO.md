@@ -18,6 +18,7 @@
 - Implement: Slugapult (+ Alien_brain)
 - delete action_types attribute from Card and use rather card.trigger_play_effect(self), ..
 - deploy game to internet
+- Optionally use only one giraffe
 - (add bar plot Whaetl_e trigger - number of cards for each strength (1-10) that opponent can possible have in hand)
 
 ## TODO - frontend
@@ -31,7 +32,6 @@
 
 ## Bugs - backend
 
-- player can play Froblin when opponent has Steve laid out
 - Sometimes, Harpy_mother steals cards with strength above 5 except to 5!! when defeated when it attacked - very strange
 - (When each player has Hyenix in discard pile and both lose life simultaneously. Player who is on turn must decide which player resolves Hyenix choice first. - this situation probably cannot happen)
 

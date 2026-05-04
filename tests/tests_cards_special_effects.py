@@ -337,6 +337,32 @@ def test_wolfman_steve_blocks_opponent_from_playing_weak_cards_from_hand() -> No
     assert weak_card in opponent.hand
 
 
+def test_wolfman_steve_blocks_buffed_froblin_returned_to_hand() -> None:
+    game = _new_game()
+    owner = game.players[0]
+    opponent = game.players[1]
+
+    owner.cards_laid_out = [Wolfman_steve()]
+    froblin = Froblin_instigator()
+    ally = Brain_fly()
+    opponent.cards_laid_out = [froblin, ally]
+    game._recalculate_ongoing_effects()
+
+    assert froblin.strength == 3
+
+    game._destroy_creature(opponent, froblin)
+    opponent.discard_pile.remove(froblin)
+    opponent.hand = [froblin]
+    game.turn = 1
+
+    assert froblin.strength == froblin.base_strength == 1
+    with pytest.raises(ValueError):
+        game.play_card(hand_index=0)
+
+    assert froblin in opponent.hand
+    assert game._serialize_player(1)["unplayable_hand_indices"] == [0]
+
+
 def test_wolfman_steve_allows_opponent_to_play_strong_cards_from_hand() -> None:
     game = _new_game()
     owner = game.players[0]
