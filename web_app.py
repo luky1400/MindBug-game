@@ -8,6 +8,7 @@ from uuid import uuid4
 
 import socketio
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -206,13 +207,24 @@ class LegacyGameStore:
         return game
 
 
+allowed_origins = [
+    "https://mind-bug-game.vercel.app",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
 fastapi_app = FastAPI(title="Mindbug Prototype API", version="0.2.0")
+fastapi_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://mind-bug-game-[a-z0-9-]+\.vercel\.app",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 sio = socketio.AsyncServer(
-    cors_allowed_origins=[
-        "https://mind-bug-game.vercel.app",
-        "https://mind-bug-game-*.vercel.app"  # for preview deployments
-    ],
-    async_mode='asgi'
+    cors_allowed_origins=allowed_origins,
+    async_mode="asgi",
 )
 app = socketio.ASGIApp(sio, other_asgi_app=fastapi_app)
 store = GameStore()
