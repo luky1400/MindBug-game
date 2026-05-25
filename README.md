@@ -1,6 +1,6 @@
 # Mindbug Prototype
 
-This project is a digital replica of the [Mindbug](https://boardgamegeek.com/boardgame/345584/mindbug-first-contact) card game.
+This project is a non-commerical digital replica of the [Mindbug](https://boardgamegeek.com/boardgame/345584/mindbug-first-contact) card game.
 
 ![image](images/game_images/fav_icon.png)
 
