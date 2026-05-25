@@ -2,7 +2,7 @@
 
 This project is a non-commerical digital replica of the [Mindbug](https://boardgamegeek.com/boardgame/345584/mindbug-first-contact) card game.
 
-image
+![image](images/game_images/fav_icon.png)
 
 ## Current Features
 
@@ -10,7 +10,11 @@ image
 - Realtime multiplayer rooms with FastAPI + [Socket.IO](http://Socket.IO)
 - React browser UI
 
-imageimageimage
+![image](images/game_images/screen_room.png)
+
+![image](images/game_images/screen_game.png)
+
+![image](images/game_images/screen_use_mindbug.png)
 
 ### Files
 
