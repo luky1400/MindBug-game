@@ -207,7 +207,13 @@ class LegacyGameStore:
 
 
 fastapi_app = FastAPI(title="Mindbug Prototype API", version="0.2.0")
-sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins="*")
+sio = socketio.AsyncServer(
+    cors_allowed_origins=[
+        "https://mind-bug-game.vercel.app",
+        "https://mind-bug-game-*.vercel.app"  # for preview deployments
+    ],
+    async_mode='asgi'
+)
 app = socketio.ASGIApp(sio, other_asgi_app=fastapi_app)
 store = GameStore()
 legacy_store = LegacyGameStore()
