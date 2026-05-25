@@ -2,7 +2,7 @@
 
 This project is a non-commerical digital replica of the [Mindbug](https://boardgamegeek.com/boardgame/345584/mindbug-first-contact) card game.
 
-![image](images/game_images/fav_icon.png)
+image
 
 ## Current Features
 
@@ -10,11 +10,7 @@ This project is a non-commerical digital replica of the [Mindbug](https://boardg
 - Realtime multiplayer rooms with FastAPI + [Socket.IO](http://Socket.IO)
 - React browser UI
 
-![image](images/game_images/screen_room.png)
-
-![image](images/game_images/screen_game.png)
-
-![image](images/game_images/screen_use_mindbug.png)
+imageimageimage
 
 ### Files
 
@@ -85,11 +81,14 @@ If `frontend/dist` does not exist, FastAPI falls back to `web/index.html`.
 
 Open: [http://localhost:5173](http://localhost:5173)
 
-## Play with friend online (tunnel your local server with ngrok)
+## Play with friend online
 
-### 1) Create account in [ngrok](https://ngrok.com) (free version is available).
+### 1) Play the game at [mind-bug-game.vercel.app](http://mind-bug-game.vercel.app). The backend is deployed on Render and the frontend on Vercel.
 
-### 2) Install ngrok
+### 2) Tunnel your local server with ngrok
+
+1. Create account in [ngrok](https://ngrok.com) (free version is available).
+2. Install ngrok
 
 On Mac:
 
@@ -97,13 +96,13 @@ On Mac:
 brew install --cask ngrok
 ```
 
-### 3) Then authenticate once with your account token from ngrok.com:
+1. Then authenticate once with your account token from ngrok.com:
 
 ```bash
 ngrok config add-authtoken YOUR_TOKEN
 ```
 
-### 4) Run in your project directory
+1. Run in your project directory
 
 ```bash
 python3 -m pip install -r requirements.txt
@@ -114,7 +113,7 @@ cd ..
 python3 -m uvicorn web_app:app --host 0.0.0.0 --port 8000
 ```
 
-### 5) In another terminal, use
+1. In another terminal, use
 
 ```bash
 ngrok http 8000
@@ -122,7 +121,7 @@ ngrok http 8000
 
 That starts the turnnel and gives you a public https://... URL.
 
-### Multiplayer flow
+#### Multiplayer flow
 
 1. Both players open the same URL
 2. First player creates a room.

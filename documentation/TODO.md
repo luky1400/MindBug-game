@@ -17,8 +17,11 @@
   Turn passes to Player 1.
 - Implement: Pudl, (+ Slugapult, Alien_brain)
 - delete action_types attribute from Card and use rather card.trigger_play_effect(self), ..
-- deploy game to internet
 - Optionally use only one giraffe
+- Test if deployment works fine:
+  - add /health endpoint? - for Render
+  - make game faster?
+  - change domain
 
 ## TODO - frontend
 
