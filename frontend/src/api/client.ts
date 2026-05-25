@@ -8,6 +8,8 @@ import type {
 } from "../types/game";
 import { io, type Socket } from "socket.io-client";
 
+const serverUrl = import.meta.env.VITE_SERVER_URL || "/";
+
 async function requestJson<T>(path: string, options: RequestInit = {}): Promise<T> {
   let response: Response;
   try {
@@ -69,9 +71,9 @@ export function createGameSocket(
   playerId: string,
   handlers: GameSocketHandlers
 ): Socket {
-  const socket = io("/", {
+  const socket = io(serverUrl, {
     path: "/socket.io",
-    transports: ["websocket", "polling"],
+    transports: ["websocket"],
     auth: {
       gameId,
       playerId
