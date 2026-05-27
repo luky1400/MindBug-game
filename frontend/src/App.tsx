@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Socket } from "socket.io-client";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { createGameSocket, gameApi, socketActions } from "./api/client";
 import { BoardZone } from "./components/BoardZone";
 import { CardPreviewModal } from "./components/CardPreviewModal";
@@ -1388,6 +1389,7 @@ export function App() {
       ) : null}
       {showLog ? <GameLog logLines={state?.log || []} onClose={() => setShowLog(false)} /> : null}
       <Analytics />
+      <SpeedInsights />
     </main>
   );
 }
